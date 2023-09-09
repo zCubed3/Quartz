@@ -19,35 +19,44 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qlib.h
-//
-// This is a wrapper around HINSTANCE / void* dynamic linking
+// in_sdl.c
 //
 
-#ifndef ZEALOTQUAKE2_SHARED_LIB_H
-#define ZEALOTQUAKE2_SHARED_LIB_H
+// TODO: zCubed: Unstub this!
 
-#ifdef WIN32
+#include "../../client/client.h"
 
-#include <Windows.h>
+cvar_t	*in_mouse;
+cvar_t	*in_joystick;
 
-typedef HMODULE 	qlib;
+void IN_Init (void)
+{
+}
 
-#elif
+void IN_Shutdown (void)
+{
+}
 
-#include <dl.h>
-typedef void* 		qlib;
+void IN_Commands (void)
+{
+}
 
-#endif
+void IN_Frame (void)
+{
+}
 
+void IN_Move (usercmd_t *cmd)
+{
+}
 
-extern const char* 		qlib_postfix;
+void IN_Activate (qboolean active)
+{
+}
 
+void IN_ActivateMouse (void)
+{
+}
 
-extern qlib QLib_LoadLibrary(const char* path);
-
-extern int QLib_UnloadLibrary(qlib lib);
-
-extern void* QLib_GetFuncPtr(qlib lib, const char* func);
-
-#endif //ZEALOTQUAKE2_SHARED_LIB_H
+void IN_DeactivateMouse (void)
+{
+}

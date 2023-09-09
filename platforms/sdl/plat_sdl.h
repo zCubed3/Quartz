@@ -19,35 +19,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qlib.h
-//
-// This is a wrapper around HINSTANCE / void* dynamic linking
+// in_sdl.c
 //
 
-#ifndef ZEALOTQUAKE2_SHARED_LIB_H
-#define ZEALOTQUAKE2_SHARED_LIB_H
+#ifndef ZEALOTQUAKE2_PLAT_SDL_H
+#define ZEALOTQUAKE2_PLAT_SDL_H
 
-#ifdef WIN32
+#include "SDL.h"
 
-#include <Windows.h>
+extern SDL_Window* 	game_window;
 
-typedef HMODULE 	qlib;
-
-#elif
-
-#include <dl.h>
-typedef void* 		qlib;
-
-#endif
-
-
-extern const char* 		qlib_postfix;
-
-
-extern qlib QLib_LoadLibrary(const char* path);
-
-extern int QLib_UnloadLibrary(qlib lib);
-
-extern void* QLib_GetFuncPtr(qlib lib, const char* func);
-
-#endif //ZEALOTQUAKE2_SHARED_LIB_H
+#endif //ZEALOTQUAKE2_PLAT_SDL_H

@@ -18,7 +18,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+//
 // qcommon.h -- definitions common between client and server, but not game.dll
+//
+
+#ifndef QUAKE2_QCOMMON_H
+#define QUAKE2_QCOMMON_H
 
 #include "../game/q_shared.h"
 
@@ -828,5 +833,4 @@ void SV_Init (void);
 void SV_Shutdown (char *finalmsg, qboolean reconnect);
 void SV_Frame (int msec);
 
-
-
+#endif//QUAKE2_QCOMMON_H

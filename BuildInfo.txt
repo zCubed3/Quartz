@@ -1,0 +1,10 @@
+#
+# ZealotQ2 Build Info (change these for your build)
+#
+
+#
+# Versioning
+#
+set(ZEALOT_Q2_CLIENT "quake2")
+set(ZEALOT_Q2_GAME "game")
+set(ZEALOT_Q2_VERSION "3.21")

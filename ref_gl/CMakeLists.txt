@@ -10,30 +10,24 @@ list(APPEND REF_GL_SRCS
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
 )
 
+list(APPEND REF_GL_LIBS
+    ${ZEALOT_Q2_PLAT}
+)
+
 #
 # Platform specifics
 #
 if (WIN32)
-    set(OPENGL_LIB "opengl32")
-
-    list(APPEND REF_GL_SRCS
-        "${CMAKE_SOURCE_DIR}/win32/glw_imp.c"
-        "${CMAKE_SOURCE_DIR}/win32/qgl_win.c"
-        "${CMAKE_SOURCE_DIR}/win32/q_shwin.c"
-    )
-
     list(APPEND REF_GL_LIBS
-        "winmm"
+        "opengl32"
     )
 endif()
 
 if (UNIX)
-    set(OPENGL_LIB "GL")
+    list(APPEND REF_GL_LIBS
+        "GL"
+    )
 endif()
-
-list(APPEND REF_GL_LIBS
-    ${OPENGL_LIB}
-)
 
 #
 # Library definition

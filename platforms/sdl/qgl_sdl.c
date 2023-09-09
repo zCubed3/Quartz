@@ -21,8 +21,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // qgl_sdl.c
 //
-// This is a replacement for id's period-accurate Win32 code
-// Quake 2 is old! It's over 20 years old!
-//
 
 

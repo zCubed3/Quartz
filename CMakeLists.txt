@@ -29,11 +29,8 @@ list(APPEND ZEALOT_GDEFS
 #
 option(ZEALOT_BUILD_REF_GL "Builds the RefGL (OpenGL Renderer) module" ON)
 
-# TODO: Include this from a BuildInfo.txt file
-set(ZEALOT_CLIENT_NAME "quake2")
-
-# TODO: Change quake to not depend on post-fixed DLLs
-set(ZEALOT_GAME_NAME "gamex64")
+# TODO: BuildInfo change platform
+include(BuildInfo.txt)
 
 #
 # Dependencies
@@ -41,10 +38,16 @@ set(ZEALOT_GAME_NAME "gamex64")
 add_subdirectory(third_party/SDL EXCLUDE_FROM_ALL)
 
 #
-# Quake modules
+# Platforms
 #
 include(qcommon/CMakeLists.txt)
 
+add_subdirectory(platforms/sdl)
+set(ZEALOT_Q2_PLAT Zealot_PlatSDL)
+
+#
+# Quake modules
+#
 if (ZEALOT_BUILD_REF_GL)
     add_subdirectory(ref_gl)
 endif()

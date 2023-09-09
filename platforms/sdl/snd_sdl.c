@@ -19,35 +19,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qlib.h
-//
-// This is a wrapper around HINSTANCE / void* dynamic linking
+// in_sdl.c
 //
 
-#ifndef ZEALOTQUAKE2_SHARED_LIB_H
-#define ZEALOTQUAKE2_SHARED_LIB_H
+#include "../../qcommon/qcommon.h"
 
-#ifdef WIN32
+// TODO: zCubed: Unstub these and replace them with SDL instances
 
-#include <Windows.h>
+qboolean SNDDMA_Init(void)
+{
+	return false;
+}
 
-typedef HMODULE 	qlib;
+int	SNDDMA_GetDMAPos(void)
+{
+	return 0;
+}
 
-#elif
+void SNDDMA_Shutdown(void)
+{
+}
 
-#include <dl.h>
-typedef void* 		qlib;
+void SNDDMA_BeginPainting (void)
+{
+}
 
-#endif
-
-
-extern const char* 		qlib_postfix;
-
-
-extern qlib QLib_LoadLibrary(const char* path);
-
-extern int QLib_UnloadLibrary(qlib lib);
-
-extern void* QLib_GetFuncPtr(qlib lib, const char* func);
-
-#endif //ZEALOTQUAKE2_SHARED_LIB_H
+void SNDDMA_Submit(void)
+{
+}

@@ -19,10 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// q_shsdl.cpp
-//
-// This is a replacement for id's period-accurate Win32 code
-// Quake 2 is old! It's over 20 years old!
+// q_shsdl.c
 //
 // (for future reference q_sh is an abbreviation for quake_shared...)
 
@@ -36,6 +33,6 @@ Sys_Milliseconds
 int	curtime;
 int Sys_Milliseconds (void)
 {
-	// TODO: Convert ms to long? For modern engine things :)
+	// TODO: Change Sys_Milliseconds to ms to long? For modern engine things :)
 	return SDL_GetTicks();
 }

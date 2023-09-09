@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // qlib.c
 //
 
-#include "../../qcommon/qcommon.h"
-
 #include "qlib.h"
+
+#include "qcommon.h"
 
 #ifdef WIN32
 
@@ -37,7 +37,7 @@ qlib QLib_LoadLibrary(const char* path)
 	return LoadLibrary(path);
 }
 
-qboolean QLib_UnloadLibrary(qlib lib)
+int QLib_UnloadLibrary(qlib lib)
 {
 	return FreeLibrary(lib);
 }
@@ -56,7 +56,7 @@ qlib QLib_LoadLibrary(char char* path)
 	return dlopen(path, RTLD_LAZY);
 }
 
-qboolean QLib_UnloadLibrary(qlib lib)
+int QLib_UnloadLibrary(qlib lib)
 {
 	return dlclose(lib);
 }

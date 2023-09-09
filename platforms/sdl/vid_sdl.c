@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../../qcommon/qlib.h"
 
-#include <SDL.h>
+#include "plat_sdl.h"
 
 // Structure containing functions exported from refresh DLL
 refexport_t	re;
@@ -44,7 +44,7 @@ viddef_t	viddef;				// global video state; used by other modules
 qboolean	reflib_active = 0;
 qlib		qlib_ref = NULL;
 
-SDL_Window  *sdl_window = NULL;
+SDL_Window  *game_window = NULL;
 
 /*
 ==========================================================================
@@ -114,13 +114,13 @@ void VID_NewWindow ( int width, int height)
 */
 void VID_UpdateWindowPosAndSize( int x, int y )
 {
-	SDL_SetWindowSize(sdl_window, viddef.width, viddef.height);
-	SDL_SetWindowPosition(sdl_window, x, y);
+	SDL_SetWindowSize(game_window, viddef.width, viddef.height);
+	SDL_SetWindowPosition(game_window, x, y);
 }
 
 void VID_Front_f( void )
 {
-	SDL_RaiseWindow(sdl_window);
+	SDL_RaiseWindow(game_window);
 }
 
 //==========================================================================
@@ -154,6 +154,40 @@ cause the entire video mode and refresh DLL to be reset on the next frame.
 void VID_Restart_f (void)
 {
 	vid_ref->modified = true;
+}
+
+//==========================================================================
+
+/*
+====================================================================
+
+MENU INTERACTION
+
+====================================================================
+*/
+
+/*
+================
+VID_MenuDraw
+================
+*/
+void VID_MenuDraw (void)
+{
+	// TODO: Implement this!
+}
+
+const char *VID_MenuKey( int key )
+{
+	static const char *sound = "misc/menu1.wav";
+
+	// TODO: Implement this!
+
+	return sound;
+}
+
+void VID_MenuInit( void )
+{
+	// TODO: Also implement this!
 }
 
 //==========================================================================
@@ -220,7 +254,7 @@ qboolean VID_LoadRefresh( char *name )
 		Com_Error (ERR_FATAL, "%s has incompatible api_version", name);
 	}
 
-	if ( re.Init( sdl_window, NULL ) == -1 )
+	if ( re.Init( game_window, NULL ) == -1 )
 	{
 		re.Shutdown();
 		VID_FreeReflib ();

@@ -21,9 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // sys_sdl.c
 //
-// This is a replacement for id's period-accurate Win32 code
-// Quake 2 is old! It's over 20 years old!
-//
 
 #include <SDL.h>
 
@@ -32,13 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../qcommon/qlib.h"
 
 #include <stdio.h>
-
-#if WIN32
-
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
-#endif
 
 int			starttime;
 int			ActiveApp;

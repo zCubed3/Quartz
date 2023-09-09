@@ -31,44 +31,16 @@ list(APPEND CLIENT_SRCS
 #
 # Platform specifics
 #
-if (WIN32)
-    list(APPEND CLIENT_SRCS
-        "${CMAKE_SOURCE_DIR}/win32/in_win.c"
-        "${CMAKE_SOURCE_DIR}/win32/net_wins.c"
-        "${CMAKE_SOURCE_DIR}/win32/snd_win.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/sys_sdl.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.c"
-        "${CMAKE_SOURCE_DIR}/win32/vid_menu.c"
-        "${CMAKE_SOURCE_DIR}/win32/q_shwin.c"
-        "${CMAKE_SOURCE_DIR}/win32/conproc.c"
-
-        "${CMAKE_SOURCE_DIR}/win32/q2.rc"
-    )
-
-    list(APPEND CLIENT_LIBS
-        "winmm"
-        "ws2_32"
-    )
-
-    set(BUILD_TYPE WIN32)
-endif()
-
 list(APPEND CLIENT_LIBS
-    SDL2
-    SDL2main
-)
-
-
-list(APPEND CLIENT_INC_DIRS
-    SDL2
+    ${ZEALOT_Q2_PLAT}
 )
 
 #
 # Executable definition
 #
-add_executable(Zealot_Client ${BUILD_TYPE} ${CLIENT_SRCS})
+add_executable(Zealot_Client ${CLIENT_SRCS})
 
 target_link_libraries(Zealot_Client PRIVATE ${CLIENT_LIBS})
 target_include_directories(Zealot_Client PRIVATE ${CLIENT_INC_DIRS})
 
-set_target_properties(Zealot_Client PROPERTIES OUTPUT_NAME "${ZEALOT_CLIENT_NAME}")
+set_target_properties(Zealot_Client PROPERTIES OUTPUT_NAME "${ZEALOT_Q2_CLIENT}")
