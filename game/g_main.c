@@ -20,6 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "g_local.h"
 
+// zCubed: Part of modernizing the engine!
+#include "../qcommon/qexport.h"
+
 game_locals_t	game;
 level_locals_t	level;
 game_import_t	gi;
@@ -108,7 +111,7 @@ Returns a pointer to the structure with all entry points
 and global variables
 =================
 */
-game_export_t *GetGameAPI (game_import_t *import)
+QEXPORT game_export_t *GetGameAPI (game_import_t *import)
 {
 	gi = *import;
 

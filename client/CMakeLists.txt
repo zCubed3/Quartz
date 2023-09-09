@@ -40,6 +40,8 @@ if (WIN32)
         "${CMAKE_SOURCE_DIR}/win32/vid_dll.c"
         "${CMAKE_SOURCE_DIR}/win32/q_shwin.c"
         "${CMAKE_SOURCE_DIR}/win32/conproc.c"
+
+        "${CMAKE_SOURCE_DIR}/win32/q2.rc"
     )
 
     list(APPEND CLIENT_LIBS

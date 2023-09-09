@@ -22,6 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../game/q_shared.h"
 
+#include "qexport.h"
 
 #define	VERSION		3.21
 
@@ -73,16 +74,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // TODO: zCubed: Properly identify newer CPUs
 #ifndef CPUSTRING
 #define CPUSTRING 	"Unknown"
-#endif
-
-//============================================================================
-
-#if WIN32
-#define QEXPORT __declspec(dllexport)
-#endif
-
-#ifndef QEXPORT
-#define QEXPORT
 #endif
 
 //============================================================================
