@@ -20,6 +20,7 @@ list(APPEND CLIENT_SRCS
     "${QCOMMON_DIR}/net_chan.c"
     "${QCOMMON_DIR}/pmove.c"
     "${QCOMMON_DIR}/md4.c"
+    "${QCOMMON_DIR}/qlib.c"
 
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
     "${CMAKE_SOURCE_DIR}/game/m_flash.c"
@@ -35,9 +36,9 @@ if (WIN32)
         "${CMAKE_SOURCE_DIR}/win32/in_win.c"
         "${CMAKE_SOURCE_DIR}/win32/net_wins.c"
         "${CMAKE_SOURCE_DIR}/win32/snd_win.c"
-        "${CMAKE_SOURCE_DIR}/win32/sys_win.c"
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/sys_sdl.c"
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.c"
         "${CMAKE_SOURCE_DIR}/win32/vid_menu.c"
-        "${CMAKE_SOURCE_DIR}/win32/vid_dll.c"
         "${CMAKE_SOURCE_DIR}/win32/q_shwin.c"
         "${CMAKE_SOURCE_DIR}/win32/conproc.c"
 
@@ -52,11 +53,22 @@ if (WIN32)
     set(BUILD_TYPE WIN32)
 endif()
 
+list(APPEND CLIENT_LIBS
+    SDL2
+    SDL2main
+)
+
+
+list(APPEND CLIENT_INC_DIRS
+    SDL2
+)
+
 #
 # Executable definition
 #
 add_executable(Zealot_Client ${BUILD_TYPE} ${CLIENT_SRCS})
 
 target_link_libraries(Zealot_Client PRIVATE ${CLIENT_LIBS})
+target_include_directories(Zealot_Client PRIVATE ${CLIENT_INC_DIRS})
 
 set_target_properties(Zealot_Client PROPERTIES OUTPUT_NAME "${ZEALOT_CLIENT_NAME}")
