@@ -407,7 +407,7 @@ void ( APIENTRY * glPointParameterfEXT)( GLenum param, GLfloat value );
 void ( APIENTRY * glPointParameterfvEXT)( GLenum param, const GLfloat *value );
 void ( APIENTRY * glColorTableEXT)( int, int, int, int, int, const void * );
 void ( APIENTRY * glSelectTextureSGIS)( GLenum );
-void ( APIENTRY * glMTexCoord2fSGIS)( GLenum, GLfloat, GLfloat );
+void ( APIENTRY * glMultiTexCoord2f)( GLenum, GLfloat, GLfloat );
 void ( APIENTRY * glActiveTextureARB) ( GLenum );
 void ( APIENTRY * glClientActiveTextureARB) ( GLenum );
 
@@ -3419,7 +3419,7 @@ qboolean QGL_Init( const char *dllname )
 	glPointParameterfvEXT = 0;
 	glColorTableEXT = 0;
 	glSelectTextureSGIS = 0;
-	glMTexCoord2fSGIS = 0;
+	glMultiTexCoord2f = 0;
 
 	return true;
 }

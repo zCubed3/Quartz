@@ -19,19 +19,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// soft_sdl.c
+// qgl_sdl.c
 //
+// Similar to qgl_win.c, this is responsible for loading and unloading OpenGL
 
-/*
-** SWimp_Init
-**
-** This routine is responsible for initializing the implementation
-** specific stuff in a software rendering subsystem.
-*/
-int SWimp_Init( void *hInstance, void *wndProc )
+#include "../../../qcommon/qcommon.h"
+
+#include <glad/glad.h>
+
+#include <SDL.h>
+
+#include "../../../ref_gl/gl_local.h"
+
+// =============
+// QGL_Shutdown
+//
+// Deinitializes OpenGL (unloads GLAD)
+// =============
+void QGL_Shutdown( void )
 {
-	sww_state.hInstance = ( HINSTANCE ) hInstance;
-	sww_state.wndproc = wndProc;
+	// TODO: Find a way to get GLAD to release itself
 
-	return true;
+}
+
+qboolean QGL_Init( const char *dllname )
+{
+	// Instruct GLAD to load OpenGL using SDL
+	gladLoadGLLoader(SDL_GL_GetProcAddress);
+
+	return 1;
 }

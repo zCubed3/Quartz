@@ -641,7 +641,7 @@ void DrawTextureChains (void)
 
 //	GL_TexEnv( GL_REPLACE );
 
-	if ( !glSelectTextureSGIS && !glActiveTextureARB )
+	if ( !glActiveTextureARB )
 	{
 		for ( i = 0, image=gltextures ; i<numgltextures ; i++,image++)
 		{
@@ -792,8 +792,8 @@ dynamic:
 				glBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					glMTexCoord2fSGIS( GL_TEXTURE0, (v[3]+scroll), v[4]);
-					glMTexCoord2fSGIS( GL_TEXTURE1, v[5], v[6]);
+					glMultiTexCoord2f( GL_TEXTURE0, (v[3]+scroll), v[4]);
+					glMultiTexCoord2f( GL_TEXTURE1, v[5], v[6]);
 					glVertex3fv (v);
 				}
 				glEnd ();
@@ -807,8 +807,8 @@ dynamic:
 				glBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					glMTexCoord2fSGIS( GL_TEXTURE0, v[3], v[4]);
-					glMTexCoord2fSGIS( GL_TEXTURE1, v[5], v[6]);
+					glMultiTexCoord2f( GL_TEXTURE0, v[3], v[4]);
+					glMultiTexCoord2f( GL_TEXTURE1, v[5], v[6]);
 					glVertex3fv (v);
 				}
 				glEnd ();
@@ -840,8 +840,8 @@ dynamic:
 				glBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					glMTexCoord2fSGIS( GL_TEXTURE0, (v[3]+scroll), v[4]);
-					glMTexCoord2fSGIS( GL_TEXTURE1, v[5], v[6]);
+					glMultiTexCoord2f( GL_TEXTURE0, (v[3]+scroll), v[4]);
+					glMultiTexCoord2f( GL_TEXTURE1, v[5], v[6]);
 					glVertex3fv (v);
 				}
 				glEnd ();
@@ -857,8 +857,8 @@ dynamic:
 				glBegin (GL_POLYGON);
 				for (i=0 ; i< nv; i++, v+= VERTEXSIZE)
 				{
-					glMTexCoord2fSGIS( GL_TEXTURE0, v[3], v[4]);
-					glMTexCoord2fSGIS( GL_TEXTURE1, v[5], v[6]);
+					glMultiTexCoord2f( GL_TEXTURE0, v[3], v[4]);
+					glMultiTexCoord2f( GL_TEXTURE1, v[5], v[6]);
 					glVertex3fv (v);
 				}
 				glEnd ();
@@ -922,7 +922,7 @@ void R_DrawInlineBModel (void)
 				psurf->texturechain = r_alpha_surfaces;
 				r_alpha_surfaces = psurf;
 			}
-			else if ( glMTexCoord2fSGIS && !( psurf->flags & SURF_DRAWTURB ) )
+			else if ( glMultiTexCoord2f && !( psurf->flags & SURF_DRAWTURB ) )
 			{
 				GL_RenderLightmappedPoly( psurf );
 			}
@@ -937,7 +937,7 @@ void R_DrawInlineBModel (void)
 
 	if ( !(currententity->flags & RF_TRANSLUCENT) )
 	{
-		if ( !glMTexCoord2fSGIS )
+		if ( !glMultiTexCoord2f )
 			R_BlendLightmaps ();
 	}
 	else
@@ -1131,7 +1131,7 @@ void R_RecursiveWorldNode (mnode_t *node)
 		}
 		else
 		{
-			if ( glMTexCoord2fSGIS && !( surf->flags & SURF_DRAWTURB ) )
+			if ( glMultiTexCoord2f && !( surf->flags & SURF_DRAWTURB ) )
 			{
 				GL_RenderLightmappedPoly( surf );
 			}
@@ -1169,7 +1169,7 @@ void R_RecursiveWorldNode (mnode_t *node)
 		}
 		else
 		{
-			if ( glMTexCoord2fSGIS && !( surf->flags & SURF_DRAWTURB ) )
+			if ( glMultiTexCoord2f && !( surf->flags & SURF_DRAWTURB ) )
 			{
 				GL_RenderLightmappedPoly( surf );
 			}
@@ -1218,7 +1218,7 @@ void R_DrawWorld (void)
 	memset (gl_lms.lightmap_surfaces, 0, sizeof(gl_lms.lightmap_surfaces));
 	R_ClearSkyBox ();
 
-	if ( glMTexCoord2fSGIS )
+	if ( glMultiTexCoord2f )
 	{
 		GL_EnableMultitexture( true );
 

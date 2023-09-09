@@ -11,7 +11,8 @@ list(APPEND REF_GL_SRCS
 )
 
 list(APPEND REF_GL_LIBS
-    ${ZEALOT_Q2_PLAT}
+    GLAD_GL2
+    ${ZEALOT_Q2_PLAT_REF_GL}
 )
 
 #

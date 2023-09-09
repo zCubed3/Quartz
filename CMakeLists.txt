@@ -45,6 +45,7 @@ include(qcommon/CMakeLists.txt)
 
 add_subdirectory(platforms/sdl)
 set(ZEALOT_Q2_PLAT Zealot_PlatSDL)
+set(ZEALOT_Q2_PLAT_REF_GL Zealot_PlatSDL_RefGL)
 
 #
 # Quake modules
