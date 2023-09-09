@@ -28,6 +28,7 @@ list(APPEND ZEALOT_GDEFS
 # Project options
 #
 option(ZEALOT_BUILD_REF_GL "Builds the RefGL (OpenGL Renderer) module" ON)
+option(ZEALOT_BUILD_REF_SOFT "Builds the RefSoft (Software Renderer) module" ON)
 
 # TODO: BuildInfo change platform
 include(BuildInfo.txt)
@@ -48,7 +49,12 @@ set(ZEALOT_Q2_PLAT Zealot_PlatSDL)
 #
 # Quake modules
 #
+if (ZEALOT_BUILD_REF_SOFT)
+    add_subdirectory(ref_soft)
+endif()
+
 if (ZEALOT_BUILD_REF_GL)
+    add_subdirectory(third_party/glad_gl2)
     add_subdirectory(ref_gl)
 endif()
 

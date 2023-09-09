@@ -814,6 +814,9 @@ void	Sys_Quit (void);
 char	*Sys_GetClipboardData( void );
 void	Sys_CopyProtect (void);
 
+
+void	Sys_GetCurrentDir(char *string, long size);
+
 /*
 ==============================================================
 

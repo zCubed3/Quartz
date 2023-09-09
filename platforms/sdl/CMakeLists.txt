@@ -9,6 +9,12 @@ file(GLOB_RECURSE PLAT_SDL_SRCS
 list(APPEND PLAT_SDL_LIBS
     SDL2
     SDL2main
+    GLAD_GL2
+)
+
+list(APPEND PLAT_SDL_INC_DIRS
+    SDL2
+    GLAD_GL2
 )
 
 #
@@ -25,6 +31,6 @@ endif()
 #
 add_library(Zealot_PlatSDL STATIC ${PLAT_SDL_SRCS})
 
-target_include_directories(Zealot_PlatSDL PRIVATE SDL2)
+target_include_directories(Zealot_PlatSDL PRIVATE ${PLAT_SDL_INC_DIRS})
 
 target_link_libraries(Zealot_PlatSDL PUBLIC ${PLAT_SDL_LIBS})

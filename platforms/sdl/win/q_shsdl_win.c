@@ -33,12 +33,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 /*
 ================
+Sys_GetCurrentDir
+================
+*/
+void Sys_GetCurrentDir(char *string, long size)
+{
+	GetCurrentDirectoryA(size, string);
+}
+
+/*
+================
 Sys_Mkdir
 ================
 */
 void Sys_Mkdir (char *path)
 {
-	CreateDirectoryA (path, NULL);
+	CreateDirectoryA(path, NULL);
 }
 
 //============================================

@@ -77,28 +77,27 @@ void *Sys_GetGameAPI (void *parms)
 	char	cwd[MAX_OSPATH];
 
 	if (game_qlib != NULL)
-		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame! Only one active game can be loaded at once!");
+		Com_Error(ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame! Only one active game can be loaded at once!");
 
-	Com_sprintf (name, sizeof(name), "%s/%s", cwd, game_name);
+	Sys_GetCurrentDir(cwd, sizeof(cwd));
+	Com_sprintf(name, sizeof(name), "%s/%s%s", cwd, game_name, qlib_postfix);
 
-	game_qlib = QLib_LoadLibrary (name);
+	game_qlib = QLib_LoadLibrary(name);
 
 	if (game_qlib != NULL)
-	{
-		Com_DPrintf ("QLib_LoadLibrary (%s)\n", name);
-	}
+		Com_DPrintf("QLib_LoadLibrary (%s)\n", name);
 	else
-		Com_Error (ERR_FATAL, "Sys_GetGameAPI failed to find game module!");
+		Com_Error(ERR_FATAL, "Sys_GetGameAPI failed to find game module!");
 
-	GetGameAPI = QLib_GetFuncPtr (game_qlib, game_entry);
+	GetGameAPI = QLib_GetFuncPtr(game_qlib, game_entry);
 
 	if (!GetGameAPI)
 	{
-		Sys_UnloadGame ();
+		Sys_UnloadGame();
 		return NULL;
 	}
 
-	return GetGameAPI (parms);
+	return GetGameAPI(parms);
 }
 
 /*

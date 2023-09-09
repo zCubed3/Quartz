@@ -48,7 +48,7 @@ static qboolean VerifyDriver( void )
 {
 	char buffer[1024];
 
-	strcpy( buffer, qglGetString( GL_RENDERER ) );
+	strcpy( buffer, glGetString( GL_RENDERER ) );
 	strlwr( buffer );
 	if ( strcmp( buffer, "gdi generic" ) == 0 )
 		if ( !glw_state.mcd_accelerated )
@@ -565,15 +565,15 @@ void GLimp_BeginFrame( float camera_separation )
 
 	if ( camera_separation < 0 && gl_state.stereo_enabled )
 	{
-		qglDrawBuffer( GL_BACK_LEFT );
+		glDrawBuffer( GL_BACK_LEFT );
 	}
 	else if ( camera_separation > 0 && gl_state.stereo_enabled )
 	{
-		qglDrawBuffer( GL_BACK_RIGHT );
+		glDrawBuffer( GL_BACK_RIGHT );
 	}
 	else
 	{
-		qglDrawBuffer( GL_BACK );
+		glDrawBuffer( GL_BACK );
 	}
 }
 
@@ -588,7 +588,7 @@ void GLimp_EndFrame (void)
 {
 	int		err;
 
-	err = qglGetError();
+	err = glGetError();
 	assert( err == GL_NO_ERROR );
 
 	if ( stricmp( gl_drawbuffer->string, "GL_BACK" ) == 0 )
