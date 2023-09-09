@@ -70,6 +70,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #endif
 
+// TODO: zCubed: Properly identify newer CPUs
+#ifndef CPUSTRING
+//#warning 			"Unknown CPU! CPUSTRING = 'Unknown'"
+#define CPUSTRING 	"Unknown"
+#endif
+
 //============================================================================
 
 typedef struct sizebuf_s

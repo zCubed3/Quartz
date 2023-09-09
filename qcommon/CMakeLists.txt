@@ -1,0 +1,1 @@
+set(QCOMMON_DIR "${CMAKE_SOURCE_DIR}/qcommon")
