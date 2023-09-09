@@ -1,17 +1,12 @@
 #
 # Library variables
 #
-list(APPEND REF_GL_SRCS
-    "gl_draw.c"
-    "gl_image.c"
-    "gl_light.c"
-    "gl_mesh.c"
-    "gl_model.c"
-    "gl_rsurf.c"
-    "gl_rmisc.c"
-    "gl_rmain.c"
-    "gl_warp.c"
+file(GLOB_RECURSE REF_GL_SRCS
+    ${CMAKE_CURRENT_LIST_DIR}/*.c
+    ${CMAKE_CURRENT_LIST_DIR}/*.h
+)
 
+list(APPEND REF_GL_SRCS
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
 )
 

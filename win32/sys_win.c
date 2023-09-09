@@ -475,24 +475,17 @@ void *Sys_GetGameAPI (void *parms)
 	char	name[MAX_OSPATH];
 	char	*path;
 	char	cwd[MAX_OSPATH];
+
 #if defined _M_IX86
 	const char *gamename = "gamex86.dll";
+#elif defined _M_AMD64
+	const char *gamename = "gamex64.dll";
+#endif
 
 #ifdef NDEBUG
 	const char *debugdir = "release";
 #else
 	const char *debugdir = "debug";
-#endif
-
-#elif defined _M_ALPHA
-	const char *gamename = "gameaxp.dll";
-
-#ifdef NDEBUG
-	const char *debugdir = "releaseaxp";
-#else
-	const char *debugdir = "debugaxp";
-#endif
-
 #endif
 
 	if (game_library)

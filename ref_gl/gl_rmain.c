@@ -1158,8 +1158,10 @@ int R_Init( void *hinstance, void *hWnd )
 	ri.Con_Printf (PRINT_ALL, "GL_RENDERER: %s\n", gl_config.renderer_string );
 	gl_config.version_string = qglGetString (GL_VERSION);
 	ri.Con_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
+
+	// TODO: zCubed: Same issue as before, Quake doesn't like HUGE logs, and OpenGL 4 has SO MANY extensions!
 	gl_config.extensions_string = qglGetString (GL_EXTENSIONS);
-	ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
+	//ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
 
 	strcpy( renderer_buffer, gl_config.renderer_string );
 	strlwr( renderer_buffer );
@@ -1675,7 +1677,7 @@ GetRefAPI
 
 @@@@@@@@@@@@@@@@@@@@@
 */
-refexport_t GetRefAPI (refimport_t rimp )
+QEXPORT refexport_t GetRefAPI (refimport_t rimp )
 {
 	refexport_t	re;
 

@@ -58,3 +58,4 @@ dkms.conf
 
 # Build folders
 cmake-*/
+out/

@@ -164,10 +164,12 @@ void GL_ScreenShot_f (void)
 */
 void GL_Strings_f( void )
 {
+	// TODO: zCubed: Fix GL_EXTENSIONS causing a HUGE stack overflow on modern systems
+	// This isn't id's fault! They didn't anticipate an idiot like me trying to use vanilla Quake 2 in 2023!
 	ri.Con_Printf (PRINT_ALL, "GL_VENDOR: %s\n", gl_config.vendor_string );
 	ri.Con_Printf (PRINT_ALL, "GL_RENDERER: %s\n", gl_config.renderer_string );
 	ri.Con_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
-	ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
+	//ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
 }
 
 /*
