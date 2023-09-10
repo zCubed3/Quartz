@@ -31,6 +31,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <conio.h>
 #include "../win32/conproc.h"
 
+#include "../../qcommon/qlib.h"
+
+#include <SDL.h>
+
+// TODO: zCubed: Remove all the ancient Win32 code entirely!
+
 #define MINIMUM_WIN_MEMORY	0x0a00000
 #define MAXIMUM_WIN_MEMORY	0x1000000
 
@@ -241,15 +247,17 @@ void Sys_Init (void)
 	else if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )
 		s_win95 = true;
 
+	// TODO: Allocate a console for debug builds?
 	if (dedicated->value)
 	{
 		if (!AllocConsole ())
-			Sys_Error ("Couldn't create dedicated server console");
-		hinput = GetStdHandle (STD_INPUT_HANDLE);
-		houtput = GetStdHandle (STD_OUTPUT_HANDLE);
+			Sys_Error("Couldn't allocate a Win32 console!");
+
+		hinput = GetStdHandle(STD_INPUT_HANDLE);
+		houtput = GetStdHandle(STD_OUTPUT_HANDLE);
 	
 		// let QHOST hook in
-		InitConProc (argc, argv);
+		InitConProc(argc, argv);
 	}
 }
 
@@ -448,7 +456,8 @@ GAME DLL
 ========================================================================
 */
 
-static HINSTANCE	game_library;
+static qlib		game_library 	= NULL;
+const char*		game_name 		= "game"; // TODO: Change this at runtime?
 
 /*
 =================
@@ -457,8 +466,9 @@ Sys_UnloadGame
 */
 void Sys_UnloadGame (void)
 {
-	if (!FreeLibrary (game_library))
-		Com_Error (ERR_FATAL, "FreeLibrary failed for game library");
+	if (!QLib_UnloadLibrary(game_library))
+		Com_Error(ERR_FATAL, "FreeLibrary failed for game library");
+
 	game_library = NULL;
 }
 
@@ -476,68 +486,29 @@ void *Sys_GetGameAPI (void *parms)
 	char	*path;
 	char	cwd[MAX_OSPATH];
 
-#if defined _M_IX86
-	const char *gamename = "gamex86.dll";
-#elif defined _M_AMD64
-	const char *gamename = "gamex64.dll";
-#endif
-
-#ifdef NDEBUG
-	const char *debugdir = "release";
-#else
-	const char *debugdir = "debug";
-#endif
-
 	if (game_library)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
 	// check the current debug directory first for development purposes
+	// TODO: Replace _getcwd with Sys_GetCurrentDir
 	_getcwd (cwd, sizeof(cwd));
-	Com_sprintf (name, sizeof(name), "%s/%s", cwd, gamename);
-	game_library = LoadLibrary ( name );
-	if (game_library)
-	{
-		Com_DPrintf ("LoadLibrary (%s)\n", name);
-	}
-	else
-	{
-#ifdef DEBUG
-		// check the current directory for other development purposes
-		Com_sprintf (name, sizeof(name), "%s/%s", cwd, gamename);
-		game_library = LoadLibrary ( name );
-		if (game_library)
-		{
-			Com_DPrintf ("LoadLibrary (%s)\n", name);
-		}
-		else
-#endif
-		{
-			// now run through the search paths
-			path = NULL;
-			while (1)
-			{
-				path = FS_NextPath (path);
-				if (!path)
-					return NULL;		// couldn't find one anywhere
-				Com_sprintf (name, sizeof(name), "%s/%s", path, gamename);
-				game_library = LoadLibrary (name);
-				if (game_library)
-				{
-					Com_DPrintf ("LoadLibrary (%s)\n",name);
-					break;
-				}
-			}
-		}
-	}
 
-	GetGameAPI = (void *)GetProcAddress (game_library, "GetGameAPI");
+	Com_sprintf(name, sizeof(name), "%s/%s%s", cwd, game_name, qlib_postfix);
+	game_library = QLib_LoadLibrary(name);
+
+	if (game_library)
+		Com_DPrintf("QLib_LoadLibrary (%s)\n", name);
+	else
+		Com_DPrintf("Failed to load game library (%s)\n", name);
+
+	GetGameAPI = QLib_GetFuncPtr(game_library, "GetGameAPI");
 	if (!GetGameAPI)
 	{
-		Sys_UnloadGame ();		
+		Sys_UnloadGame();
 		return NULL;
 	}
 
-	return GetGameAPI (parms);
+	return GetGameAPI(parms);
 }
 
 //=======================================================================
@@ -596,6 +567,9 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     if (hPrevInstance)
         return 0;
 
+	// Initialize SDL first
+	SDL_Init(SDL_INIT_EVERYTHING);
+
 	global_hInstance = hInstance;
 
 	ParseCommandLine (lpCmdLine);
@@ -641,12 +615,9 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 		do
 		{
-			newtime = Sys_Milliseconds ();
+			newtime = Sys_Milliseconds();
 			time = newtime - oldtime;
 		} while (time < 1);
-//			Con_Printf ("time:%5.2f - %5.2f = %5.2f\n", newtime, oldtime, time);
-
-		//	_controlfp( ~( _EM_ZERODIVIDE /*| _EM_INVALID*/ ), _MCW_EM );
 
 		// TODO: zCubed _controlfp is SUPER dated! What was id doing here?
 		//_controlfp( _PC_24, _MCW_PC );

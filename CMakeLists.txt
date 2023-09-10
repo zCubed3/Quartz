@@ -34,6 +34,7 @@ include(BuildConfig.txt)
 #
 # Dependencies
 #
+add_subdirectory(third_party/SDL)
 
 #
 # Quake modules
@@ -47,5 +48,5 @@ endif()
 #
 # Quake client and game
 #
-add_subdirectory(game)
+add_subdirectory(${ZEALOT_GAME_DIR})
 add_subdirectory(client)
