@@ -32,16 +32,16 @@ list(APPEND CLIENT_SRCS
 #
 if (WIN32)
     list(APPEND CLIENT_SRCS
-        "${CMAKE_SOURCE_DIR}/win32/in_win.c"
-        "${CMAKE_SOURCE_DIR}/win32/net_wins.c"
-        "${CMAKE_SOURCE_DIR}/win32/snd_win.c"
-        "${CMAKE_SOURCE_DIR}/win32/sys_win.c"
-        "${CMAKE_SOURCE_DIR}/win32/vid_menu.c"
-        "${CMAKE_SOURCE_DIR}/win32/vid_dll.c"
-        "${CMAKE_SOURCE_DIR}/win32/q_shwin.c"
-        "${CMAKE_SOURCE_DIR}/win32/conproc.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/in_win.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/net_wins.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/snd_win.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/sys_win.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/vid_menu.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/vid_dll.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/q_shwin.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/conproc.c"
 
-        "${CMAKE_SOURCE_DIR}/win32/q2.rc"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/q2.rc"
     )
 
     list(APPEND CLIENT_LIBS

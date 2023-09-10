@@ -17,9 +17,9 @@ if (WIN32)
     set(OPENGL_LIB "opengl32")
 
     list(APPEND REF_GL_SRCS
-        "${CMAKE_SOURCE_DIR}/win32/glw_imp.c"
-        "${CMAKE_SOURCE_DIR}/win32/qgl_win.c"
-        "${CMAKE_SOURCE_DIR}/win32/q_shwin.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/glw_imp.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/qgl_win.c"
+        "${CMAKE_SOURCE_DIR}/platforms/win32/q_shwin.c"
     )
 
     list(APPEND REF_GL_LIBS
