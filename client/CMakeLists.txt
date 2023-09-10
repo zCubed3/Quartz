@@ -24,7 +24,7 @@ list(APPEND CLIENT_SRCS
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
     "${CMAKE_SOURCE_DIR}/game/m_flash.c"
 
-    "${CMAKE_SOURCE_DIR}/null/cd_null.c" # TODO: Replace CD Audio!
+    "${CMAKE_SOURCE_DIR}/platforms/null/cd_null.c" # TODO: Replace CD Audio!
 )
 
 #
