@@ -69,8 +69,6 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 	cvar_t *vid_xpos, *vid_ypos;
 	int x, y;
 
-	// TODO: Fullscreen
-
 	if (fullscreen)
 	{
 		x = 0;
@@ -84,29 +82,40 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		y = vid_ypos->value;
 	}
 
-	glw_state.sdl_window = SDL_CreateWindow(
-		"Quake 2 [ZQ2 : SDL2]",
-		x, y,
-		width, height,
-		0
-	);
-
-	SDL_SysWMinfo sys_info;
-	SDL_VERSION(&sys_info.version);
-	SDL_GetWindowWMInfo(glw_state.sdl_window, &sys_info);
-
-	glw_state.hWnd = sys_info.info.win.window;
-
+	// If the window doesn't exist, create it
 	if (!glw_state.sdl_window)
-		ri.Sys_Error(ERR_FATAL, "Couldn't create SDL window");
+	{
+		glw_state.sdl_window = SDL_CreateWindow(
+			"Quake 2 [ZQ2 : SDL2]",
+			x, y,
+			width, height,
+			0
+		);
 
-	if (!glw_state.hWnd)
-		ri.Sys_Error(ERR_FATAL, "Failed to get HWND handle!");
+		SDL_SysWMinfo sys_info;
+		SDL_VERSION(&sys_info.version);
+		SDL_GetWindowWMInfo(glw_state.sdl_window, &sys_info);
+
+		glw_state.hWnd = sys_info.info.win.window;
+
+		if (!glw_state.sdl_window)
+			ri.Sys_Error(ERR_FATAL, "Couldn't create SDL window!");
+
+		if (!glw_state.hWnd)
+			ri.Sys_Error(ERR_FATAL, "Failed to get HWND handle!");
+	}
+
+	// Set fullscreen
+	// TODO: Borderless?
+	if (fullscreen)
+		SDL_SetWindowFullscreen(glw_state.sdl_window, SDL_WINDOW_FULLSCREEN);
+	else
+		SDL_SetWindowFullscreen(glw_state.sdl_window, 0);
 
 	// init all the gl stuff for the window
 	if (!GLimp_InitGL ())
 	{
-		ri.Con_Printf( PRINT_ALL, "VID_CreateWindow() - GLimp_InitGL failed\n");
+		ri.Con_Printf( PRINT_ALL, "VID_CreateWindow() -> GLimp_InitGL failed\n");
 		return false;
 	}
 
@@ -146,110 +155,29 @@ rserr_t GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen 
 	}
 
 	// do a CDS if needed
+	*pwidth = width;
+	*pheight = height;
+
 	if ( fullscreen )
 	{
-		DEVMODE dm;
-
 		ri.Con_Printf( PRINT_ALL, "...attempting fullscreen\n" );
 
-		memset( &dm, 0, sizeof( dm ) );
+		gl_state.fullscreen = true;
 
-		dm.dmSize = sizeof( dm );
+		ri.Con_Printf( PRINT_ALL, "ok\n" );
 
-		dm.dmPelsWidth  = width;
-		dm.dmPelsHeight = height;
-		dm.dmFields     = DM_PELSWIDTH | DM_PELSHEIGHT;
+		if ( !VID_CreateWindow (width, height, true) )
+			return rserr_invalid_mode;
 
-		if ( gl_bitdepth->value != 0 )
-		{
-			dm.dmBitsPerPel = gl_bitdepth->value;
-			dm.dmFields |= DM_BITSPERPEL;
-			ri.Con_Printf( PRINT_ALL, "...using gl_bitdepth of %d\n", ( int ) gl_bitdepth->value );
-		}
-		else
-		{
-			HDC hdc = GetDC( NULL );
-			int bitspixel = GetDeviceCaps( hdc, BITSPIXEL );
-
-			ri.Con_Printf( PRINT_ALL, "...using desktop display depth of %d\n", bitspixel );
-
-			ReleaseDC( 0, hdc );
-		}
-
-		ri.Con_Printf( PRINT_ALL, "...calling CDS: " );
-		if ( ChangeDisplaySettings( &dm, CDS_FULLSCREEN ) == DISP_CHANGE_SUCCESSFUL )
-		{
-			*pwidth = width;
-			*pheight = height;
-
-			gl_state.fullscreen = true;
-
-			ri.Con_Printf( PRINT_ALL, "ok\n" );
-
-			if ( !VID_CreateWindow (width, height, true) )
-				return rserr_invalid_mode;
-
-			return rserr_ok;
-		}
-		else
-		{
-			*pwidth = width;
-			*pheight = height;
-
-			ri.Con_Printf( PRINT_ALL, "failed\n" );
-
-			ri.Con_Printf( PRINT_ALL, "...calling CDS assuming dual monitors:" );
-
-			dm.dmPelsWidth = width * 2;
-			dm.dmPelsHeight = height;
-			dm.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-
-			if ( gl_bitdepth->value != 0 )
-			{
-				dm.dmBitsPerPel = gl_bitdepth->value;
-				dm.dmFields |= DM_BITSPERPEL;
-			}
-
-			/*
-			** our first CDS failed, so maybe we're running on some weird dual monitor
-			** system 
-			*/
-			if ( ChangeDisplaySettings( &dm, CDS_FULLSCREEN ) != DISP_CHANGE_SUCCESSFUL )
-			{
-				ri.Con_Printf( PRINT_ALL, " failed\n" );
-
-				ri.Con_Printf( PRINT_ALL, "...setting windowed mode\n" );
-
-				ChangeDisplaySettings( 0, 0 );
-
-				*pwidth = width;
-				*pheight = height;
-				gl_state.fullscreen = false;
-				if ( !VID_CreateWindow (width, height, false) )
-					return rserr_invalid_mode;
-				return rserr_invalid_fullscreen;
-			}
-			else
-			{
-				ri.Con_Printf( PRINT_ALL, " ok\n" );
-				if ( !VID_CreateWindow (width, height, true) )
-					return rserr_invalid_mode;
-
-				gl_state.fullscreen = true;
-				return rserr_ok;
-			}
-		}
+		return rserr_ok;
 	}
 	else
 	{
-		ri.Con_Printf( PRINT_ALL, "...setting windowed mode\n" );
+		ri.Con_Printf(PRINT_ALL, "...setting windowed mode\n");
 
-		ChangeDisplaySettings( 0, 0 );
-
-		*pwidth = width;
-		*pheight = height;
 		gl_state.fullscreen = false;
-		if ( !VID_CreateWindow (width, height, false) )
+
+		if (!VID_CreateWindow(width, height, false))
 			return rserr_invalid_mode;
 	}
 
@@ -299,7 +227,6 @@ void GLimp_Shutdown( void )
 
 	if ( gl_state.fullscreen )
 	{
-		ChangeDisplaySettings( 0, 0 );
 		gl_state.fullscreen = false;
 	}
 }

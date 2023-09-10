@@ -34,7 +34,6 @@ if (WIN32)
     list(APPEND REF_GL_SRCS
         "${CMAKE_SOURCE_DIR}/platforms/sdl/glw_imp.c"
         "${CMAKE_SOURCE_DIR}/platforms/sdl/qgl_win.c"
-
     )
 
     list(APPEND REF_GL_LIBS
