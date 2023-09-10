@@ -1,0 +1,15 @@
+#
+# Zealot Quake 2 - Build Configuration
+#
+
+#
+# Client Info
+#
+set(ZEALOT_CLIENT_NAME "quake2")
+set(ZEALOT_CLIENT_VERSION "3.21")
+
+#
+# Game Info
+#
+set(ZEALOT_GAME_NAME "game")
+set(ZEALOT_GAME_VERSION "1.0")

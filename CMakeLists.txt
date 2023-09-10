@@ -28,17 +28,12 @@ list(APPEND ZEALOT_GDEFS
 #
 option(ZEALOT_BUILD_REF_GL "Builds the RefGL (OpenGL Renderer) module" ON)
 
-# TODO: Include this from a BuildInfo.txt file
-set(ZEALOT_CLIENT_NAME "quake2")
-
-# TODO: Change quake to not depend on post-fixed DLLs
-set(ZEALOT_GAME_NAME "gamex64")
+include(BuildConfig.txt)
+# TODO: Generate a BuildConfig.gen.h file
 
 #
-# Platform modules
+# Dependencies
 #
-
-# TODO?
 
 #
 # Quake modules
