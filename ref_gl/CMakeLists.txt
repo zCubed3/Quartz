@@ -8,6 +8,8 @@ file(GLOB_RECURSE REF_GL_SRCS
 
 list(APPEND REF_GL_SRCS
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
+
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
 )
 
 list(APPEND REF_GL_DEFS
@@ -32,8 +34,7 @@ if (WIN32)
     list(APPEND REF_GL_SRCS
         "${CMAKE_SOURCE_DIR}/platforms/sdl/glw_imp.c"
         "${CMAKE_SOURCE_DIR}/platforms/sdl/qgl_win.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shwin.c"
+
     )
 
     list(APPEND REF_GL_LIBS

@@ -22,9 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define REF_SOFT	0
 #define REF_OPENGL	1
-#define REF_3DFX	2
-#define REF_POWERVR	3
-#define REF_VERITE	4
 
 extern cvar_t *vid_ref;
 extern cvar_t *vid_fullscreen;
@@ -142,25 +139,18 @@ static void ApplyChanges( void *unused )
 
 	switch ( s_ref_list[s_current_menu_index].curvalue )
 	{
-	case REF_SOFT:
-		Cvar_Set( "vid_ref", "soft" );
-		break;
-	case REF_OPENGL:
-		Cvar_Set( "vid_ref", "gl" );
-		Cvar_Set( "gl_driver", "opengl32" );
-		break;
-	case REF_3DFX:
-		Cvar_Set( "vid_ref", "gl" );
-		Cvar_Set( "gl_driver", "3dfxgl" );
-		break;
-	case REF_POWERVR:
-		Cvar_Set( "vid_ref", "gl" );
-		Cvar_Set( "gl_driver", "pvrgl" );
-		break;
-	case REF_VERITE:
-		Cvar_Set( "vid_ref", "gl" );
-		Cvar_Set( "gl_driver", "veritegl" );
-		break;
+		case REF_SOFT:
+		{
+			Cvar_Set("vid_ref", "soft");
+			break;
+		}
+
+		case REF_OPENGL:
+		{
+			Cvar_Set("vid_ref", "gl");
+			Cvar_Set("gl_driver", "opengl32");
+			break;
+		}
 	}
 
 	/*
@@ -208,80 +198,75 @@ static void CancelChanges( void *unused )
 */
 void VID_MenuInit( void )
 {
-	static const char *resolutions[] = 
+	static const char *resolutions[] =
 	{
-		"[320 240  ]",
-		"[400 300  ]",
-		"[512 384  ]",
-		"[640 480  ]",
-		"[800 600  ]",
-		"[960 720  ]",
-		"[1024 768 ]",
-		"[1152 864 ]",
-		"[1280 960 ]",
+		"[320 240]",
+		"[400 300]",
+		"[512 384]",
+		"[640 480]",
+		"[800 600]",
+		"[960 720]",
+		"[1024 768]",
+		"[1152 864]",
+		"[1280 960]",
 		"[1600 1200]",
 		"[2048 1536]",
-		0
+		NULL
 	};
 	static const char *refs[] =
 	{
-		"[software      ]",
-		"[default OpenGL]",
-		"[3Dfx OpenGL   ]",
-		"[PowerVR OpenGL]",
-//		"[Rendition OpenGL]",
-		0
+		"[Software]",
+		"[OpenGL 2.0]",
+		NULL
 	};
+
 	static const char *yesno_names[] =
 	{
 		"no",
 		"yes",
-		0
+		NULL
 	};
+
 	int i;
 
-	if ( !gl_driver )
-		gl_driver = Cvar_Get( "gl_driver", "opengl32", 0 );
-	if ( !gl_picmip )
-		gl_picmip = Cvar_Get( "gl_picmip", "0", 0 );
-	if ( !gl_mode )
-		gl_mode = Cvar_Get( "gl_mode", "3", 0 );
-	if ( !sw_mode )
-		sw_mode = Cvar_Get( "sw_mode", "0", 0 );
-	if ( !gl_ext_palettedtexture )
-		gl_ext_palettedtexture = Cvar_Get( "gl_ext_palettedtexture", "1", CVAR_ARCHIVE );
-	if ( !gl_finish )
-		gl_finish = Cvar_Get( "gl_finish", "0", CVAR_ARCHIVE );
+	if (!gl_driver)
+		gl_driver = Cvar_Get("gl_driver", "opengl32", 0);
 
-	if ( !sw_stipplealpha )
-		sw_stipplealpha = Cvar_Get( "sw_stipplealpha", "0", CVAR_ARCHIVE );
+	if (!gl_picmip)
+		gl_picmip = Cvar_Get("gl_picmip", "0", 0);
+
+	if (!gl_mode)
+		gl_mode = Cvar_Get("gl_mode", "3", 0);
+
+	if (!sw_mode)
+		sw_mode = Cvar_Get("sw_mode", "0", 0);
+
+	if (!gl_ext_palettedtexture)
+		gl_ext_palettedtexture = Cvar_Get("gl_ext_palettedtexture", "1", CVAR_ARCHIVE);
+
+	if (!gl_finish)
+		gl_finish = Cvar_Get("gl_finish", "0", CVAR_ARCHIVE);
+
+	if (!sw_stipplealpha)
+		sw_stipplealpha = Cvar_Get("sw_stipplealpha", "0", CVAR_ARCHIVE);
 
 	s_mode_list[SOFTWARE_MENU].curvalue = sw_mode->value;
 	s_mode_list[OPENGL_MENU].curvalue = gl_mode->value;
 
-	if ( !scr_viewsize )
-		scr_viewsize = Cvar_Get ("viewsize", "100", CVAR_ARCHIVE);
+	if (!scr_viewsize)
+		scr_viewsize = Cvar_Get("viewsize", "100", CVAR_ARCHIVE);
 
-	s_screensize_slider[SOFTWARE_MENU].curvalue = scr_viewsize->value/10;
-	s_screensize_slider[OPENGL_MENU].curvalue = scr_viewsize->value/10;
+	s_screensize_slider[SOFTWARE_MENU].curvalue = scr_viewsize->value / 10;
+	s_screensize_slider[OPENGL_MENU].curvalue = scr_viewsize->value / 10;
 
-	if ( strcmp( vid_ref->string, "soft" ) == 0 )
+	if (strcmp(vid_ref->string, "soft") == 0)
 	{
 		s_current_menu_index = SOFTWARE_MENU;
 		s_ref_list[0].curvalue = s_ref_list[1].curvalue = REF_SOFT;
-	}
-	else if ( strcmp( vid_ref->string, "gl" ) == 0 )
+	} else if (strcmp(vid_ref->string, "gl") == 0)
 	{
 		s_current_menu_index = OPENGL_MENU;
-		if ( strcmp( gl_driver->string, "3dfxgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_3DFX;
-		else if ( strcmp( gl_driver->string, "pvrgl" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_POWERVR;
-		else if ( strcmp( gl_driver->string, "opengl32" ) == 0 )
-			s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
-		else
-//			s_ref_list[s_current_menu_index].curvalue = REF_VERITE;
-			s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
+		s_ref_list[s_current_menu_index].curvalue = REF_OPENGL;
 	}
 
 	s_software_menu.x = viddef.width * 0.50;
@@ -289,7 +274,7 @@ void VID_MenuInit( void )
 	s_opengl_menu.x = viddef.width * 0.50;
 	s_opengl_menu.nitems = 0;
 
-	for ( i = 0; i < 2; i++ )
+	for (i = 0; i < 2; i++)
 	{
 		s_ref_list[i].generic.type = MTYPE_SPINCONTROL;
 		s_ref_list[i].generic.name = "driver";
@@ -298,101 +283,107 @@ void VID_MenuInit( void )
 		s_ref_list[i].generic.callback = DriverCallback;
 		s_ref_list[i].itemnames = refs;
 
-		s_mode_list[i].generic.type = MTYPE_SPINCONTROL;
-		s_mode_list[i].generic.name = "video mode";
-		s_mode_list[i].generic.x = 0;
-		s_mode_list[i].generic.y = 10;
-		s_mode_list[i].itemnames = resolutions;
+		{
+			s_mode_list[i].generic.type = MTYPE_SPINCONTROL;
+			s_mode_list[i].generic.name = "video mode";
+			s_mode_list[i].generic.x = 0;
+			s_mode_list[i].generic.y = 10;
+			s_mode_list[i].itemnames = resolutions;
+		}
 
-		s_screensize_slider[i].generic.type	= MTYPE_SLIDER;
-		s_screensize_slider[i].generic.x		= 0;
-		s_screensize_slider[i].generic.y		= 20;
-		s_screensize_slider[i].generic.name	= "screen size";
+		s_screensize_slider[i].generic.type = MTYPE_SLIDER;
+		s_screensize_slider[i].generic.x = 0;
+		s_screensize_slider[i].generic.y = 20;
+		s_screensize_slider[i].generic.name = "screen size";
 		s_screensize_slider[i].minvalue = 3;
 		s_screensize_slider[i].maxvalue = 12;
 		s_screensize_slider[i].generic.callback = ScreenSizeCallback;
 
-		s_brightness_slider[i].generic.type	= MTYPE_SLIDER;
-		s_brightness_slider[i].generic.x	= 0;
-		s_brightness_slider[i].generic.y	= 30;
-		s_brightness_slider[i].generic.name	= "brightness";
+		s_brightness_slider[i].generic.type = MTYPE_SLIDER;
+		s_brightness_slider[i].generic.x = 0;
+		s_brightness_slider[i].generic.y = 30;
+		s_brightness_slider[i].generic.name = "brightness";
 		s_brightness_slider[i].generic.callback = BrightnessCallback;
 		s_brightness_slider[i].minvalue = 5;
 		s_brightness_slider[i].maxvalue = 13;
-		s_brightness_slider[i].curvalue = ( 1.3 - vid_gamma->value + 0.5 ) * 10;
+		s_brightness_slider[i].curvalue = (1.3 - vid_gamma->value + 0.5) * 10;
 
 		s_fs_box[i].generic.type = MTYPE_SPINCONTROL;
-		s_fs_box[i].generic.x	= 0;
-		s_fs_box[i].generic.y	= 40;
-		s_fs_box[i].generic.name	= "fullscreen";
+		s_fs_box[i].generic.x = 0;
+		s_fs_box[i].generic.y = 40;
+		s_fs_box[i].generic.name = "fullscreen";
 		s_fs_box[i].itemnames = yesno_names;
 		s_fs_box[i].curvalue = vid_fullscreen->value;
 
 		s_defaults_action[i].generic.type = MTYPE_ACTION;
 		s_defaults_action[i].generic.name = "reset to defaults";
-		s_defaults_action[i].generic.x    = 0;
-		s_defaults_action[i].generic.y    = 90;
+		s_defaults_action[i].generic.x = 0;
+		s_defaults_action[i].generic.y = 90;
 		s_defaults_action[i].generic.callback = ResetDefaults;
 
 		s_cancel_action[i].generic.type = MTYPE_ACTION;
 		s_cancel_action[i].generic.name = "cancel";
-		s_cancel_action[i].generic.x    = 0;
-		s_cancel_action[i].generic.y    = 100;
+		s_cancel_action[i].generic.x = 0;
+		s_cancel_action[i].generic.y = 100;
 		s_cancel_action[i].generic.callback = CancelChanges;
 	}
 
-	s_stipple_box.generic.type = MTYPE_SPINCONTROL;
-	s_stipple_box.generic.x	= 0;
-	s_stipple_box.generic.y	= 60;
-	s_stipple_box.generic.name	= "stipple alpha";
-	s_stipple_box.curvalue = sw_stipplealpha->value;
-	s_stipple_box.itemnames = yesno_names;
+	{
+		s_stipple_box.generic.type = MTYPE_SPINCONTROL;
+		s_stipple_box.generic.x = 0;
+		s_stipple_box.generic.y = 60;
+		s_stipple_box.generic.name = "stipple alpha";
+		s_stipple_box.curvalue = sw_stipplealpha->value;
+		s_stipple_box.itemnames = yesno_names;
+	}
 
-	s_tq_slider.generic.type	= MTYPE_SLIDER;
-	s_tq_slider.generic.x		= 0;
-	s_tq_slider.generic.y		= 60;
-	s_tq_slider.generic.name	= "texture quality";
-	s_tq_slider.minvalue = 0;
-	s_tq_slider.maxvalue = 3;
-	s_tq_slider.curvalue = 3-gl_picmip->value;
+	{
+		s_tq_slider.generic.type = MTYPE_SLIDER;
+		s_tq_slider.generic.x = 0;
+		s_tq_slider.generic.y = 60;
+		s_tq_slider.generic.name = "texture quality";
+		s_tq_slider.minvalue = 0;
+		s_tq_slider.maxvalue = 3;
+		s_tq_slider.curvalue = 3 - gl_picmip->value;
+	}
 
 	s_paletted_texture_box.generic.type = MTYPE_SPINCONTROL;
-	s_paletted_texture_box.generic.x	= 0;
-	s_paletted_texture_box.generic.y	= 70;
-	s_paletted_texture_box.generic.name	= "8-bit textures";
+	s_paletted_texture_box.generic.x = 0;
+	s_paletted_texture_box.generic.y = 70;
+	s_paletted_texture_box.generic.name = "8-bit textures";
 	s_paletted_texture_box.itemnames = yesno_names;
 	s_paletted_texture_box.curvalue = gl_ext_palettedtexture->value;
 
 	s_finish_box.generic.type = MTYPE_SPINCONTROL;
-	s_finish_box.generic.x	= 0;
-	s_finish_box.generic.y	= 80;
-	s_finish_box.generic.name	= "sync every frame";
+	s_finish_box.generic.x = 0;
+	s_finish_box.generic.y = 80;
+	s_finish_box.generic.name = "sync every frame";
 	s_finish_box.curvalue = gl_finish->value;
 	s_finish_box.itemnames = yesno_names;
 
-	Menu_AddItem( &s_software_menu, ( void * ) &s_ref_list[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_mode_list[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_screensize_slider[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_brightness_slider[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_fs_box[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_stipple_box );
+	Menu_AddItem(&s_software_menu, (void *) &s_ref_list[SOFTWARE_MENU]);
+	Menu_AddItem(&s_software_menu, (void *) &s_mode_list[SOFTWARE_MENU]);
+	Menu_AddItem(&s_software_menu, (void *) &s_screensize_slider[SOFTWARE_MENU]);
+	Menu_AddItem(&s_software_menu, (void *) &s_brightness_slider[SOFTWARE_MENU]);
+	Menu_AddItem(&s_software_menu, (void *) &s_fs_box[SOFTWARE_MENU]);
+	Menu_AddItem(&s_software_menu, (void *) &s_stipple_box);
 
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_ref_list[OPENGL_MENU] );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_mode_list[OPENGL_MENU] );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_screensize_slider[OPENGL_MENU] );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_brightness_slider[OPENGL_MENU] );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_fs_box[OPENGL_MENU] );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_tq_slider );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_paletted_texture_box );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_finish_box );
+	Menu_AddItem(&s_opengl_menu, (void *) &s_ref_list[OPENGL_MENU]);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_mode_list[OPENGL_MENU]);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_screensize_slider[OPENGL_MENU]);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_brightness_slider[OPENGL_MENU]);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_fs_box[OPENGL_MENU]);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_tq_slider);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_paletted_texture_box);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_finish_box);
 
-	Menu_AddItem( &s_software_menu, ( void * ) &s_defaults_action[SOFTWARE_MENU] );
-	Menu_AddItem( &s_software_menu, ( void * ) &s_cancel_action[SOFTWARE_MENU] );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_defaults_action[OPENGL_MENU] );
-	Menu_AddItem( &s_opengl_menu, ( void * ) &s_cancel_action[OPENGL_MENU] );
+	Menu_AddItem(&s_software_menu, (void *) &s_defaults_action[SOFTWARE_MENU]);
+	Menu_AddItem(&s_software_menu, (void *) &s_cancel_action[SOFTWARE_MENU]);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_defaults_action[OPENGL_MENU]);
+	Menu_AddItem(&s_opengl_menu, (void *) &s_cancel_action[OPENGL_MENU]);
 
-	Menu_Center( &s_software_menu );
-	Menu_Center( &s_opengl_menu );
+	Menu_Center(&s_software_menu);
+	Menu_Center(&s_opengl_menu);
 	s_opengl_menu.x -= 8;
 	s_software_menu.x -= 8;
 }

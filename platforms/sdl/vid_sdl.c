@@ -1,5 +1,5 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,17 +24,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <float.h>
 
 #include "../../client/client.h"
+
+#include "../../qcommon/qlib.h"
+
 #include "sdlquake.h"
-//#include "zmouse.h"
 
 // Structure containing functions exported from refresh DLL
 refexport_t	re;
-
-#ifndef WM_MOUSEWHEEL
-#define WM_MOUSEWHEEL (WM_MOUSELAST+1)  // message that will be supported by the OS 
-#endif
-
-static UINT MSH_MOUSEWHEEL;
 
 // Console variables that we need to access from this module
 cvar_t		*vid_gamma;
@@ -45,17 +41,13 @@ cvar_t		*vid_fullscreen;
 
 // Global variables used internally by this module
 viddef_t	viddef;				// global video state; used by other modules
-HINSTANCE	reflib_library;		// Handle to refresh DLL 
+qlib		qlib_ref;			// Handle to refresh DLL
 qboolean	reflib_active = 0;
 
 HWND        cl_hwnd;            // Main window handle for life of program
 SDL_Window	*cl_window;			// SDL window handle
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
-
-LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-
-static qboolean s_alttab_disabled;
 
 extern	unsigned	sys_msg_time;
 
@@ -108,92 +100,6 @@ void VID_Error (int err_level, char *fmt, ...)
 
 //==========================================================================
 
-byte        scantokey[128] = 
-					{ 
-//  0           1       2       3       4       5       6       7 
-//  8           9       A       B       C       D       E       F 
-	0  ,    27,     '1',    '2',    '3',    '4',    '5',    '6', 
-	'7',    '8',    '9',    '0',    '-',    '=',    K_BACKSPACE, 9, // 0 
-	'q',    'w',    'e',    'r',    't',    'y',    'u',    'i', 
-	'o',    'p',    '[',    ']',    13 ,    K_CTRL,'a',  's',      // 1 
-	'd',    'f',    'g',    'h',    'j',    'k',    'l',    ';', 
-	'\'' ,    '`',    K_SHIFT,'\\',  'z',    'x',    'c',    'v',      // 2 
-	'b',    'n',    'm',    ',',    '.',    '/',    K_SHIFT,'*', 
-	K_ALT,' ',   0  ,    K_F1, K_F2, K_F3, K_F4, K_F5,   // 3 
-	K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0  , K_HOME, 
-	K_UPARROW,K_PGUP,K_KP_MINUS,K_LEFTARROW,K_KP_5,K_RIGHTARROW, K_KP_PLUS,K_END, //4 
-	K_DOWNARROW,K_PGDN,K_INS,K_DEL,0,0,             0,              K_F11, 
-	K_F12,0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 5
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 6 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0, 
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0         // 7 
-}; 
-
-/*
-=======
-MapKey
-
-Map from windows to quake keynums
-=======
-*/
-int MapKey (int key)
-{
-	int result;
-	int modified = ( key >> 16 ) & 255;
-	qboolean is_extended = false;
-
-	if ( modified > 127)
-		return 0;
-
-	if ( key & ( 1 << 24 ) )
-		is_extended = true;
-
-	result = scantokey[modified];
-
-	if ( !is_extended )
-	{
-		switch ( result )
-		{
-		case K_HOME:
-			return K_KP_HOME;
-		case K_UPARROW:
-			return K_KP_UPARROW;
-		case K_PGUP:
-			return K_KP_PGUP;
-		case K_LEFTARROW:
-			return K_KP_LEFTARROW;
-		case K_RIGHTARROW:
-			return K_KP_RIGHTARROW;
-		case K_END:
-			return K_KP_END;
-		case K_DOWNARROW:
-			return K_KP_DOWNARROW;
-		case K_PGDN:
-			return K_KP_PGDN;
-		case K_INS:
-			return K_KP_INS;
-		case K_DEL:
-			return K_KP_DEL;
-		default:
-			return result;
-		}
-	}
-	else
-	{
-		switch ( result )
-		{
-		case 0x0D:
-			return K_KP_ENTER;
-		case 0x2F:
-			return K_KP_SLASH;
-		case 0xAF:
-			return K_KP_PLUS;
-		}
-		return result;
-	}
-}
-
 void AppActivate(BOOL fActive, BOOL minimize)
 {
 	Minimized = minimize;
@@ -237,8 +143,7 @@ void VID_Restart_f (void)
 
 void VID_Front_f( void )
 {
-	SetWindowLong( cl_hwnd, GWL_EXSTYLE, WS_EX_TOPMOST );
-	SetForegroundWindow( cl_hwnd );
+	SDL_RaiseWindow(cl_window);
 }
 
 /*
@@ -301,10 +206,11 @@ void VID_NewWindow ( SDL_Window *window, int width, int height)
 
 void VID_FreeReflib (void)
 {
-	if ( !FreeLibrary( reflib_library ) )
-		Com_Error( ERR_FATAL, "Reflib FreeLibrary failed" );
+	if (!QLib_UnloadLibrary(qlib_ref))
+		Com_Error( ERR_FATAL, "Reflib QLib_UnloadLibrary failed" );
+
 	memset (&re, 0, sizeof(re));
-	reflib_library = NULL;
+	qlib_ref = NULL;
 	reflib_active  = false;
 }
 
@@ -315,20 +221,20 @@ VID_LoadRefresh
 */
 qboolean VID_LoadRefresh( char *name )
 {
-	refimport_t	ri;
-	GetRefAPI_t	GetRefAPI;
-	
-	if ( reflib_active )
+	refimport_t ri;
+	GetRefAPI_t GetRefAPI;
+
+	if (reflib_active)
 	{
 		re.Shutdown();
-		VID_FreeReflib ();
+		VID_FreeReflib();
 	}
 
-	Com_Printf( "------- Loading %s -------\n", name );
+	Com_Printf("------- Loading %s -------\n", name);
 
-	if ( ( reflib_library = LoadLibrary( name ) ) == 0 )
+	if ((qlib_ref = LoadLibrary(name)) == 0)
 	{
-		Com_Printf( "LoadLibrary(\"%s\") failed\n", name );
+		Com_Printf("LoadLibrary(\"%s\") failed\n", name);
 
 		return false;
 	}
@@ -350,35 +256,37 @@ qboolean VID_LoadRefresh( char *name )
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_NewWindow = VID_NewWindow;
 
-	if ( ( GetRefAPI = (void *) GetProcAddress( reflib_library, "GetRefAPI" ) ) == 0 )
-		Com_Error( ERR_FATAL, "GetProcAddress failed on %s", name );
+	GetRefAPI = QLib_GetFuncPtr(qlib_ref, "GetRefAPI");
 
-	re = GetRefAPI( ri );
+	if (GetRefAPI == NULL)
+		Com_Error(ERR_FATAL, "GetProcAddress failed on %s", name);
+
+	re = GetRefAPI(ri);
 
 	if (re.api_version != API_VERSION)
 	{
-		VID_FreeReflib ();
-		Com_Error (ERR_FATAL, "%s has incompatible api_version", name);
+		VID_FreeReflib();
+		Com_Error(ERR_FATAL, "%s has incompatible api_version", name);
 	}
 
-	if ( re.Init( global_hInstance, NULL ) == -1 )
+	if (re.Init(global_hInstance, NULL) == -1)
 	{
 		re.Shutdown();
-		VID_FreeReflib ();
+		VID_FreeReflib();
 		return false;
 	}
 
-	Com_Printf( "------------------------------------\n");
+	Com_Printf("------------------------------------\n");
 	reflib_active = true;
 
 //======
 //PGM
 	vidref_val = VIDREF_OTHER;
-	if(vid_ref)
+	if (vid_ref)
 	{
-		if(!strcmp (vid_ref->string, "gl"))
+		if (!strcmp(vid_ref->string, "gl"))
 			vidref_val = VIDREF_GL;
-		else if(!strcmp(vid_ref->string, "soft"))
+		else if (!strcmp(vid_ref->string, "soft"))
 			vidref_val = VIDREF_SOFT;
 	}
 //PGM
@@ -454,36 +362,16 @@ VID_Init
 void VID_Init (void)
 {
 	/* Create the video variables so we know how to start the graphics drivers */
-	vid_ref = Cvar_Get ("vid_ref", "soft", CVAR_ARCHIVE);
-	vid_xpos = Cvar_Get ("vid_xpos", "3", CVAR_ARCHIVE);
-	vid_ypos = Cvar_Get ("vid_ypos", "22", CVAR_ARCHIVE);
-	vid_fullscreen = Cvar_Get ("vid_fullscreen", "0", CVAR_ARCHIVE);
-	vid_gamma = Cvar_Get( "vid_gamma", "1", CVAR_ARCHIVE );
+	vid_ref = Cvar_Get("vid_ref", "soft", CVAR_ARCHIVE);
+	vid_xpos = Cvar_Get("vid_xpos", "8", CVAR_ARCHIVE);
+	vid_ypos = Cvar_Get("vid_ypos", "8", CVAR_ARCHIVE);
+	vid_fullscreen = Cvar_Get("vid_fullscreen", "0", CVAR_ARCHIVE);
+	vid_gamma = Cvar_Get("vid_gamma", "1", CVAR_ARCHIVE);
 
 	/* Add some console commands that we want to handle */
-	Cmd_AddCommand ("vid_restart", VID_Restart_f);
-	Cmd_AddCommand ("vid_front", VID_Front_f);
+	Cmd_AddCommand("vid_restart", VID_Restart_f);
+	Cmd_AddCommand("vid_front", VID_Front_f);
 
-	/*
-	** this is a gross hack but necessary to clamp the mode for 3Dfx
-	*/
-#if 0
-	{
-		cvar_t *gl_driver = Cvar_Get( "gl_driver", "opengl32", 0 );
-		cvar_t *gl_mode = Cvar_Get( "gl_mode", "3", 0 );
-
-		if ( stricmp( gl_driver->string, "3dfxgl" ) == 0 )
-		{
-			Cvar_SetValue( "gl_mode", 3 );
-			viddef.width  = 640;
-			viddef.height = 480;
-		}
-	}
-#endif
-
-	/* Disable the 3Dfx splash screen */
-	putenv("FX_GLIDE_NO_SPLASH=0");
-		
 	/* Start the graphics mode and load refresh DLL */
 	VID_CheckChanges();
 }

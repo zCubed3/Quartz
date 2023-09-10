@@ -25,6 +25,10 @@ list(APPEND CLIENT_SRCS
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
     "${CMAKE_SOURCE_DIR}/game/m_flash.c"
 
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/sys_sdl.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
+
     "${CMAKE_SOURCE_DIR}/platforms/null/cd_null.c" # TODO: Replace CD Audio!
 )
 
@@ -49,11 +53,7 @@ if (WIN32)
         "${CMAKE_SOURCE_DIR}/platforms/sdl/in_win.c"
         "${CMAKE_SOURCE_DIR}/platforms/sdl/net_wins.c"
         "${CMAKE_SOURCE_DIR}/platforms/sdl/snd_win.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/sys_sdl.c"
         "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_menu.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_dll.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shwin.c"
 
         "${CMAKE_SOURCE_DIR}/platforms/sdl/q2.rc"
     )

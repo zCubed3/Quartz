@@ -28,8 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <SDL.h>
 
-#define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE)
-
 extern	HINSTANCE	global_hInstance;
 
 extern LPDIRECTSOUND pDS;
@@ -42,7 +40,6 @@ extern SDL_Window	*cl_window;
 extern qboolean		ActiveApp, Minimized;
 
 void IN_Activate (qboolean active);
-void IN_MouseEvent (int mstate);
 
 void IN_PollSDL (void);
 

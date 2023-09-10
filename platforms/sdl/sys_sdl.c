@@ -1,5 +1,5 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../qcommon/qlib.h"
 
 #include "sdlquake.h"
-#include "resource.h"
 
 #include <errno.h>
 #include <stdio.h>
@@ -32,7 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // TODO: zCubed: Remove all the ancient Win32 code entirely!
 
-int			starttime;
 int			ActiveApp;
 qboolean	Minimized;
 
@@ -207,8 +205,8 @@ GAME DLL
 ========================================================================
 */
 
-static qlib		game_library 	= NULL;
-const char*		game_name 		= "game"; // TODO: Change this at runtime?
+static qlib		qlib_game 	= NULL;
+const char*		game_name 	= "game"; // TODO: Change this at runtime?
 
 /*
 =================
@@ -217,10 +215,10 @@ Sys_UnloadGame
 */
 void Sys_UnloadGame (void)
 {
-	if (!QLib_UnloadLibrary(game_library))
+	if (!QLib_UnloadLibrary(qlib_game))
 		Com_Error(ERR_FATAL, "FreeLibrary failed for game library");
 
-	game_library = NULL;
+	qlib_game = NULL;
 }
 
 /*
@@ -237,21 +235,21 @@ void *Sys_GetGameAPI (void *parms)
 	char	*path;
 	char	cwd[MAX_OSPATH];
 
-	if (game_library)
+	if (qlib_game)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
 	// TODO: Do we need to use CWD?
 	Sys_GetCurrentDir(cwd, sizeof(cwd));
 
 	Com_sprintf(name, sizeof(name), "%s/%s%s", cwd, game_name, qlib_postfix);
-	game_library = QLib_LoadLibrary(name);
+	qlib_game = QLib_LoadLibrary(name);
 
-	if (game_library)
+	if (qlib_game)
 		Com_DPrintf("QLib_LoadLibrary (%s)\n", name);
 	else
 		Com_DPrintf("Failed to load game library (%s)\n", name);
 
-	GetGameAPI = QLib_GetFuncPtr(game_library, "GetGameAPI");
+	GetGameAPI = QLib_GetFuncPtr(qlib_game, "GetGameAPI");
 	if (!GetGameAPI)
 	{
 		Sys_UnloadGame();

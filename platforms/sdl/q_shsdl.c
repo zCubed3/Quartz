@@ -1,5 +1,5 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -124,12 +124,19 @@ void Sys_Mkdir (char *path)
 
 //===============================================================================
 
-int		hunkcount;
+/*
+==============================================================================
 
+ HUNK ALLOCATION
 
-byte	*membase;
-int		hunkmaxsize;
-int		cursize;
+==============================================================================
+*/
+
+int				hunkcount;
+
+unsigned char	*membase;
+int				hunkmaxsize;
+int				cursize;
 
 void *Hunk_Begin (int maxsize)
 {
@@ -148,8 +155,6 @@ void *Hunk_Begin (int maxsize)
 
 void *Hunk_Alloc (int size)
 {
-	void	*buf;
-
 	// round to cacheline
 	size = (size+31)&~31;
 
