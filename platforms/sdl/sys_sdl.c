@@ -82,15 +82,12 @@ void Sys_Error (char *error, ...)
 	vsprintf (text, error, argptr);
 	va_end (argptr);
 
-	MessageBox(NULL, text, "Error", 0 /* MB_OK */ );
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal Error!", text, NULL);
 
-	if (qwclsemaphore)
-		CloseHandle (qwclsemaphore);
-
-// shut down QHOST hooks if necessary
+	// shut down QHOST hooks if necessary
 	DeinitConProc ();
 
-	exit (1);
+	exit(1);
 }
 
 void Sys_Quit (void)

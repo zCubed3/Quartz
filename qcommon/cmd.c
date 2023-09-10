@@ -416,6 +416,22 @@ void Cmd_Echo_f (void)
 }
 
 /*
+============
+Cmd_Error_f
+
+Same as echo, except it triggers a fatal error
+============
+*/
+void Cmd_Error_f (void)
+{
+	if (Cmd_Argc() > 1)
+	{
+		Com_Printf ("Triggering manual fatal error!\n");
+		Sys_Error("Manual error triggered...\n\n%s", Cmd_Argv(1));
+	}
+}
+
+/*
 ===============
 Cmd_Alias_f
 
@@ -888,5 +904,9 @@ void Cmd_Init (void)
 	Cmd_AddCommand ("echo",Cmd_Echo_f);
 	Cmd_AddCommand ("alias",Cmd_Alias_f);
 	Cmd_AddCommand ("wait", Cmd_Wait_f);
+
+#if defined(DEBUG)
+	Cmd_AddCommand ("error", Cmd_Error_f);
+#endif
 }
 
