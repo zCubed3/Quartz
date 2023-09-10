@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "..\ref_soft\r_local.h"
 #include "rw_win.h"
-#include "winquake.h"
+#include "sdlquake.h"
 
 // Console variables that we need to access from this module
 

@@ -54,7 +54,6 @@ if (WIN32)
         "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_dll.c"
         "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
         "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shwin.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/conproc.c"
 
         "${CMAKE_SOURCE_DIR}/platforms/sdl/q2.rc"
     )

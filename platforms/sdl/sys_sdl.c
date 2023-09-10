@@ -1,5 +1,5 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -20,41 +20,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // sys_win.h
 
 #include "../../qcommon/qcommon.h"
-#include "winquake.h"
-#include "resource.h"
-#include <errno.h>
-#include <float.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <direct.h>
-#include <io.h>
-#include <conio.h>
-#include "../win32/conproc.h"
-
 #include "../../qcommon/qlib.h"
+
+#include "sdlquake.h"
+#include "resource.h"
+
+#include <errno.h>
+#include <stdio.h>
 
 #include <SDL.h>
 
 // TODO: zCubed: Remove all the ancient Win32 code entirely!
 
-#define MINIMUM_WIN_MEMORY	0x0a00000
-#define MAXIMUM_WIN_MEMORY	0x1000000
-
-//#define DEMO
-
-qboolean s_win95;
-
 int			starttime;
 int			ActiveApp;
 qboolean	Minimized;
 
-static HANDLE		hinput, houtput;
-
 unsigned	sys_msg_time;
 unsigned	sys_frame_time;
-
-
-static HANDLE		qwclsemaphore;
 
 #define	MAX_NUM_ARGVS	128
 int			argc;
@@ -84,9 +67,6 @@ void Sys_Error (char *error, ...)
 
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal Error!", text, NULL);
 
-	// shut down QHOST hooks if necessary
-	DeinitConProc ();
-
 	exit(1);
 }
 
@@ -96,110 +76,11 @@ void Sys_Quit (void)
 
 	CL_Shutdown();
 	Qcommon_Shutdown ();
-	CloseHandle (qwclsemaphore);
-	if (dedicated && dedicated->value)
-		FreeConsole ();
 
-// shut down QHOST hooks if necessary
-	DeinitConProc ();
-
-	exit (0);
-}
-
-
-void WinError (void)
-{
-	LPVOID lpMsgBuf;
-
-	FormatMessage( 
-		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL,
-		GetLastError(),
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-		(LPTSTR) &lpMsgBuf,
-		0,
-		NULL 
-	);
-
-	// Display the string.
-	MessageBox( NULL, lpMsgBuf, "GetLastError", MB_OK|MB_ICONINFORMATION );
-
-	// Free the buffer.
-	LocalFree( lpMsgBuf );
+	exit(0);
 }
 
 //================================================================
-
-
-/*
-================
-Sys_ScanForCD
-
-================
-*/
-char *Sys_ScanForCD (void)
-{
-	static char	cddir[MAX_OSPATH];
-	static qboolean	done;
-#ifndef DEMO
-	char		drive[4];
-	FILE		*f;
-	char		test[MAX_QPATH];
-
-	if (done)		// don't re-check
-		return cddir;
-
-	// no abort/retry/fail errors
-	SetErrorMode (SEM_FAILCRITICALERRORS);
-
-	drive[0] = 'c';
-	drive[1] = ':';
-	drive[2] = '\\';
-	drive[3] = 0;
-
-	done = true;
-
-	// scan the drives
-	for (drive[0] = 'c' ; drive[0] <= 'z' ; drive[0]++)
-	{
-		// where activision put the stuff...
-		sprintf (cddir, "%sinstall\\data", drive);
-		sprintf (test, "%sinstall\\data\\quake2.exe", drive);
-		f = fopen(test, "r");
-		if (f)
-		{
-			fclose (f);
-			if (GetDriveType (drive) == DRIVE_CDROM)
-				return cddir;
-		}
-	}
-#endif
-
-	cddir[0] = 0;
-	
-	return NULL;
-}
-
-/*
-================
-Sys_CopyProtect
-
-================
-*/
-void	Sys_CopyProtect (void)
-{
-#ifndef DEMO
-	char	*cddir;
-
-	cddir = Sys_ScanForCD();
-	if (!cddir[0])
-		Com_Error (ERR_FATAL, "You must have the Quake2 CD in the drive to play.");
-#endif
-}
-
-
-//================================================================
-
 
 /*
 ================
@@ -208,23 +89,8 @@ Sys_Init
 */
 void Sys_Init (void)
 {
-	// TODO: Allocate a console for debug builds?
-	if (dedicated->value)
-	{
-		if (!AllocConsole ())
-			Sys_Error("Couldn't allocate a Win32 console!");
-
-		hinput = GetStdHandle(STD_INPUT_HANDLE);
-		houtput = GetStdHandle(STD_OUTPUT_HANDLE);
-	
-		// let QHOST hook in
-		InitConProc(argc, argv);
-	}
+	// TODO: Allocate a console for debug builds / server?
 }
-
-
-static char	console_text[256];
-static int	console_textlen;
 
 /*
 ================
@@ -233,72 +99,8 @@ Sys_ConsoleInput
 */
 char *Sys_ConsoleInput (void)
 {
-	INPUT_RECORD	recs[1024];
-	int		dummy;
-	int		ch, numread, numevents;
-
-	if (!dedicated || !dedicated->value)
-		return NULL;
-
-
-	for ( ;; )
-	{
-		if (!GetNumberOfConsoleInputEvents (hinput, &numevents))
-			Sys_Error ("Error getting # of console events");
-
-		if (numevents <= 0)
-			break;
-
-		if (!ReadConsoleInput(hinput, recs, 1, &numread))
-			Sys_Error ("Error reading console input");
-
-		if (numread != 1)
-			Sys_Error ("Couldn't read console input");
-
-		if (recs[0].EventType == KEY_EVENT)
-		{
-			if (!recs[0].Event.KeyEvent.bKeyDown)
-			{
-				ch = recs[0].Event.KeyEvent.uChar.AsciiChar;
-
-				switch (ch)
-				{
-					case '\r':
-						WriteFile(houtput, "\r\n", 2, &dummy, NULL);	
-
-						if (console_textlen)
-						{
-							console_text[console_textlen] = 0;
-							console_textlen = 0;
-							return console_text;
-						}
-						break;
-
-					case '\b':
-						if (console_textlen)
-						{
-							console_textlen--;
-							WriteFile(houtput, "\b \b", 3, &dummy, NULL);	
-						}
-						break;
-
-					default:
-						if (ch >= ' ')
-						{
-							if (console_textlen < sizeof(console_text)-2)
-							{
-								WriteFile(houtput, &ch, 1, &dummy, NULL);	
-								console_text[console_textlen] = ch;
-								console_textlen++;
-							}
-						}
-
-						break;
-
-				}
-			}
-		}
-	}
+	// TODO: Grab input from stdin?
+	// Or... make a dedicated server?
 
 	return NULL;
 }
@@ -380,6 +182,13 @@ char *Sys_GetClipboardData( void )
 ==============================================================================
 */
 
+#if defined(WIN32)
+void Sys_GetCurrentDir (char *string, long size)
+{
+	GetCurrentDirectoryA(size, string);
+}
+#endif
+
 /*
 =================
 Sys_AppActivate
@@ -387,8 +196,7 @@ Sys_AppActivate
 */
 void Sys_AppActivate (void)
 {
-	ShowWindow ( cl_hwnd, SW_RESTORE);
-	SetForegroundWindow ( cl_hwnd );
+	SDL_RaiseWindow(cl_window);
 }
 
 /*
@@ -432,9 +240,8 @@ void *Sys_GetGameAPI (void *parms)
 	if (game_library)
 		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
 
-	// check the current debug directory first for development purposes
-	// TODO: Replace _getcwd with Sys_GetCurrentDir
-	_getcwd (cwd, sizeof(cwd));
+	// TODO: Do we need to use CWD?
+	Sys_GetCurrentDir(cwd, sizeof(cwd));
 
 	Com_sprintf(name, sizeof(name), "%s/%s%s", cwd, game_name, qlib_postfix);
 	game_library = QLib_LoadLibrary(name);
@@ -490,15 +297,6 @@ int main(int argc, char** argv)
 			Sleep (1);
 		}
 
-		while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE))
-		{
-			if (!GetMessage (&msg, NULL, 0, 0))
-				Com_Quit ();
-			sys_msg_time = msg.time;
-			TranslateMessage (&msg);
-   			DispatchMessage (&msg);
-		}
-
 		do
 		{
 			newtime = Sys_Milliseconds();
@@ -513,3 +311,5 @@ int main(int argc, char** argv)
 	// never gets here
     return TRUE;
 }
+
+//
