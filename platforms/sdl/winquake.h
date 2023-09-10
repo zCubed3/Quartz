@@ -19,11 +19,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // winquake.h: Win32-specific Quake header file
 
-#pragma warning( disable : 4229 )  // mgraph gets this
-
 #include <windows.h>
 
 #include <dsound.h>
+
+#include <SDL.h>
 
 #define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE)
 
@@ -35,6 +35,7 @@ extern LPDIRECTSOUNDBUFFER pDSBuf;
 extern DWORD gSndBufSize;
 
 extern HWND			cl_hwnd;
+extern SDL_Window	*cl_window;
 extern qboolean		ActiveApp, Minimized;
 
 void IN_Activate (qboolean active);

@@ -119,7 +119,6 @@ if (!freelook->value && lookspring->value)
 
 int			mouse_buttons;
 int			mouse_oldbuttonstate;
-POINT		current_pos;
 int			mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
 
 int			old_x, old_y;
@@ -148,6 +147,7 @@ void IN_ActivateMouse (void)
 
 	if (!mouseinitialized)
 		return;
+
 	if (!in_mouse->value)
 	{
 		mouseactive = false;
@@ -161,31 +161,17 @@ void IN_ActivateMouse (void)
 	if (mouseparmsvalid)
 		restore_spi = SystemParametersInfo (SPI_SETMOUSE, 0, newmouseparms, 0);
 
-	width = GetSystemMetrics (SM_CXSCREEN);
-	height = GetSystemMetrics (SM_CYSCREEN);
+	SDL_GetWindowSize(cl_window, &width, &height);
 
-	GetWindowRect ( cl_hwnd, &window_rect);
-	if (window_rect.left < 0)
-		window_rect.left = 0;
-	if (window_rect.top < 0)
-		window_rect.top = 0;
-	if (window_rect.right >= width)
-		window_rect.right = width-1;
-	if (window_rect.bottom >= height-1)
-		window_rect.bottom = height-1;
-
-	window_center_x = (window_rect.right + window_rect.left)/2;
-	window_center_y = (window_rect.top + window_rect.bottom)/2;
-
-	SetCursorPos (window_center_x, window_center_y);
+	window_center_x = width / 2;
+	window_center_y = height / 2;
 
 	old_x = window_center_x;
 	old_y = window_center_y;
 
-	SetCapture ( cl_hwnd );
-	ClipCursor (&window_rect);
-	while (ShowCursor (FALSE) >= 0)
-		;
+	// TODO: Capture the cursor
+	SDL_WarpMouseInWindow(cl_window, window_center_x, window_center_y);
+	SDL_ShowCursor(false);
 }
 
 
@@ -207,11 +193,7 @@ void IN_DeactivateMouse (void)
 		SystemParametersInfo (SPI_SETMOUSE, 0, originalmouseparms, 0);
 
 	mouseactive = false;
-
-	ClipCursor (NULL);
-	ReleaseCapture ();
-	while (ShowCursor (TRUE) < 0)
-		;
+	SDL_ShowCursor(true);
 }
 
 
@@ -273,17 +255,17 @@ IN_MouseMove
 */
 void IN_MouseMove (usercmd_t *cmd)
 {
+	int 	current_pos_x, current_pos_y;
 	int		mx, my;
 
 	if (!mouseactive)
 		return;
 
 	// find mouse movement
-	if (!GetCursorPos (&current_pos))
-		return;
+	SDL_GetMouseState(&current_pos_x, &current_pos_y);
 
-	mx = current_pos.x - window_center_x;
-	my = current_pos.y - window_center_y;
+	mx = current_pos_x - window_center_x;
+	my = current_pos_y - window_center_y;
 
 #if 0
 	if (!mx && !my)
@@ -324,7 +306,7 @@ void IN_MouseMove (usercmd_t *cmd)
 
 	// force the mouse to the center, so there's room to move
 	if (mx || my)
-		SetCursorPos (window_center_x, window_center_y);
+		SDL_WarpMouseInWindow(cl_window, window_center_x, window_center_y);
 }
 
 
@@ -891,12 +873,12 @@ void IN_JoyMove (usercmd_t *cmd)
 
 /*
 ===========
-MapSDLToQuakeKey
+MapSDLKey
 
 Remaps an SDL v-keycode into a Quake keycode
 ===========
 */
-int MapSDLToQuakeKey(SDL_KeyCode code)
+int MapSDLKey(SDL_KeyCode code)
 {
 	// TODO: Handle foreign keyboards
 	switch (code)
@@ -904,6 +886,12 @@ int MapSDLToQuakeKey(SDL_KeyCode code)
 		// ============
 		// Special keys
 		// ============
+		case SDLK_MINUS:
+			return '-';
+
+		case SDLK_EQUALS:
+			return '=';
+
 		case SDLK_BACKQUOTE:
 			return '~';
 
@@ -921,6 +909,10 @@ int MapSDLToQuakeKey(SDL_KeyCode code)
 
 		case SDLK_PAUSE:
 			return K_PAUSE;
+
+		case SDLK_LSHIFT:
+		case SDLK_RSHIFT:
+			return K_SHIFT;
 
 		// ==========
 		// Arrow keys
@@ -949,7 +941,7 @@ int MapSDLToQuakeKey(SDL_KeyCode code)
 	// ==========
 	// Alpha keys
 	// ==========
-	if (code >= SDLK_0 && code <= SDLK_AT)
+	if (code >= SDLK_0 && code <= SDLK_9)
 	{
 		return (int)code;
 	}
@@ -962,64 +954,69 @@ int MapSDLToQuakeKey(SDL_KeyCode code)
 
 /*
 ===========
+MapSDLMouseButton
+
+Remaps an SDL mouse button into a Quake keycode
+===========
+*/
+int MapSDLMouseButton (int index)
+{
+	if (index == 1)
+		return K_MOUSE1;
+	else if (index == 2)
+		return K_MOUSE2;
+	else if (index == 3)
+		return K_MOUSE3;
+
+	return -1;
+}
+
+/*
+===========
 IN_PollSDL
 ===========
 */
-qboolean last_init = 0;
-char last_text[32];
 void IN_PollSDL (void)
 {
 	SDL_Event event;
 	int event_time;
-	qboolean is_text_input;
 
 	event_time = Sys_Milliseconds();
-
-	is_text_input = cls.key_dest == key_console || cls.key_dest == key_message;
-
-	if (!last_init)
-	{
-		for (int c = 0; c < sizeof(last_text); c++)
-			last_text[c] = '\0';
-
-		last_init = 1;
-	}
 
 	while (SDL_PollEvent(&event))
 	{
 		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
 		{
-			if (!is_text_input)
-			{
-				qboolean pressed = event.key.state == SDL_PRESSED;
-				int key = MapSDLToQuakeKey(event.key.keysym.sym);
+			qboolean pressed = event.key.state == SDL_PRESSED;
+			int key = MapSDLKey(event.key.keysym.sym);
 
-				if (key != -1)
-					Key_Event(key, pressed, event_time);
-			}
+			if (key != -1)
+				Key_Event(key, pressed, event_time);
 		}
 
-		if (event.type == SDL_TEXTINPUT)
+		if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
 		{
-			if (is_text_input)
-			{
-				for (int c = 0; c < sizeof(event.text.text); c++)
-				{
-					char in = event.text.text[c];
-					char last = last_text[c];
+			qboolean pressed = event.button.state == SDL_PRESSED;
 
-					if (in != '\0')
-					{
-						Key_Event(last, 0, event_time);
-						Key_Event(in, 1, event_time);
-					}
-				}
-			}
+			// TODO: Fix out of bounds for MOUSE4 and MOUSE5
+			int button = MapSDLMouseButton(event.button.button);
+
+			if (button != -1)
+				Key_Event(button, pressed, event_time);
 		}
 
 		if (event.type == SDL_MOUSEMOTION)
 		{
 
+		}
+
+		if (event.type == SDL_WINDOWEVENT)
+		{
+			if (event.window.event == SDL_WINDOWEVENT_ENTER)
+				IN_Activate(true);
+
+			if (event.window.event == SDL_WINDOWEVENT_LEAVE)
+				IN_Activate(false);
 		}
 	}
 }
