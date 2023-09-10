@@ -63,17 +63,17 @@ if (WIN32)
         "winmm"
         "ws2_32"
     )
-
-    set(BUILD_TYPE WIN32)
 endif()
 
 #
 # Executable definition
 #
-add_executable(Zealot_Client ${BUILD_TYPE} ${CLIENT_SRCS})
+add_executable(Zealot_Client ${CLIENT_SRCS})
 
 target_link_libraries(Zealot_Client PRIVATE ${CLIENT_LIBS})
 target_include_directories(Zealot_Client PRIVATE ${CLIENT_INC_DIRS})
 target_compile_definitions(Zealot_Client PRIVATE ${CLIENT_DEFS})
 
 set_target_properties(Zealot_Client PROPERTIES OUTPUT_NAME "${ZEALOT_CLIENT_NAME}")
+
+add_dependencies(Zealot_Client Zealot_RefGL Zealot_Game)

@@ -36,6 +36,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "glw_win.h"
 #include "winquake.h"
 
+#include <SDL.h>
+#include <SDL_syswm.h>
+
 static qboolean GLimp_SwitchFullscreen( int width, int height );
 qboolean GLimp_InitGL (void);
 
@@ -63,48 +66,10 @@ static qboolean VerifyDriver( void )
 
 qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 {
-	WNDCLASS		wc;
-	RECT			r;
-	cvar_t			*vid_xpos, *vid_ypos;
-	int				stylebits;
-	int				x, y, w, h;
-	int				exstyle;
+	cvar_t *vid_xpos, *vid_ypos;
+	int x, y;
 
-	/* Register the frame class */
-    wc.style         = 0;
-    wc.lpfnWndProc   = (WNDPROC)glw_state.wndproc;
-    wc.cbClsExtra    = 0;
-    wc.cbWndExtra    = 0;
-    wc.hInstance     = glw_state.hInstance;
-    wc.hIcon         = 0;
-    wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
-	wc.hbrBackground = (void *)COLOR_GRAYTEXT;
-    wc.lpszMenuName  = 0;
-    wc.lpszClassName = WINDOW_CLASS_NAME;
-
-    if (!RegisterClass (&wc) )
-		ri.Sys_Error (ERR_FATAL, "Couldn't register window class");
-
-	if (fullscreen)
-	{
-		exstyle = WS_EX_TOPMOST;
-		stylebits = WS_POPUP|WS_VISIBLE;
-	}
-	else
-	{
-		exstyle = 0;
-		stylebits = WINDOW_STYLE;
-	}
-
-	r.left = 0;
-	r.top = 0;
-	r.right  = width;
-	r.bottom = height;
-
-	AdjustWindowRect (&r, stylebits, FALSE);
-
-	w = r.right - r.left;
-	h = r.bottom - r.top;
+	// TODO: Fullscreen
 
 	if (fullscreen)
 	{
@@ -119,22 +84,24 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		y = vid_ypos->value;
 	}
 
-	glw_state.hWnd = CreateWindowEx (
-		 exstyle, 
-		 WINDOW_CLASS_NAME,
-		 "Quake 2",
-		 stylebits,
-		 x, y, w, h,
-		 NULL,
-		 NULL,
-		 glw_state.hInstance,
-		 NULL);
+	glw_state.sdl_window = SDL_CreateWindow(
+		"Quake 2 [ZQ2 : SDL2]",
+		x, y,
+		width, height,
+		0
+	);
+
+	SDL_SysWMinfo sys_info;
+	SDL_VERSION(&sys_info.version);
+	SDL_GetWindowWMInfo(glw_state.sdl_window, &sys_info);
+
+	glw_state.hWnd = sys_info.info.win.window;
+
+	if (!glw_state.sdl_window)
+		ri.Sys_Error(ERR_FATAL, "Couldn't create SDL window");
 
 	if (!glw_state.hWnd)
-		ri.Sys_Error (ERR_FATAL, "Couldn't create window");
-	
-	ShowWindow( glw_state.hWnd, SW_SHOW );
-	UpdateWindow( glw_state.hWnd );
+		ri.Sys_Error(ERR_FATAL, "Failed to get HWND handle!");
 
 	// init all the gl stuff for the window
 	if (!GLimp_InitGL ())
@@ -143,11 +110,10 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		return false;
 	}
 
-	SetForegroundWindow( glw_state.hWnd );
-	SetFocus( glw_state.hWnd );
+	SDL_RaiseWindow(glw_state.sdl_window);
 
 	// let the sound and input subsystems know about the new window
-	ri.Vid_NewWindow (width, height);
+	ri.Vid_NewWindow (glw_state.sdl_window, width, height);
 
 	return true;
 }
@@ -174,7 +140,7 @@ rserr_t GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen 
 	ri.Con_Printf( PRINT_ALL, " %d %d %s\n", width, height, win_fs[fullscreen] );
 
 	// destroy the existing window
-	if (glw_state.hWnd)
+	if (glw_state.sdl_window)
 	{
 		GLimp_Shutdown ();
 	}
@@ -303,21 +269,25 @@ void GLimp_Shutdown( void )
 {
 	if ( qwglMakeCurrent && !qwglMakeCurrent( NULL, NULL ) )
 		ri.Con_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglMakeCurrent failed\n");
+
 	if ( glw_state.hGLRC )
 	{
 		if (  qwglDeleteContext && !qwglDeleteContext( glw_state.hGLRC ) )
 			ri.Con_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglDeleteContext failed\n");
 		glw_state.hGLRC = NULL;
 	}
+
 	if (glw_state.hDC)
 	{
 		if ( !ReleaseDC( glw_state.hWnd, glw_state.hDC ) )
 			ri.Con_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - ReleaseDC failed\n" );
 		glw_state.hDC   = NULL;
 	}
-	if (glw_state.hWnd)
+
+	if (glw_state.sdl_window)
 	{
-		DestroyWindow (	glw_state.hWnd );
+		SDL_DestroyWindow(glw_state.sdl_window);
+		glw_state.sdl_window = NULL;
 		glw_state.hWnd = NULL;
 	}
 
@@ -326,8 +296,6 @@ void GLimp_Shutdown( void )
 		fclose( glw_state.log_fp );
 		glw_state.log_fp = 0;
 	}
-
-	UnregisterClass (WINDOW_CLASS_NAME, glw_state.hInstance);
 
 	if ( gl_state.fullscreen )
 	{
@@ -605,12 +573,11 @@ void GLimp_AppActivate( qboolean active )
 {
 	if ( active )
 	{
-		SetForegroundWindow( glw_state.hWnd );
-		ShowWindow( glw_state.hWnd, SW_RESTORE );
+		SDL_RaiseWindow(glw_state.sdl_window);
 	}
 	else
 	{
 		if ( vid_fullscreen->value )
-			ShowWindow( glw_state.hWnd, SW_MINIMIZE );
+			SDL_MinimizeWindow(glw_state.sdl_window);
 	}
 }

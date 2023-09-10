@@ -14,6 +14,15 @@ list(APPEND REF_GL_DEFS
     ${ZEALOT_GDEFS}
 )
 
+list(APPEND REF_GL_LIBS
+    SDL2
+)
+
+list(APPEND REF_GL_INC_DIRS
+    SDL2
+)
+
+
 #
 # Platform specifics
 #
@@ -47,5 +56,6 @@ add_library(Zealot_RefGL SHARED ${REF_GL_SRCS})
 
 target_link_libraries(Zealot_RefGL PRIVATE ${REF_GL_LIBS})
 target_compile_definitions(Zealot_RefGL PRIVATE ${REF_GL_DEFS})
+target_include_directories(Zealot_RefGL PRIVATE ${REF_GL_INC_DIRS})
 
 set_target_properties(Zealot_RefGL PROPERTIES OUTPUT_NAME "ref_gl")

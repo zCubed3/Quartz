@@ -51,6 +51,7 @@ HINSTANCE	reflib_library;		// Handle to refresh DLL
 qboolean	reflib_active = 0;
 
 HWND        cl_hwnd;            // Main window handle for life of program
+SDL_Window	*sdl_window;		// SDL window handle
 
 #define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
@@ -513,29 +514,17 @@ qboolean VID_GetModeInfo( int *width, int *height, int mode )
 */
 void VID_UpdateWindowPosAndSize( int x, int y )
 {
-	RECT r;
-	int		style;
-	int		w, h;
-
-	r.left   = 0;
-	r.top    = 0;
-	r.right  = viddef.width;
-	r.bottom = viddef.height;
-
-	style = GetWindowLong( cl_hwnd, GWL_STYLE );
-	AdjustWindowRect( &r, style, FALSE );
-
-	w = r.right - r.left;
-	h = r.bottom - r.top;
-
-	MoveWindow( cl_hwnd, vid_xpos->value, vid_ypos->value, w, h, TRUE );
+	SDL_SetWindowSize(sdl_window, viddef.width, viddef.height);
+	SDL_SetWindowPosition(sdl_window, vid_xpos->value, vid_ypos->value);
 }
 
 /*
 ** VID_NewWindow
 */
-void VID_NewWindow ( int width, int height)
+void VID_NewWindow ( SDL_Window *window, int width, int height)
 {
+	sdl_window = window;
+
 	viddef.width  = width;
 	viddef.height = height;
 

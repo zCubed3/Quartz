@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../qcommon/qcommon.h"
 
+#include <SDL.h>
+
 #define	MAX_DLIGHTS		32
 #define	MAX_ENTITIES	128
 #define	MAX_PARTICLES	4096
@@ -218,7 +220,7 @@ typedef struct
 
 	qboolean	(*Vid_GetModeInfo)( int *width, int *height, int mode );
 	void		(*Vid_MenuInit)( void );
-	void		(*Vid_NewWindow)( int width, int height );
+	void		(*Vid_NewWindow)( SDL_Window *window, int width, int height );
 } refimport_t;
 
 

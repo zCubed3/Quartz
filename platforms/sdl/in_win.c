@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../../client/client.h"
 #include "winquake.h"
 
+#include <SDL.h>
+
 extern	unsigned	sys_msg_time;
 
 // joystick defines and variables
@@ -887,3 +889,137 @@ void IN_JoyMove (usercmd_t *cmd)
 	}
 }
 
+/*
+===========
+MapSDLToQuakeKey
+
+Remaps an SDL v-keycode into a Quake keycode
+===========
+*/
+int MapSDLToQuakeKey(SDL_KeyCode code)
+{
+	// TODO: Handle foreign keyboards
+	switch (code)
+	{
+		// ============
+		// Special keys
+		// ============
+		case SDLK_BACKQUOTE:
+			return '~';
+
+		case SDLK_BACKSPACE:
+			return K_BACKSPACE;
+
+		case SDLK_RETURN:
+			return K_ENTER;
+
+		case SDLK_SPACE:
+			return K_SPACE;
+
+		case SDLK_ESCAPE:
+			return K_ESCAPE;
+
+		case SDLK_PAUSE:
+			return K_PAUSE;
+
+		// ==========
+		// Arrow keys
+		// ==========
+		case SDLK_LEFT:
+			return K_LEFTARROW;
+
+		case SDLK_RIGHT:
+			return K_RIGHTARROW;
+
+		case SDLK_DOWN:
+			return K_DOWNARROW;
+
+		case SDLK_UP:
+			return K_UPARROW;
+	}
+
+	// ==========
+	// Ascii keys
+	// ==========
+	if (code >= SDLK_a && code <= SDLK_z)
+	{
+		return (int)code;
+	}
+
+	// ==========
+	// Alpha keys
+	// ==========
+	if (code >= SDLK_0 && code <= SDLK_AT)
+	{
+		return (int)code;
+	}
+
+	// =========
+	// Error key
+	// =========
+	return -1;
+}
+
+/*
+===========
+IN_PollSDL
+===========
+*/
+qboolean last_init = 0;
+char last_text[32];
+void IN_PollSDL (void)
+{
+	SDL_Event event;
+	int event_time;
+	qboolean is_text_input;
+
+	event_time = Sys_Milliseconds();
+
+	is_text_input = cls.key_dest == key_console || cls.key_dest == key_message;
+
+	if (!last_init)
+	{
+		for (int c = 0; c < sizeof(last_text); c++)
+			last_text[c] = '\0';
+
+		last_init = 1;
+	}
+
+	while (SDL_PollEvent(&event))
+	{
+		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+		{
+			if (!is_text_input)
+			{
+				qboolean pressed = event.key.state == SDL_PRESSED;
+				int key = MapSDLToQuakeKey(event.key.keysym.sym);
+
+				if (key != -1)
+					Key_Event(key, pressed, event_time);
+			}
+		}
+
+		if (event.type == SDL_TEXTINPUT)
+		{
+			if (is_text_input)
+			{
+				for (int c = 0; c < sizeof(event.text.text); c++)
+				{
+					char in = event.text.text[c];
+					char last = last_text[c];
+
+					if (in != '\0')
+					{
+						Key_Event(last, 0, event_time);
+						Key_Event(in, 1, event_time);
+					}
+				}
+			}
+		}
+
+		if (event.type == SDL_MOUSEMOTION)
+		{
+
+		}
+	}
+}
