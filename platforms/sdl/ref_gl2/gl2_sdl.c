@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include <float.h>
 #include "../../../renderers/ref_gl2/gl_local.h"
-#include "gl_sdl.h"
+#include "gl2_sdl.h"
 
 /*
 ** QGL_Shutdown

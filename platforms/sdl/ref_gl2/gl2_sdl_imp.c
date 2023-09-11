@@ -36,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../sdlquake.h"
 
-#include "gl_sdl.h"
+#include "gl2_sdl.h"
 
 static qboolean GLimp_SwitchFullscreen( int width, int height );
 qboolean GLimp_InitGL (void);

@@ -11,8 +11,8 @@ list(APPEND REF_GL_SRCS
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
 
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl_sdl.c"
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl_sdl_imp.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl2_sdl.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl2_sdl_imp.c"
 )
 
 list(APPEND REF_GL_DEFS
