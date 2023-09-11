@@ -22,17 +22,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // sys_sdl.cpp
 //
 
+#include "cpp/sdl_system.hpp"
+
 #include "../../qcommon/qcommon.h"
 #include "../../qcommon/qlib.h"
 
 #include "sdlquake.h"
 
-#include <errno.h>
-#include <stdio.h>
+#include <cerrno>
+#include <cstdio>
 
 #include <SDL.h>
 
+#if defined(WIN32)
+
+#include <io.h>
+
+#endif
+
 // TODO: zCubed: Remove all the ancient Win32 code entirely!
+
+/*
+========================================================================
+
+VARIABLE DEFINITIONS
+
+========================================================================
+*/
 
 qboolean	ActiveApp;
 qboolean	Minimized;
@@ -40,58 +56,55 @@ qboolean	Minimized;
 unsigned	sys_msg_time;
 unsigned	sys_frame_time;
 
+//================================================================
+
 #define	MAX_NUM_ARGVS	128
+
 int			argc;
 char		*argv[MAX_NUM_ARGVS];
 
-
 /*
-===============================================================================
+========================================================================
 
-SYSTEM IO
+C++ <---> C GLUE
 
-===============================================================================
+========================================================================
 */
 
+void Sys_Init (void)
+{
+	ZealotQ2::sdl_system.Init();
+}
 
 void Sys_Error (char *error, ...)
 {
-	va_list		argptr;
-	char		text[1024];
+	va_list 	args;
 
-	CL_Shutdown ();
-	Qcommon_Shutdown ();
-
-	va_start (argptr, error);
-	vsprintf (text, error, argptr);
-	va_end (argptr);
-
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal Error!", text, NULL);
-
-	exit(1);
+	va_start(args, error);
+	ZealotQ2::sdl_system.Error(error, args);
+	va_end(args);
 }
 
 void Sys_Quit (void)
 {
-	timeEndPeriod( 1 );
-
-	CL_Shutdown();
-	Qcommon_Shutdown ();
-
-	exit(0);
+	ZealotQ2::sdl_system.Quit();
 }
 
 //================================================================
 
-/*
-================
-Sys_Init
-================
-*/
-void Sys_Init (void)
+void* Sys_GetGameAPI(void* parms)
 {
-	// TODO: Allocate a console for debug builds / server?
+	return ZealotQ2::sdl_system.GetGameAPI(parms);
 }
+
+// Sys_Milliseconds is in q_shsdl.cpp!
+
+char *Sys_GetClipboardData( void )
+{
+	return ZealotQ2::sdl_system.GetClipboardData();
+}
+
+//================================================================
 
 /*
 ================
@@ -129,19 +142,7 @@ Send Key_Event calls
 */
 void Sys_SendKeyEvents (void)
 {
-    MSG        msg;
-
-	while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE))
-	{
-		if (!GetMessage (&msg, NULL, 0, 0))
-			Sys_Quit ();
-		sys_msg_time = msg.time;
-      	TranslateMessage (&msg);
-      	DispatchMessage (&msg);
-	}
-
-	// grab frame time 
-	sys_frame_time = timeGetTime();	// FIXME: should this be at start?
+	// TODO: Remove this?
 }
 
 
@@ -152,10 +153,6 @@ Sys_GetClipboardData
 
 ================
 */
-char *Sys_GetClipboardData( void )
-{
-	return SDL_GetClipboardText();
-}
 
 /*
 ==============================================================================
@@ -189,60 +186,12 @@ GAME DLL
 
 ========================================================================
 */
-
-static qlib		qlib_game 	= NULL;
-const char*		game_name 	= "game"; // TODO: Change this at runtime?
-
 /*
 =================
 Sys_UnloadGame
 =================
 */
-void Sys_UnloadGame (void)
-{
-	if (!QLib_UnloadLibrary(qlib_game))
-		Com_Error(ERR_FATAL, "FreeLibrary failed for game library");
 
-	qlib_game = NULL;
-}
-
-/*
-=================
-Sys_GetGameAPI
-
-Loads the game dll
-=================
-*/
-void *Sys_GetGameAPI (void *parms)
-{
-	void	*(*GetGameAPI) (void *);
-	char	name[MAX_OSPATH];
-	char	*path;
-	char	cwd[MAX_OSPATH];
-
-	if (qlib_game)
-		Com_Error (ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
-
-	// TODO: Do we need to use CWD?
-	Sys_GetCurrentDir(cwd, sizeof(cwd));
-
-	Com_sprintf(name, sizeof(name), "%s/%s%s", cwd, game_name, qlib_postfix);
-	qlib_game = QLib_LoadLibrary(name);
-
-	if (qlib_game)
-		Com_DPrintf("QLib_LoadLibrary (%s)\n", name);
-	else
-		Com_DPrintf("Failed to load game library (%s)\n", name);
-
-	GetGameAPI = (qlib_mod_fptr)QLib_GetFuncPtr(qlib_game, "GetGameAPI");
-	if (!GetGameAPI)
-	{
-		Sys_UnloadGame();
-		return NULL;
-	}
-
-	return GetGameAPI(parms);
-}
 
 //=======================================================================
 
@@ -294,5 +243,3 @@ int main(int argc, char** argv)
 	// never gets here
     return TRUE;
 }
-
-//

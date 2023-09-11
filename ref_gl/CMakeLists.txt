@@ -9,7 +9,7 @@ file(GLOB_RECURSE REF_GL_SRCS
 list(APPEND REF_GL_SRCS
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
 
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.cpp"
 )
 
 list(APPEND REF_GL_DEFS

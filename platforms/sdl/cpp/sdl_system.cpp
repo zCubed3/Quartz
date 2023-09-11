@@ -19,30 +19,105 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// q_shsdl.c
+// sdl_system.cpp
 //
 
-#include "../../qcommon/qcommon.h"
-
-#if defined(WIN32)
-
-#include <Windows.h>
-#include <io.h>
-
-#endif
-
-#include <SDL.h>
+#include "sdl_system.hpp"
 
 /*
-==============================================================================
+========================================================================
 
- WINDOWS CRAP
+C++ IMPLEMENTATION
 
-==============================================================================
+========================================================================
 */
+using namespace ZealotQ2;
 
-#if defined(WIN32)
+SDLSystem ZealotQ2::sdl_system;
 
+//================
+// State
+//================
+
+void SDLSystem::Init()
+{
+	// TODO: Allocate a console for debug builds / server?
+}
+
+void SDLSystem::Quit()
+{
+	CL_Shutdown();
+	Qcommon_Shutdown();
+
+	exit(0);
+}
+
+void SDLSystem::Error(const char *error, va_list va)
+{
+	char		text[1024];
+
+	CL_Shutdown();
+	Qcommon_Shutdown();
+
+	vsprintf(text, error, va);
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Fatal Error!", text, nullptr);
+
+	exit(1);
+}
+
+//================
+// Getters
+//================
+
+void *SDLSystem::GetGameAPI(void *parms)
+{
+	void	*(*GetGameAPI) (void *);
+	char	name[MAX_OSPATH];
+	char	*path;
+	char	cwd[MAX_OSPATH];
+
+	if (qlib_game)
+		Com_Error(ERR_FATAL, "Sys_GetGameAPI without Sys_UnloadingGame");
+
+	// TODO: Do we need to use CWD?
+	Sys_GetCurrentDir(cwd, sizeof(cwd));
+
+	Com_sprintf(name, sizeof(name), "%s/%s%s", cwd, game_name, qlib_postfix);
+	qlib_game = QLib_LoadLibrary(name);
+
+	if (qlib_game)
+		Com_DPrintf("QLib_LoadLibrary (%s)\n", name);
+	else
+		Com_DPrintf("Failed to load game library (%s)\n", name);
+
+	GetGameAPI = (qlib_mod_fptr)QLib_GetFuncPtr(qlib_game, "GetGameAPI");
+	if (!GetGameAPI)
+	{
+		Sys_UnloadGame();
+		return NULL;
+	}
+
+	return GetGameAPI(parms);
+}
+
+char *SDLSystem::GetClipboardData()
+{
+	return SDL_GetClipboardText();
+}
+
+// TODO: Replace all integer ms usages with long
+int SDLSystem::GetMilliseconds()
+{
+	curtime = SDL_GetTicks();
+	return curtime;
+}
+
+//================
+// IO
+//================
+
+#ifdef WIN32
 char	findbase[MAX_OSPATH];
 char	findpath[MAX_OSPATH];
 int		findhandle;
@@ -74,7 +149,7 @@ static qboolean CompareAttributes( unsigned found, unsigned musthave, unsigned c
 	return true;
 }
 
-char *Sys_FindFirst (char *path, unsigned musthave, unsigned canthave )
+char *SDLSystem::FindFirst(char *path, unsigned musthave, unsigned canthave)
 {
 	struct _finddata_t findinfo;
 
@@ -92,7 +167,7 @@ char *Sys_FindFirst (char *path, unsigned musthave, unsigned canthave )
 	return findpath;
 }
 
-char *Sys_FindNext ( unsigned musthave, unsigned canthave )
+char *SDLSystem::FindNext(unsigned musthave, unsigned canthave)
 {
 	struct _finddata_t findinfo;
 
@@ -107,44 +182,50 @@ char *Sys_FindNext ( unsigned musthave, unsigned canthave )
 	return findpath;
 }
 
-void Sys_FindClose (void)
+void SDLSystem::FindClose()
 {
 	if (findhandle != -1)
 		_findclose (findhandle);
 	findhandle = 0;
 }
 
-
-void Sys_Mkdir (char *path)
+void SDLSystem::CreateDir(const char *path)
 {
-	CreateDirectoryA(path, NULL);
+	CreateDirectoryA(path, nullptr);
 }
-
 #endif
 
-//===============================================================================
+//================
+// Hunk
+//================
 
-/*
-==============================================================================
+void *SDLSystem::HunkAlloc(int size)
+{
+	// round to cacheline
+	size = (size+31)&~31;
 
- HUNK ALLOCATION
+	cursize += size;
+	if (cursize > hunkmaxsize)
+		Sys_Error("Hunk_Alloc overflow");
 
-==============================================================================
-*/
+	return (void *)(membase+cursize-size);
+}
 
-int				hunkcount;
+void SDLSystem::HunkFree(void *base)
+{
+	if (base)
+		free(base);
 
-unsigned char	*membase;
-int				hunkmaxsize;
-int				cursize;
+	hunkcount--;
+}
 
-void *Hunk_Begin (int maxsize)
+void *SDLSystem::HunkBegin(int maxsize)
 {
 	// reserve a huge chunk of memory, but don't commit any yet
 	cursize = 0;
 	hunkmaxsize = maxsize;
 
-	membase = malloc (maxsize);
+	membase = static_cast<unsigned char*>(malloc(maxsize));
 	memset (membase, 0, maxsize);
 
 	if (!membase)
@@ -153,43 +234,9 @@ void *Hunk_Begin (int maxsize)
 	return (void *)membase;
 }
 
-void *Hunk_Alloc (int size)
-{
-	// round to cacheline
-	size = (size+31)&~31;
-
-	cursize += size;
-	if (cursize > hunkmaxsize)
-		Sys_Error ("Hunk_Alloc overflow");
-
-	return (void *)(membase+cursize-size);
-}
-
-int Hunk_End (void)
+int SDLSystem::HunkEnd()
 {
 	hunkcount++;
 
 	return cursize;
-}
-
-void Hunk_Free (void *base)
-{
-	if (base)
-		free(base);
-
-	hunkcount--;
-}
-
-//===============================================================================
-
-/*
-================
-Sys_Milliseconds
-================
-*/
-int	curtime;
-int Sys_Milliseconds (void)
-{
-	curtime = SDL_GetTicks();
-	return curtime;
 }
