@@ -568,6 +568,7 @@ Draws the console with the solid background
 */
 void Con_DrawConsole (float frac)
 {
+	int 			ver_len, ver_pad;
 	int				i, j, x, y, n;
 	int				rows;
 	char			*text;
@@ -588,9 +589,17 @@ void Con_DrawConsole (float frac)
 	SCR_AddDirtyPoint (0,0);
 	SCR_AddDirtyPoint (viddef.width-1,lines-1);
 
-	Com_sprintf (version, sizeof(version), "v%4.2f", VERSION);
-	for (x=0 ; x<5 ; x++)
-		re.DrawChar (viddef.width-44+x*8, lines-12, 128 + version[x] );
+	Com_sprintf (version, sizeof(version), "Zealot Q2 - v%4.2f", VERSION);
+
+	ver_len = 0;
+	ver_pad = 0;
+	while (version[ver_len] != '\0') {
+		ver_len++;
+		ver_pad += 8;
+	}
+
+	for (x = 0; x < ver_len; x++)
+		re.DrawChar(viddef.width - ver_pad + x * 8, lines - 12, 128 + version[x]);
 
 // draw the text
 	con.vislines = lines;

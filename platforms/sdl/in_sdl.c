@@ -1,5 +1,5 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,8 +17,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// in_win.c -- windows 95 mouse and joystick code
-// 02/21/97 JCB Added extended DirectInput code to support external controllers.
+//
+// in_sdl.c -- windows 95 mouse and joystick code
+//
 
 #include "../../client/client.h"
 #include "sdlquake.h"
@@ -119,19 +120,16 @@ if (!freelook->value && lookspring->value)
 
 int			mouse_buttons;
 int			mouse_oldbuttonstate;
-int			mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
-
-int			old_x, old_y;
+int			mouse_x, mouse_y, old_mouse_x, old_mouse_y;
 
 qboolean	mouseactive;	// false when not focus app
 
 qboolean	restore_spi;
 qboolean	mouseinitialized;
-int		originalmouseparms[3], newmouseparms[3] = {0, 0, 1};
+int			originalmouseparms[3], newmouseparms[3] = {0, 0, 1};
 qboolean	mouseparmsvalid;
 
 int			window_center_x, window_center_y;
-RECT		window_rect;
 
 
 /*
@@ -165,9 +163,6 @@ void IN_ActivateMouse (void)
 
 	window_center_x = width / 2;
 	window_center_y = height / 2;
-
-	old_x = window_center_x;
-	old_y = window_center_y;
 
 	// TODO: Capture the cursor
 	SDL_WarpMouseInWindow(cl_window, window_center_x, window_center_y);
@@ -448,8 +443,6 @@ IN_ClearStates
 */
 void IN_ClearStates (void)
 {
-	mx_accum = 0;
-	my_accum = 0;
 	mouse_oldbuttonstate = 0;
 }
 
