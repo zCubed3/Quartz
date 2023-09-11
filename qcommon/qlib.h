@@ -27,13 +27,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ZEALOTQUAKE2_SHARED_LIB_H
 #define ZEALOTQUAKE2_SHARED_LIB_H
 
-#ifdef WIN32
+#include "qexport.h"
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+typedef	void (*qlib_fptr)();
+typedef void* (*qlib_mod_fptr)(void*);
+
+#if defined(WIN32)
 
 #include <Windows.h>
 
 typedef HMODULE 	qlib;
 
-#elif
+#elif defined(__linux__)
 
 #include <dl.h>
 typedef void* 		qlib;
@@ -41,13 +52,17 @@ typedef void* 		qlib;
 #endif
 
 
-extern const char* 		qlib_postfix;
+Q_EXTERN_VAR	const char* 		qlib_postfix;
 
 
-extern qlib QLib_LoadLibrary(const char* path);
+Q_EXTERN_FUNC	qlib 		QLib_LoadLibrary(const char* path);
 
-extern int QLib_UnloadLibrary(qlib lib);
+Q_EXTERN_FUNC 	int 		QLib_UnloadLibrary(qlib lib);
 
-extern void* QLib_GetFuncPtr(qlib lib, const char* func);
+Q_EXTERN_FUNC 	qlib_fptr 	QLib_GetFuncPtr(qlib lib, const char* func);
+
+#ifdef __cplusplus
+};
+#endif
 
 #endif //ZEALOTQUAKE2_SHARED_LIB_H

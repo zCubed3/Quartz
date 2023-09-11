@@ -18,7 +18,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
+//
 // qcommon.h -- definitions common between client and server, but not game.dll
+//
+
+
+
+/*
+==============================================================
+
+C++ CRAP
+
+==============================================================
+*/
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
 
 #include "../game/q_shared.h"
 
@@ -136,14 +154,14 @@ void	MSG_ReadData (sizebuf_t *sb, void *buffer, int size);
 
 //============================================================================
 
-extern	qboolean		bigendien;
+Q_EXTERN_VAR	qboolean		bigendien;
 
-extern	short	BigShort (short l);
-extern	short	LittleShort (short l);
-extern	int		BigLong (int l);
-extern	int		LittleLong (int l);
-extern	float	BigFloat (float l);
-extern	float	LittleFloat (float l);
+Q_EXTERN_FUNC	short	BigShort (short l);
+Q_EXTERN_FUNC	short	LittleShort (short l);
+Q_EXTERN_FUNC	int		BigLong (int l);
+Q_EXTERN_FUNC	int		LittleLong (int l);
+Q_EXTERN_FUNC	float	BigFloat (float l);
+Q_EXTERN_FUNC	float	LittleFloat (float l);
 
 //============================================================================
 
@@ -226,7 +244,7 @@ enum svc_ops_e
 	svc_stufftext,				// [string] stuffed into client's console buffer, should be \n terminated
 	svc_serverdata,				// [long] protocol ...
 	svc_configstring,			// [short] [string]
-	svc_spawnbaseline,		
+	svc_spawnbaseline,
 	svc_centerprint,			// [string] to put in center of the screen
 	svc_download,				// [short] size [size bytes]
 	svc_playerinfo,				// variable
@@ -243,7 +261,7 @@ enum svc_ops_e
 enum clc_ops_e
 {
 	clc_bad,
-	clc_nop, 		
+	clc_nop,
 	clc_move,				// [[usercmd_t]
 	clc_userinfo,			// [[userinfo string]
 	clc_stringcmd			// [string] message
@@ -829,5 +847,14 @@ void SV_Init (void);
 void SV_Shutdown (char *finalmsg, qboolean reconnect);
 void SV_Frame (int msec);
 
+/*
+==============================================================
 
+C++ CRAP
 
+==============================================================
+*/
+
+#ifdef __cplusplus
+};
+#endif

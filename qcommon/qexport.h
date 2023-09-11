@@ -33,4 +33,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define QEXPORT
 #endif
 
+#ifdef __cplusplus
+
+#define Q_EXTERN_FUNC
+#define Q_EXTERN_VAR extern
+
+#else
+
+#define Q_EXTERN_FUNC extern
+#define Q_EXTERN_VAR extern
+
+#endif
+
 #endif //ZEALOTQUAKE2_QEXPORT_H

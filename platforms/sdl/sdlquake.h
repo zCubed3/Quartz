@@ -26,6 +26,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "../../qcommon/qexport.h"
+
 #include <SDL.h>
 
 extern	HINSTANCE	global_hInstance;
@@ -35,9 +41,11 @@ extern LPDIRECTSOUNDBUFFER pDSBuf;
 
 extern DWORD gSndBufSize;
 
-extern HWND			cl_hwnd;
-extern SDL_Window	*cl_window;
-extern qboolean		ActiveApp, Minimized;
+Q_EXTERN_VAR	unsigned	sys_frame_time;
+
+Q_EXTERN_VAR 	HWND		cl_hwnd;
+Q_EXTERN_VAR 	SDL_Window	*cl_window;
+Q_EXTERN_VAR 	qboolean	ActiveApp, Minimized;
 
 void IN_Activate (qboolean active);
 
@@ -45,3 +53,7 @@ void IN_PollSDL (void);
 
 extern int		window_center_x, window_center_y;
 extern RECT		window_rect;
+
+#ifdef __cplusplus
+};
+#endif

@@ -42,9 +42,9 @@ int QLib_UnloadLibrary(qlib lib)
 	return FreeLibrary(lib);
 }
 
-void* QLib_GetFuncPtr(qlib lib, const char* func)
+qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func)
 {
-	return GetProcAddress(lib, func);
+	return (qlib_fptr)GetProcAddress(lib, func);
 }
 
 #elif __linux__

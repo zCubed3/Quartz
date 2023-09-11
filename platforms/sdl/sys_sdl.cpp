@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// sys_sdl.h
+// sys_sdl.cpp
 //
 
 #include "../../qcommon/qcommon.h"
@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // TODO: zCubed: Remove all the ancient Win32 code entirely!
 
-int			ActiveApp;
+qboolean	ActiveApp;
 qboolean	Minimized;
 
 unsigned	sys_msg_time;
@@ -154,25 +154,7 @@ Sys_GetClipboardData
 */
 char *Sys_GetClipboardData( void )
 {
-	char *data = NULL;
-	char *cliptext;
-
-	if ( OpenClipboard( NULL ) != 0 )
-	{
-		HANDLE hClipboardData;
-
-		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 )
-		{
-			if ( ( cliptext = GlobalLock( hClipboardData ) ) != 0 ) 
-			{
-				data = malloc( GlobalSize( hClipboardData ) + 1 );
-				strcpy( data, cliptext );
-				GlobalUnlock( hClipboardData );
-			}
-		}
-		CloseClipboard();
-	}
-	return data;
+	return SDL_GetClipboardText();
 }
 
 /*
@@ -252,7 +234,7 @@ void *Sys_GetGameAPI (void *parms)
 	else
 		Com_DPrintf("Failed to load game library (%s)\n", name);
 
-	GetGameAPI = QLib_GetFuncPtr(qlib_game, "GetGameAPI");
+	GetGameAPI = (qlib_mod_fptr)QLib_GetFuncPtr(qlib_game, "GetGameAPI");
 	if (!GetGameAPI)
 	{
 		Sys_UnloadGame();
