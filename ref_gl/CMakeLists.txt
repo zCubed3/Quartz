@@ -18,10 +18,12 @@ list(APPEND REF_GL_DEFS
 
 list(APPEND REF_GL_LIBS
     SDL2
+    GLAD_GL2
 )
 
 list(APPEND REF_GL_INC_DIRS
     SDL2
+    GLAD_GL2
 )
 
 

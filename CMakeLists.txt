@@ -42,6 +42,7 @@ add_subdirectory(third_party/SDL)
 include(qcommon/CMakeLists.txt)
 
 if (ZEALOT_BUILD_REF_GL)
+    add_subdirectory(third_party/glad_gl2)
     add_subdirectory(ref_gl)
 endif()
 

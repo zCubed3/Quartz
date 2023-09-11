@@ -21,29 +21,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #  error You should not be including this file on this platform
 #endif
 
-#ifndef __GLW_WIN_H__
-#define __GLW_WIN_H__
+#ifndef ZEALOTQUAKE2_GL_WIN_H
+#define ZEALOTQUAKE2_GL_WIN_H
 
 #include <SDL.h>
 
 typedef struct
 {
-	HINSTANCE	hInstance;
-	void	*wndproc;
-
-	HDC     hDC;			// handle to device context
-	HWND    hWnd;			// handle to window
-	HGLRC   hGLRC;			// handle to GL rendering context
-
-	HINSTANCE hinstOpenGL;	// HINSTANCE for the OpenGL library
-
 	qboolean minidriver;
 	qboolean allowdisplaydepthchange;
 	qboolean mcd_accelerated;
 
 	FILE *log_fp;
 
-	SDL_Window *sdl_window; // SDL Window handle
+	SDL_Window 		*sdl_window; // SDL Window handle
+	SDL_GLContext 	*sdl_gl_ctx; // SDL OpenGL handle
 } glwstate_t;
 
 extern glwstate_t glw_state;

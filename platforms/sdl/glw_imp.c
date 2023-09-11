@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <assert.h>
 #include <windows.h>
 #include "../../ref_gl/gl_local.h"
-#include "glw_win.h"
+#include "gl_sdl.h"
 #include "sdlquake.h"
 
 #include <SDL.h>
@@ -51,7 +51,7 @@ static qboolean VerifyDriver( void )
 {
 	char buffer[1024];
 
-	strcpy( buffer, qglGetString( GL_RENDERER ) );
+	strcpy( buffer, glGetString( GL_RENDERER ) );
 	strlwr( buffer );
 	if ( strcmp( buffer, "gdi generic" ) == 0 )
 		if ( !glw_state.mcd_accelerated )
@@ -82,28 +82,13 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		y = vid_ypos->value;
 	}
 
-	// If the window doesn't exist, create it
+	// If the window doesn't exist, error
 	if (!glw_state.sdl_window)
-	{
-		glw_state.sdl_window = SDL_CreateWindow(
-			"Quake 2 [ZQ2 : SDL2]",
-			x, y,
-			width, height,
-			0
-		);
+		ri.Sys_Error(ERR_FATAL, "SDL window was NULL!");
 
-		SDL_SysWMinfo sys_info;
-		SDL_VERSION(&sys_info.version);
-		SDL_GetWindowWMInfo(glw_state.sdl_window, &sys_info);
-
-		glw_state.hWnd = sys_info.info.win.window;
-
-		if (!glw_state.sdl_window)
-			ri.Sys_Error(ERR_FATAL, "Couldn't create SDL window!");
-
-		if (!glw_state.hWnd)
-			ri.Sys_Error(ERR_FATAL, "Failed to get HWND handle!");
-	}
+	// Update our window
+	SDL_SetWindowPosition(glw_state.sdl_window, x, y);
+	SDL_SetWindowSize(glw_state.sdl_window, width, height);
 
 	// Set fullscreen
 	// TODO: Borderless?
@@ -149,10 +134,10 @@ rserr_t GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen 
 	ri.Con_Printf( PRINT_ALL, " %d %d %s\n", width, height, win_fs[fullscreen] );
 
 	// destroy the existing window
-	if (glw_state.sdl_window)
-	{
-		GLimp_Shutdown ();
-	}
+	//if (glw_state.sdl_window)
+	//{
+	//	GLimp_Shutdown ();
+	//}
 
 	// do a CDS if needed
 	*pwidth = width;
@@ -195,28 +180,22 @@ rserr_t GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen 
 */
 void GLimp_Shutdown( void )
 {
-	if ( qwglMakeCurrent && !qwglMakeCurrent( NULL, NULL ) )
-		ri.Con_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglMakeCurrent failed\n");
+	// TODO: Reset context?
+	//SDL_GL_MakeCurrent()
 
-	if ( glw_state.hGLRC )
+	if (glw_state.sdl_gl_ctx)
 	{
-		if (  qwglDeleteContext && !qwglDeleteContext( glw_state.hGLRC ) )
-			ri.Con_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - wglDeleteContext failed\n");
-		glw_state.hGLRC = NULL;
-	}
+		SDL_GL_DeleteContext(glw_state.sdl_gl_ctx);
+		//ri.Con_Printf( PRINT_ALL, "[ref_gl::R_Shutdown()] - SDL_Delete_GLContext failed\n");
 
-	if (glw_state.hDC)
-	{
-		if ( !ReleaseDC( glw_state.hWnd, glw_state.hDC ) )
-			ri.Con_Printf( PRINT_ALL, "ref_gl::R_Shutdown() - ReleaseDC failed\n" );
-		glw_state.hDC   = NULL;
+		glw_state.sdl_gl_ctx = NULL;
 	}
 
 	if (glw_state.sdl_window)
 	{
 		SDL_DestroyWindow(glw_state.sdl_window);
+
 		glw_state.sdl_window = NULL;
-		glw_state.hWnd = NULL;
 	}
 
 	if ( glw_state.log_fp )
@@ -241,7 +220,8 @@ void GLimp_Shutdown( void )
 */
 qboolean GLimp_Init( void *hinstance, void *wndproc )
 {
-#define OSR2_BUILD_NUMBER 1111
+	/*
+	#define OSR2_BUILD_NUMBER 1111
 
 	OSVERSIONINFO	vinfo;
 
@@ -278,169 +258,19 @@ qboolean GLimp_Init( void *hinstance, void *wndproc )
 
 	glw_state.hInstance = ( HINSTANCE ) hinstance;
 	glw_state.wndproc = wndproc;
+	*/
 
 	return true;
 }
 
 qboolean GLimp_InitGL (void)
 {
-    PIXELFORMATDESCRIPTOR pfd = 
-	{
-		sizeof(PIXELFORMATDESCRIPTOR),	// size of this pfd
-		1,								// version number
-		PFD_DRAW_TO_WINDOW |			// support window
-		PFD_SUPPORT_OPENGL |			// support OpenGL
-		PFD_DOUBLEBUFFER,				// double buffered
-		PFD_TYPE_RGBA,					// RGBA type
-		24,								// 24-bit color depth
-		0, 0, 0, 0, 0, 0,				// color bits ignored
-		0,								// no alpha buffer
-		0,								// shift bit ignored
-		0,								// no accumulation buffer
-		0, 0, 0, 0, 					// accum bits ignored
-		32,								// 32-bit z-buffer	
-		0,								// no stencil buffer
-		0,								// no auxiliary buffer
-		PFD_MAIN_PLANE,					// main layer
-		0,								// reserved
-		0, 0, 0							// layer masks ignored
-    };
-    int  pixelformat;
-	cvar_t *stereo;
-	
-	stereo = ri.Cvar_Get( "cl_stereo", "0", 0 );
-
-	/*
-	** set PFD_STEREO if necessary
-	*/
-	if ( stereo->value != 0 )
-	{
-		ri.Con_Printf( PRINT_ALL, "...attempting to use stereo\n" );
-		pfd.dwFlags |= PFD_STEREO;
-		gl_state.stereo_enabled = true;
-	}
-	else
-	{
-		gl_state.stereo_enabled = false;
-	}
-
-	/*
-	** figure out if we're running on a minidriver or not
-	*/
-	if ( strstr( gl_driver->string, "opengl32" ) != 0 )
-		glw_state.minidriver = false;
-	else
-		glw_state.minidriver = true;
-
-	/*
-	** Get a DC for the specified window
-	*/
-	if ( glw_state.hDC != NULL )
-		ri.Con_Printf( PRINT_ALL, "GLimp_Init() - non-NULL DC exists\n" );
-
-    if ( ( glw_state.hDC = GetDC( glw_state.hWnd ) ) == NULL )
-	{
-		ri.Con_Printf( PRINT_ALL, "GLimp_Init() - GetDC failed\n" );
-		return false;
-	}
-
-	if ( glw_state.minidriver )
-	{
-		if ( (pixelformat = qwglChoosePixelFormat( glw_state.hDC, &pfd)) == 0 )
-		{
-			ri.Con_Printf (PRINT_ALL, "GLimp_Init() - qwglChoosePixelFormat failed\n");
-			return false;
-		}
-		if ( qwglSetPixelFormat( glw_state.hDC, pixelformat, &pfd) == FALSE )
-		{
-			ri.Con_Printf (PRINT_ALL, "GLimp_Init() - qwglSetPixelFormat failed\n");
-			return false;
-		}
-		qwglDescribePixelFormat( glw_state.hDC, pixelformat, sizeof( pfd ), &pfd );
-	}
-	else
-	{
-		if ( ( pixelformat = ChoosePixelFormat( glw_state.hDC, &pfd)) == 0 )
-		{
-			ri.Con_Printf (PRINT_ALL, "GLimp_Init() - ChoosePixelFormat failed\n");
-			return false;
-		}
-		if ( SetPixelFormat( glw_state.hDC, pixelformat, &pfd) == FALSE )
-		{
-			ri.Con_Printf (PRINT_ALL, "GLimp_Init() - SetPixelFormat failed\n");
-			return false;
-		}
-		DescribePixelFormat( glw_state.hDC, pixelformat, sizeof( pfd ), &pfd );
-
-		if ( !( pfd.dwFlags & PFD_GENERIC_ACCELERATED ) )
-		{
-			extern cvar_t *gl_allow_software;
-
-			if ( gl_allow_software->value )
-				glw_state.mcd_accelerated = true;
-			else
-				glw_state.mcd_accelerated = false;
-		}
-		else
-		{
-			glw_state.mcd_accelerated = true;
-		}
-	}
-
-	/*
-	** report if stereo is desired but unavailable
-	*/
-	if ( !( pfd.dwFlags & PFD_STEREO ) && ( stereo->value != 0 ) ) 
-	{
-		ri.Con_Printf( PRINT_ALL, "...failed to select stereo pixel format\n" );
-		ri.Cvar_SetValue( "cl_stereo", 0 );
-		gl_state.stereo_enabled = false;
-	}
-
-	/*
-	** startup the OpenGL subsystem by creating a context and making
-	** it current
-	*/
-	if ( ( glw_state.hGLRC = qwglCreateContext( glw_state.hDC ) ) == 0 )
-	{
-		ri.Con_Printf (PRINT_ALL, "GLimp_Init() - qwglCreateContext failed\n");
-
-		goto fail;
-	}
-
-    if ( !qwglMakeCurrent( glw_state.hDC, glw_state.hGLRC ) )
-	{
-		ri.Con_Printf (PRINT_ALL, "GLimp_Init() - qwglMakeCurrent failed\n");
-
-		goto fail;
-	}
-
-	if ( !VerifyDriver() )
-	{
-		ri.Con_Printf( PRINT_ALL, "GLimp_Init() - no hardware acceleration detected\n" );
-		goto fail;
-	}
-
-	/*
-	** print out PFD specifics 
-	*/
-	ri.Con_Printf( PRINT_ALL, "GL PFD: color(%d-bits) Z(%d-bit)\n", ( int ) pfd.cColorBits, ( int ) pfd.cDepthBits );
+	//
+	// This is stubbed because Windows and Linux have different init schemes for OpenGL
+	// Therefore it all happens EXACTLY when the DLL is loaded
+	//
 
 	return true;
-
-fail:
-	if ( glw_state.hGLRC )
-	{
-		qwglDeleteContext( glw_state.hGLRC );
-		glw_state.hGLRC = NULL;
-	}
-
-	if ( glw_state.hDC )
-	{
-		ReleaseDC( glw_state.hWnd, glw_state.hDC );
-		glw_state.hDC = NULL;
-	}
-	return false;
 }
 
 /*
@@ -448,6 +278,7 @@ fail:
 */
 void GLimp_BeginFrame( float camera_separation )
 {
+	/*
 	if ( gl_bitdepth->modified )
 	{
 		if ( gl_bitdepth->value != 0 && !glw_state.allowdisplaydepthchange )
@@ -460,16 +291,19 @@ void GLimp_BeginFrame( float camera_separation )
 
 	if ( camera_separation < 0 && gl_state.stereo_enabled )
 	{
-		qglDrawBuffer( GL_BACK_LEFT );
+		glDrawBuffer( GL_BACK_LEFT );
 	}
 	else if ( camera_separation > 0 && gl_state.stereo_enabled )
 	{
-		qglDrawBuffer( GL_BACK_RIGHT );
+		glDrawBuffer( GL_BACK_RIGHT );
 	}
 	else
 	{
-		qglDrawBuffer( GL_BACK );
+		glDrawBuffer( GL_BACK );
 	}
+	*/
+
+	// TODO: Is there anything we need to do with GLAD here?
 }
 
 /*
@@ -483,13 +317,13 @@ void GLimp_EndFrame (void)
 {
 	int		err;
 
-	err = qglGetError();
-	assert( err == GL_NO_ERROR );
+	err = glGetError();
+	assert(err == GL_NO_ERROR);
 
 	if ( stricmp( gl_drawbuffer->string, "GL_BACK" ) == 0 )
 	{
-		if ( !qwglSwapBuffers( glw_state.hDC ) )
-			ri.Sys_Error( ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n" );
+		SDL_GL_SwapWindow(glw_state.sdl_window);
+		//ri.Sys_Error( ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n" );
 	}
 }
 
