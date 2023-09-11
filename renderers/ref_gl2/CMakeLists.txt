@@ -10,6 +10,9 @@ list(APPEND REF_GL_SRCS
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
+
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl_sdl.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl_sdl_imp.c"
 )
 
 list(APPEND REF_GL_DEFS
@@ -33,11 +36,6 @@ list(APPEND REF_GL_INC_DIRS
 if (WIN32)
     set(OPENGL_LIB "opengl32")
 
-    list(APPEND REF_GL_SRCS
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/glw_imp.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/qgl_win.c"
-    )
-
     list(APPEND REF_GL_LIBS
         "winmm"
     )
@@ -60,4 +58,4 @@ target_link_libraries(Zealot_RefGL PRIVATE ${REF_GL_LIBS})
 target_compile_definitions(Zealot_RefGL PRIVATE ${REF_GL_DEFS})
 target_include_directories(Zealot_RefGL PRIVATE ${REF_GL_INC_DIRS})
 
-set_target_properties(Zealot_RefGL PROPERTIES OUTPUT_NAME "ref_gl")
+set_target_properties(Zealot_RefGL PROPERTIES OUTPUT_NAME "ref_gl2")

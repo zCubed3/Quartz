@@ -1074,7 +1074,7 @@ qboolean R_SetMode (void)
 		{
 			ri.Cvar_SetValue( "vid_fullscreen", 0);
 			vid_fullscreen->modified = false;
-			ri.Con_Printf( PRINT_ALL, "ref_gl::R_SetMode() - fullscreen unavailable in this mode\n" );
+			ri.Con_Printf( PRINT_ALL, "ref_gl2::R_SetMode() - fullscreen unavailable in this mode\n" );
 			if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, false ) ) == rserr_ok )
 				return true;
 		}
@@ -1082,13 +1082,13 @@ qboolean R_SetMode (void)
 		{
 			ri.Cvar_SetValue( "gl_mode", gl_state.prev_mode );
 			gl_mode->modified = false;
-			ri.Con_Printf( PRINT_ALL, "ref_gl::R_SetMode() - invalid mode\n" );
+			ri.Con_Printf( PRINT_ALL, "ref_gl2::R_SetMode() - invalid mode\n" );
 		}
 
 		// try setting it back to something safe
 		if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_state.prev_mode, false ) ) != rserr_ok )
 		{
-			ri.Con_Printf( PRINT_ALL, "ref_gl::R_SetMode() - could not revert to safe mode\n" );
+			ri.Con_Printf( PRINT_ALL, "ref_gl2::R_SetMode() - could not revert to safe mode\n" );
 			return false;
 		}
 	}
@@ -1113,7 +1113,7 @@ int R_Init( void *hinstance, void *hWnd )
 		r_turbsin[j] *= 0.5;
 	}
 
-	ri.Con_Printf (PRINT_ALL, "ref_gl version: "REF_VERSION"\n");
+	ri.Con_Printf (PRINT_ALL, "ref_gl2 version: "REF_VERSION"\n");
 
 	Draw_GetPalette ();
 
@@ -1123,7 +1123,7 @@ int R_Init( void *hinstance, void *hWnd )
 	if ( !QGL_Init(gl_driver->string) )
 	{
 		QGL_Shutdown();
-        ri.Con_Printf (PRINT_ALL, "ref_gl::R_Init() - could not load \"%s\"\n", gl_driver->string );
+        ri.Con_Printf (PRINT_ALL, "ref_gl2::R_Init() - could not load \"%s\"\n", gl_driver->string );
 		return -1;
 	}
 
@@ -1141,7 +1141,7 @@ int R_Init( void *hinstance, void *hWnd )
 	if ( !R_SetMode () )
 	{
 		QGL_Shutdown();
-        ri.Con_Printf (PRINT_ALL, "ref_gl::R_Init() - could not R_SetMode()\n" );
+        ri.Con_Printf (PRINT_ALL, "ref_gl2::R_Init() - could not R_SetMode()\n" );
 		return -1;
 	}
 

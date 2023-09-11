@@ -25,11 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <math.h>
 
-#include "../client/ref.h"
+#include "../../client/ref.h"
 
 #include "qgl.h"
 
-#define	REF_VERSION	"GL 0.01"
+#define	REF_VERSION	"GL 2.0"
 
 // up / down
 #define	PITCH	0

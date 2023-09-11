@@ -31,13 +31,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 **
 */
 #include <assert.h>
-#include <windows.h>
-#include "../../ref_gl/gl_local.h"
-#include "gl_sdl.h"
-#include "sdlquake.h"
 
-#include <SDL.h>
-#include <SDL_syswm.h>
+#include "../../../renderers/ref_gl2/gl_local.h"
+
+#include "../sdlquake.h"
+
+#include "gl_sdl.h"
 
 static qboolean GLimp_SwitchFullscreen( int width, int height );
 qboolean GLimp_InitGL (void);
@@ -47,23 +46,9 @@ glwstate_t glw_state;
 extern cvar_t *vid_fullscreen;
 extern cvar_t *vid_ref;
 
-static qboolean VerifyDriver( void )
-{
-	char buffer[1024];
-
-	strcpy( buffer, glGetString( GL_RENDERER ) );
-	strlwr( buffer );
-	if ( strcmp( buffer, "gdi generic" ) == 0 )
-		if ( !glw_state.mcd_accelerated )
-			return false;
-	return true;
-}
-
 /*
 ** VID_CreateWindow
 */
-#define	WINDOW_CLASS_NAME	"Quake 2"
-
 qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 {
 	cvar_t *vid_xpos, *vid_ypos;
@@ -73,11 +58,10 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 	{
 		x = 0;
 		y = 0;
-	}
-	else
+	} else
 	{
-		vid_xpos = ri.Cvar_Get ("vid_xpos", "0", 0);
-		vid_ypos = ri.Cvar_Get ("vid_ypos", "0", 0);
+		vid_xpos = ri.Cvar_Get("vid_xpos", "0", 0);
+		vid_ypos = ri.Cvar_Get("vid_ypos", "0", 0);
 		x = vid_xpos->value;
 		y = vid_ypos->value;
 	}
@@ -98,16 +82,16 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		SDL_SetWindowFullscreen(glw_state.sdl_window, 0);
 
 	// init all the gl stuff for the window
-	if (!GLimp_InitGL ())
+	if (!GLimp_InitGL())
 	{
-		ri.Con_Printf( PRINT_ALL, "VID_CreateWindow() -> GLimp_InitGL failed\n");
+		ri.Con_Printf(PRINT_ALL, "VID_CreateWindow() -> GLimp_InitGL failed\n");
 		return false;
 	}
 
 	SDL_RaiseWindow(glw_state.sdl_window);
 
 	// let the sound and input subsystems know about the new window
-	ri.Vid_NewWindow (glw_state.sdl_window, width, height);
+	ri.Vid_NewWindow(glw_state.sdl_window, width, height);
 
 	return true;
 }

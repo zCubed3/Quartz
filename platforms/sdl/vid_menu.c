@@ -217,6 +217,7 @@ void VID_MenuInit( void )
 	{
 		"[Software]",
 		"[OpenGL 2.0]",
+		"[OpenGL 4.6]",
 		NULL
 	};
 

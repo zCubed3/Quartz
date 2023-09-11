@@ -26,7 +26,8 @@ list(APPEND ZEALOT_GDEFS
 #
 # Project options
 #
-option(ZEALOT_BUILD_REF_GL "Builds the RefGL (OpenGL Renderer) module" ON)
+option(ZEALOT_BUILD_REF_GL2 "Builds ref_gl2 (OpenGL 2.0 Renderer)" ON)
+option(ZEALOT_BUILD_REF_GL4 "Builds ref_gl4 (OpenGL 4.6 Renderer)" ON)
 
 include(BuildConfig.txt)
 # TODO: Generate a BuildConfig.gen.h file
@@ -41,9 +42,9 @@ add_subdirectory(third_party/SDL)
 #
 include(qcommon/CMakeLists.txt)
 
-if (ZEALOT_BUILD_REF_GL)
+if (ZEALOT_BUILD_REF_GL2)
     add_subdirectory(third_party/glad_gl2)
-    add_subdirectory(ref_gl)
+    add_subdirectory(renderers/ref_gl2)
 endif()
 
 #

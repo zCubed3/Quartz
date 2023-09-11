@@ -232,9 +232,10 @@ qboolean VID_LoadRefresh( char *name )
 
 	Com_Printf("------- Loading %s -------\n", name);
 
-	if ((qlib_ref = LoadLibrary(name)) == 0)
+	qlib_ref = QLib_LoadLibrary(name);
+	if (qlib_ref == NULL)
 	{
-		Com_Printf("LoadLibrary(\"%s\") failed\n", name);
+		Com_Printf("QLib_LoadLibrary(\"%s\") failed\n", name);
 
 		return false;
 	}
@@ -284,10 +285,18 @@ qboolean VID_LoadRefresh( char *name )
 	vidref_val = VIDREF_OTHER;
 	if (vid_ref)
 	{
+		// Backwards compat
 		if (!strcmp(vid_ref->string, "gl"))
 			vidref_val = VIDREF_GL;
-		else if (!strcmp(vid_ref->string, "soft"))
+
+		if (!strcmp(vid_ref->string, "gl2"))
+			vidref_val = VIDREF_GL;
+
+		if (!strcmp(vid_ref->string, "soft"))
 			vidref_val = VIDREF_SOFT;
+
+		if (!strcmp(vid_ref->string, "gl4"))
+			vidref_val = VIDREF_GL_4;
 	}
 //PGM
 //======
@@ -323,21 +332,31 @@ void VID_CheckChanges (void)
 		cl.refresh_prepped = false;
 		cls.disable_screen = true;
 
+		// If using GL, forward to GL2
+		if (strcmp(vid_ref->string, "gl") == 0)
+		{
+			Cvar_Set("vid_ref", "gl2");
+			continue;
+		}
+
 		Com_sprintf( name, sizeof(name), "ref_%s.dll", vid_ref->string );
+
 		if ( !VID_LoadRefresh( name ) )
 		{
-			if ( strcmp (vid_ref->string, "soft") == 0 )
-				Com_Error (ERR_FATAL, "Couldn't fall back to software refresh!");
-			Cvar_Set( "vid_ref", "soft" );
+			if (strcmp(vid_ref->string, "soft") == 0)
+				Com_Error(ERR_FATAL, "Couldn't fall back to software refresh!");
+
+			Cvar_Set("vid_ref", "soft");
 
 			/*
 			** drop the console if we fail to load a refresh
 			*/
-			if ( cls.key_dest != key_console )
+			if (cls.key_dest != key_console)
 			{
 				Con_ToggleConsole_f();
 			}
 		}
+
 		cls.disable_screen = false;
 	}
 

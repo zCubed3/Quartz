@@ -1190,11 +1190,17 @@ typedef struct
 
 
 // ==================
-// PGM 
-#define VIDREF_GL		1
-#define VIDREF_SOFT		2
-#define VIDREF_OTHER	3
+// VIDREFS
+// ==================
 
-extern int vidref_val;
-// PGM
+typedef enum
+{
+	VIDREF_GL,
+	VIDREF_SOFT,
+	VIDREF_GL_4,
+	VIDREF_OTHER
+} vidref_t;
+
+extern vidref_t vidref_val;
+
 // ==================
