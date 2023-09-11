@@ -1376,8 +1376,6 @@ int R_Init( void *hinstance, void *hWnd )
 	{
 		ri.Con_Printf( PRINT_ALL, "...GL_SGIS_multitexture not found\n" );
 	}
-
-	GL_SetDefaultState();
 	*/
 
 	/*
@@ -1386,6 +1384,8 @@ int R_Init( void *hinstance, void *hWnd )
 #if 0 // commented out until H3D pays us the money they owe us
 	GL_DrawStereoPattern();
 #endif
+
+	GL_SetDefaultState();
 
 	GL_InitImages ();
 	Mod_Init ();

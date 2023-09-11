@@ -67,7 +67,7 @@ qboolean QGL_Init( const char *dllname )
 	// We must have a valid window beforehand
 	// Thanks Windows!
 	glw_state.sdl_window = SDL_CreateWindow(
-		"ZQ2",
+		"Quake 2 [ZQ2 : SDL2 + OpenGL 2.0]",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		640,
