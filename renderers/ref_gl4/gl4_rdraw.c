@@ -18,23 +18,72 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef ZEALOT_GL_SDL_H
-#define ZEALOT_GL_SDL_H
+//
+// gl4_rdraw.c - Drawing functions
+//
 
-#include <SDL.h>
+#include "gl4_ref.h"
 
-typedef struct
+//
+// Draw_GetPicSize
+//
+void Draw_GetPicSize(int *w, int *h, char *name)
 {
-	qboolean minidriver;
-	qboolean allowdisplaydepthchange;
-	qboolean mcd_accelerated;
 
-	FILE *log_fp;
+}
 
-	SDL_Window 		*sdl_window; // SDL Window handle
-	SDL_GLContext 	*sdl_gl_ctx; // SDL OpenGL handle
-} glwstate_t;
+//
+// Draw_Pic
+//
+void Draw_Pic(int x, int y, char *name)
+{
 
-extern glwstate_t glw_state;
+}
 
-#endif
+//
+// Draw_StretchPic
+//
+void Draw_StretchPic(int x, int y, int w, int h, char *name)
+{
+
+}
+
+//
+// Draw_Char
+//
+void Draw_Char(int x, int y, int c)
+{
+
+}
+
+//
+// Draw_TileClear
+//
+void Draw_TileClear(int x, int y, int w, int h, char *name)
+{
+
+}
+
+//
+// Draw_Fill
+//
+void Draw_Fill(int x, int y, int w, int h, int c)
+{
+
+}
+
+//
+// Draw_FadeScreen
+//
+void Draw_FadeScreen(void)
+{
+
+}
+
+//
+// Draw_StretchRaw
+//
+void Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, byte *data)
+{
+
+}

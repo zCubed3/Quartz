@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,18 +19,45 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qexport.h - Defines .dll / .so visibility attributes
+// gl4_rstate.c - Handles the state section of the GL4 module
 //
 
-#ifndef ZEALOT_QEXPORT_H
-#define ZEALOT_QEXPORT_H
+#include "gl4_ref.h"
 
-#if WIN32
-#define QEXPORT __declspec(dllexport)
-#endif
+//
+// R_Init
+//
+int R_Init(void *param1, void *param2)
+{
+	// param1 and param2 are unused
+	// They're "legacy" things
 
-#ifndef QEXPORT
-#define QEXPORT
-#endif
+	// Initialize OpenGL first
+	if (!OGL_Init())
+		return false;
 
-#endif //ZEALOT_QEXPORT_H
+	// Then initialize the renderer resources
+	if (!R_LoadDefaultAssets())
+		return false;
+
+	// Notify the game of our window
+	ri.Vid_NewWindow(gl4_state.sdl_window, gl4_state.width, gl4_state.height);
+
+	return true;
+}
+
+//
+// R_Shutdown
+//
+void R_Shutdown(void)
+{
+
+}
+
+//
+// AppActivate
+//
+void R_AppActivate(qboolean active)
+{
+	// TODO: AppActivate
+}

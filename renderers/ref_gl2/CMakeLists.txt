@@ -52,10 +52,10 @@ list(APPEND REF_GL_LIBS
 #
 # Library definition
 #
-add_library(Zealot_RefGL SHARED ${REF_GL_SRCS})
+add_library(Zealot_RefGL2 SHARED ${REF_GL_SRCS})
 
-target_link_libraries(Zealot_RefGL PRIVATE ${REF_GL_LIBS})
-target_compile_definitions(Zealot_RefGL PRIVATE ${REF_GL_DEFS})
-target_include_directories(Zealot_RefGL PRIVATE ${REF_GL_INC_DIRS})
+target_link_libraries(Zealot_RefGL2 PRIVATE ${REF_GL_LIBS})
+target_compile_definitions(Zealot_RefGL2 PRIVATE ${REF_GL_DEFS})
+target_include_directories(Zealot_RefGL2 PRIVATE ${REF_GL_INC_DIRS})
 
-set_target_properties(Zealot_RefGL PROPERTIES OUTPUT_NAME "ref_gl2")
+set_target_properties(Zealot_RefGL2 PROPERTIES OUTPUT_NAME "ref_gl2")

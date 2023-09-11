@@ -18,23 +18,49 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef ZEALOT_GL_SDL_H
-#define ZEALOT_GL_SDL_H
+//
+// gl4_rframe.c - Implementations of begin and end frame
+//
 
-#include <SDL.h>
+#include "gl4_ref.h"
 
-typedef struct
+#include <glad/glad.h>
+
+//
+// R_BeginFrame
+//
+void R_BeginFrame(float stereo_dist)
 {
-	qboolean minidriver;
-	qboolean allowdisplaydepthchange;
-	qboolean mcd_accelerated;
+	// TODO: Handle window resizing
+	// TODO: Handle vsync changes
+	int indices[3] = {
+		0, 1, 2
+	};
 
-	FILE *log_fp;
+	glClear(GL_DEPTH_BUFFER_BIT);
 
-	SDL_Window 		*sdl_window; // SDL Window handle
-	SDL_GLContext 	*sdl_gl_ctx; // SDL OpenGL handle
-} glwstate_t;
+	OGL_BindShader(gl4_shader_hello_tri);
+	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &indices);
+}
 
-extern glwstate_t glw_state;
+//
+// R_EndFrame
+//
+void R_EndFrame(void)
+{
+	int		err;
 
-#endif
+	while ((err = glGetError()) != GL_NO_ERROR)
+		ri.Con_Printf(PRINT_ALL, "[RefGL4]: OpenGL error '%i'\n", err);
+
+	// Swap our buffers (present the image)
+	SDL_GL_SwapWindow(gl4_state.sdl_window);
+}
+
+//
+// R_RenderFrame
+//
+void R_RenderFrame(refdef_t *fd)
+{
+
+}

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,18 +19,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qexport.h - Defines .dll / .so visibility attributes
+// gl4_sdl.h -- OpenGL 4 Renderer definition
 //
 
-#ifndef ZEALOT_QEXPORT_H
-#define ZEALOT_QEXPORT_H
+#ifndef ZEALOT_GL4_SDL_H
+#define ZEALOT_GL4_SDL_H
 
-#if WIN32
-#define QEXPORT __declspec(dllexport)
-#endif
+#include <SDL.h>
 
-#ifndef QEXPORT
-#define QEXPORT
-#endif
 
-#endif //ZEALOT_QEXPORT_H
+
+#endif//ZEALOT_GL4_SDL_H
+

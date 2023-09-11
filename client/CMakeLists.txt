@@ -75,4 +75,4 @@ target_compile_definitions(Zealot_Client PRIVATE ${CLIENT_DEFS})
 
 set_target_properties(Zealot_Client PROPERTIES OUTPUT_NAME "${ZEALOT_CLIENT_NAME}")
 
-add_dependencies(Zealot_Client Zealot_RefGL Zealot_Game)
+#add_dependencies(Zealot_Client Zealot_RefGL2 Zealot_Game)

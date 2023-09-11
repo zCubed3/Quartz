@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,18 +19,49 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qexport.h - Defines .dll / .so visibility attributes
+// gl4_rreg.c - Implementations of registration functions
 //
 
-#ifndef ZEALOT_QEXPORT_H
-#define ZEALOT_QEXPORT_H
+#include "gl4_ref.h"
 
-#if WIN32
-#define QEXPORT __declspec(dllexport)
-#endif
+#include <glad/glad.h>
 
-#ifndef QEXPORT
-#define QEXPORT
-#endif
+//
+// R_BeginRegistration
+//
+void R_BeginRegistration(char *map)
+{
 
-#endif //ZEALOT_QEXPORT_H
+}
+
+//
+// R_EndRegistration
+//
+void R_EndRegistration(void)
+{
+
+}
+
+//
+// R_RegisterModel
+//
+struct model_s *R_RegisterModel(char *name)
+{
+	return NULL;
+}
+
+//
+// R_RegisterSkin
+//
+struct image_s *R_RegisterSkin(char *name)
+{
+	return NULL;
+}
+
+//
+// R_RegisterPic
+//
+struct image_s *R_RegisterPic(char *name)
+{
+	return NULL;
+}

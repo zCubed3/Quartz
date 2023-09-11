@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // This is a wrapper around HINSTANCE / void* dynamic linking
 //
 
-#ifndef ZEALOTQUAKE2_SHARED_LIB_H
-#define ZEALOTQUAKE2_SHARED_LIB_H
+#ifndef ZEALOT_SHARED_LIB_H
+#define ZEALOT_SHARED_LIB_H
 
 #ifdef WIN32
 
@@ -50,4 +50,4 @@ extern int QLib_UnloadLibrary(qlib lib);
 
 extern void* QLib_GetFuncPtr(qlib lib, const char* func);
 
-#endif //ZEALOTQUAKE2_SHARED_LIB_H
+#endif //ZEALOT_SHARED_LIB_H
