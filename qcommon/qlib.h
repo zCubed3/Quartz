@@ -27,6 +27,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ZEALOT_SHARED_LIB_H
 #define ZEALOT_SHARED_LIB_H
 
+//============================================================================
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+//============================================================================
+
+#include "qexport.h"
+
 #ifdef WIN32
 
 #include <Windows.h>
@@ -41,13 +53,25 @@ typedef void* 		qlib;
 #endif
 
 
-extern const char* 		qlib_postfix;
+typedef void*(*qlib_fptr)(void*);
+
+QEXTERN_VAR const char* 		qlib_postfix;
 
 
-extern qlib QLib_LoadLibrary(const char* path);
+QEXTERN_FUNC qlib QLib_LoadLibrary(const char* path);
 
-extern int QLib_UnloadLibrary(qlib lib);
+QEXTERN_FUNC int QLib_UnloadLibrary(qlib lib);
 
-extern void* QLib_GetFuncPtr(qlib lib, const char* func);
+QEXTERN_FUNC qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func);
+
+//============================================================================
+
+#ifdef __cplusplus
+
+};
+
+#endif
+
+//============================================================================
 
 #endif //ZEALOT_SHARED_LIB_H

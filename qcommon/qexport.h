@@ -25,12 +25,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ZEALOT_QEXPORT_H
 #define ZEALOT_QEXPORT_H
 
+#ifndef __cplusplus
+
 #if WIN32
 #define QEXPORT __declspec(dllexport)
 #endif
 
 #ifndef QEXPORT
 #define QEXPORT
+#endif
+
+#define QEXTERN_FUNC
+#define QEXTERN_VAR extern
+
+#else
+
+#if WIN32
+#define QEXPORT __declspec(dllexport) extern "C"
+#endif
+
+#ifndef QEXPORT
+#define QEXPORT extern "C"
+#endif
+
+#define QEXTERN_FUNC extern
+#define QEXTERN_VAR extern
+
 #endif
 
 #endif //ZEALOT_QEXPORT_H

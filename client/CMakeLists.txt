@@ -26,9 +26,10 @@ list(APPEND CLIENT_SRCS
     "${CMAKE_SOURCE_DIR}/game/m_flash.c"
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/in_sdl.c"
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/sys_sdl.c"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.c"
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/q_shsdl.c"
+
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/id_system_sdl.cpp"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/id_shared_sdl.cpp"
 
     "${CMAKE_SOURCE_DIR}/platforms/null/cd_null.c" # TODO: Replace CD Audio!
 )

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 1997-2001 Id Software, Inc., 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,51 +19,28 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qlib.c
+// id_system.hpp -- idSystem declaration
 //
 
-#include "qlib.h"
-
-#include "qcommon.h"
-
-#ifdef WIN32
-
-#include <Windows.h>
-
-const char*	qlib_postfix = ".dll";
-
-qlib QLib_LoadLibrary(const char* path)
-{
-	return LoadLibrary(path);
-}
-
-int QLib_UnloadLibrary(qlib lib)
-{
-	return FreeLibrary(lib);
-}
-
-qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func)
-{
-	return (qlib_fptr)GetProcAddress(lib, func);
-}
-
-#elif __linux__
-
-const char*	qlib_postfix = ".so";
-
-qlib QLib_LoadLibrary(char char* path)
-{
-	return dlopen(path, RTLD_LAZY);
-}
-
-int QLib_UnloadLibrary(qlib lib)
-{
-	return dlclose(lib);
-}
-
-void* QLib_GetFuncPtr(qlib lib, const char* func)
-{
-	return dlsym(lib, func);
-}
-
+#ifndef __cplusplus
+#error "Tried including C++ header inside of a C source file!"
 #endif
+
+#ifndef ZEALOT_ID_SHARED_SDL_HPP
+#define ZEALOT_ID_SHARED_SDL_HPP
+
+//#include "../../game/id_shared.hpp"
+
+// TODO: Implement idShared
+class idShared
+	{
+
+	};
+
+class idSharedSDL : public idShared
+{
+
+};
+
+
+#endif //ZEALOT_ID_SHARED_SDL_HPP

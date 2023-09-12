@@ -19,6 +19,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // sdlquake.h: SDL specific Quake header file
 
+#ifndef ZEALOT_SDL_QUAKE_H
+#define ZEALOT_SDL_QUAKE_H
+
+//============================================================================
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+//============================================================================
+
 #if defined(WIN32)
 
 #include <Windows.h>
@@ -45,3 +58,17 @@ void IN_PollSDL (void);
 
 extern int		window_center_x, window_center_y;
 extern RECT		window_rect;
+
+extern unsigned sys_msg_time, sys_frame_time;
+
+//============================================================================
+
+#ifdef __cplusplus
+
+};
+
+#endif
+
+//============================================================================
+
+#endif

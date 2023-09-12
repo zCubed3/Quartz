@@ -257,7 +257,7 @@ qboolean VID_LoadRefresh( char *name )
 	ri.Vid_MenuInit = VID_MenuInit;
 	ri.Vid_NewWindow = VID_NewWindow;
 
-	GetRefAPI = QLib_GetFuncPtr(qlib_ref, "GetRefAPI");
+	GetRefAPI = (GetRefAPI_t)QLib_GetFuncPtr(qlib_ref, "GetRefAPI");
 
 	if (GetRefAPI == NULL)
 		Com_Error(ERR_FATAL, "GetProcAddress failed on %s", name);

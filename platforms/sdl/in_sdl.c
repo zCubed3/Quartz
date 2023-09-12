@@ -128,7 +128,6 @@ qboolean	mouseactive;	// false when not focus app
 qboolean	restore_spi;
 qboolean	mouseinitialized;
 int			originalmouseparms[3], newmouseparms[3] = {0, 0, 1};
-qboolean	mouseparmsvalid;
 
 int			window_center_x, window_center_y;
 
@@ -157,9 +156,6 @@ void IN_ActivateMouse (void)
 
 	mouseactive = true;
 
-	if (mouseparmsvalid)
-		restore_spi = SystemParametersInfo (SPI_SETMOUSE, 0, newmouseparms, 0);
-
 	SDL_GetWindowSize(cl_window, &width, &height);
 
 	window_center_x = width / 2;
@@ -182,11 +178,9 @@ void IN_DeactivateMouse (void)
 {
 	if (!mouseinitialized)
 		return;
+
 	if (!mouseactive)
 		return;
-
-	if (restore_spi)
-		SystemParametersInfo (SPI_SETMOUSE, 0, originalmouseparms, 0);
 
 	mouseactive = false;
 	SDL_ShowCursor(true);
@@ -208,7 +202,6 @@ void IN_StartupMouse (void)
 		return; 
 
 	mouseinitialized = true;
-	mouseparmsvalid = SystemParametersInfo (SPI_GETMOUSE, 0, originalmouseparms, 0);
 	mouse_buttons = 3;
 }
 
@@ -986,6 +979,11 @@ void IN_PollSDL (void)
 
 			if (key != -1)
 				Key_Event(key, pressed, event_time);
+
+			if (pressed)
+				Sys_ConsoleOutput("FUCK");
+			else
+				Sys_ConsoleOutput("SHIT");
 		}
 
 		if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)

@@ -23,6 +23,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ZEALOT_QCOMMON_H
 #define ZEALOT_QCOMMON_H
 
+
+//============================================================================
+
+#ifdef __cplusplus
+
+extern "C" {
+
+#endif
+
+//============================================================================
+
 #include "../game/q_shared.h"
 
 #include "qexport.h"
@@ -229,7 +240,7 @@ enum svc_ops_e
 	svc_stufftext,				// [string] stuffed into client's console buffer, should be \n terminated
 	svc_serverdata,				// [long] protocol ...
 	svc_configstring,			// [short] [string]
-	svc_spawnbaseline,		
+	svc_spawnbaseline,
 	svc_centerprint,			// [string] to put in center of the screen
 	svc_download,				// [short] size [size bytes]
 	svc_playerinfo,				// variable
@@ -246,7 +257,7 @@ enum svc_ops_e
 enum clc_ops_e
 {
 	clc_bad,
-	clc_nop, 		
+	clc_nop,
 	clc_move,				// [[usercmd_t]
 	clc_userinfo,			// [[userinfo string]
 	clc_stringcmd			// [string] message
@@ -831,5 +842,15 @@ void SCR_BeginLoadingPlaque (void);
 void SV_Init (void);
 void SV_Shutdown (char *finalmsg, qboolean reconnect);
 void SV_Frame (int msec);
+
+//============================================================================
+
+#ifdef __cplusplus
+
+};
+
+#endif
+
+//============================================================================
 
 #endif

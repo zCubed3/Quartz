@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gl4_ref.h"
 
+#include "assets/gl4_image.h"
+
 #include <glad/glad.h>
 
 //
