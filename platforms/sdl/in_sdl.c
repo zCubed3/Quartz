@@ -979,11 +979,6 @@ void IN_PollSDL (void)
 
 			if (key != -1)
 				Key_Event(key, pressed, event_time);
-
-			if (pressed)
-				Sys_ConsoleOutput("FUCK");
-			else
-				Sys_ConsoleOutput("SHIT");
 		}
 
 		if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)

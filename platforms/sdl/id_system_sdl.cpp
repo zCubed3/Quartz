@@ -266,8 +266,7 @@ HINSTANCE	global_hInstance;
 
 int main(int argc, char** argv)
 {
-    MSG				msg;
-	int				time, oldtime, newtime;
+	int		time, oldtime, newtime;
 
 	SDL_Init(SDL_INIT_EVERYTHING);
 
