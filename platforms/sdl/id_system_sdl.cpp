@@ -284,9 +284,7 @@ int main(int argc, char** argv)
 
 		// if at a full screen console, don't update unless needed
 		if (Minimized || (dedicated && dedicated->value))
-		{
-			Sleep (1);
-		}
+			SDL_Delay(10000);
 
 		do
 		{

@@ -35,6 +35,7 @@ list(APPEND CLIENT_SRCS
 )
 
 list(APPEND CLIENT_LIBS
+    Zealot_Core
     SDL2
     SDL2main
 )

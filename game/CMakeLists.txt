@@ -11,4 +11,6 @@ file(GLOB_RECURSE GAME_SRCS
 #
 add_library(Zealot_Game SHARED ${GAME_SRCS})
 
+target_link_libraries(Zealot_Game PRIVATE Zealot_Core)
+
 set_target_properties(Zealot_Game PROPERTIES OUTPUT_NAME "${ZEALOT_GAME_NAME}")
