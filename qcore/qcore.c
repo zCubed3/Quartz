@@ -24,4 +24,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qcore.h"
 
+#include <stdio.h>
+#include <stdarg.h>
 
+//============================================================================
+
+char	*va(char *format, ...)
+{
+	va_list		argptr;
+	static char		string[1024];
+
+	va_start(argptr, format);
+	vsprintf(string, format,argptr);
+	va_end(argptr);
+
+	return string;
+}
+
+//============================================================================

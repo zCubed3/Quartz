@@ -19,46 +19,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qcore.h - Common definitions, between all modules
+// qendian.h - Common byte manipulation functions (with respect to endianness)
 //
 
-#ifndef ZEALOT_QCORE_H
-#define ZEALOT_QCORE_H
+#ifndef ZEALOT_QENDIAN_H
+#define ZEALOT_QENDIAN_H
 
 //============================================================================
-
-#ifdef __cplusplus
-
-extern "C" {
-
-#endif
-
-//============================================================================
-
-#include "qlimits.h"
-
-#include "qdefs.h"
 
 #include "qtypes.h"
 
-#include "qmath.h"
+//============================================================================
 
-#include "qstr.h"
-
-#include "qendian.h"
+extern qboolean		big_endian;
 
 //============================================================================
 
-char	*va(char *format, ...);
+short	BigShort(short l);
+short	LittleShort(short l);
+int		BigLong(int l);
+int		LittleLong(int l);
+float	BigFloat(float l);
+float	LittleFloat(float l);
+
+void	Swap_Init(void);
 
 //============================================================================
 
-#ifdef __cplusplus
-
-};
-
-#endif
-
-//============================================================================
-
-#endif //ZEALOT_QCORE_H
+#endif//ZEALOT_QENDIAN_H

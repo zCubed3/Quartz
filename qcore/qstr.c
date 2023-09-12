@@ -19,46 +19,48 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qcore.h - Common definitions, between all modules
+// qstr.c - Common string manipulation functions
 //
-
-#ifndef ZEALOT_QCORE_H
-#define ZEALOT_QCORE_H
-
-//============================================================================
-
-#ifdef __cplusplus
-
-extern "C" {
-
-#endif
-
-//============================================================================
-
-#include "qlimits.h"
-
-#include "qdefs.h"
-
-#include "qtypes.h"
-
-#include "qmath.h"
 
 #include "qstr.h"
 
-#include "qendian.h"
-
 //============================================================================
 
-char	*va(char *format, ...);
+// FIXME: replace all Q_stricmp with Q_strcasecmp
+int Q_stricmp(char *s1, char *s2)
+{
+	return Q_strcasecmp(s1, s2);
+}
+
+int Q_strncasecmp(char *s1, char *s2, int n)
+{
+	int		c1, c2;
+
+	do
+	{
+		c1 = *s1++;
+		c2 = *s2++;
+
+		if (!n--)
+			return 0;		// strings are equal until end point
+
+		if (c1 != c2)
+		{
+			if (c1 >= 'a' && c1 <= 'z')
+				c1 -= ('a' - 'A');
+			if (c2 >= 'a' && c2 <= 'z')
+				c2 -= ('a' - 'A');
+			if (c1 != c2)
+				return -1;		// strings not equal
+		}
+	} while (c1);
+
+	return 0;		// strings are equal
+}
+
+int Q_strcasecmp(char *s1, char *s2)
+{
+	return Q_strncasecmp (s1, s2, 99999);
+}
 
 //============================================================================
-
-#ifdef __cplusplus
-
-};
-
-#endif
-
-//============================================================================
-
-#endif //ZEALOT_QCORE_H

@@ -19,6 +19,7 @@ list(APPEND REF_GL4_DEFS
 )
 
 list(APPEND REF_GL4_LIBS
+    Zealot_Core
     SDL2
     GLAD_GL4
 )
