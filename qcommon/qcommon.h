@@ -20,6 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 // qcommon.h -- definitions common between client and server, but not game.dll
 
+#ifndef ZEALOT_QCOMMON_H
+#define ZEALOT_QCOMMON_H
+
 #include "../game/q_shared.h"
 
 #include "qexport.h"
@@ -829,5 +832,4 @@ void SV_Init (void);
 void SV_Shutdown (char *finalmsg, qboolean reconnect);
 void SV_Frame (int msec);
 
-
-
+#endif
