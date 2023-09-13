@@ -465,6 +465,16 @@ void R_ConcatTransforms (float in1[3][4], float in2[3][4], float out[3][4])
 //
 //============================================================================
 
+int Q_log2(int val)
+{
+	int answer=0;
+	while (val>>=1)
+		answer++;
+	return answer;
+}
+
+//============================================================================
+
 float LerpAngle(float a2, float a1, float frac)
 {
 	if (a1 - a2 > 180)

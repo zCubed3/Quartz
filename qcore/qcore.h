@@ -67,11 +67,14 @@ char	*va(char *format, ...);
 
 //============================================================================
 
-#define SFF_ARCH    0x01
-#define SFF_HIDDEN  0x02
-#define SFF_RDONLY  0x04
-#define SFF_SUBDIR  0x08
-#define SFF_SYSTEM  0x10
+typedef enum
+{
+	SFF_ARCH	= 1 << 0,
+	SFF_HIDDEN	= 1 << 1,
+	SFF_RDONLY	= 1 << 2,
+	SFF_SUBDIR	= 1 << 3,
+	SFF_SYSTEM	= 1 << 4
+} file_flags_t;
 
 //============================================================================
 

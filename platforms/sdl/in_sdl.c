@@ -933,6 +933,15 @@ int MapSDLKey(SDL_KeyCode code)
 		return (int)code;
 	}
 
+	// ==========
+	// Function keys
+	// ==========
+	if (code >= SDLK_F1 && code <= SDLK_F12)
+	{
+		int off = code - SDLK_F1;
+		return (int)K_F1 + off;
+	}
+
 	// =========
 	// Error key
 	// =========

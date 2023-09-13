@@ -29,9 +29,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
-char	*va(char *format, ...)
+/*
+============
+va
+
+does a varargs printf into a temp buffer, so I don't need to have
+varargs versions of all text functions.
+FIXME: make this buffer size safe someday
+============
+*/
+char* va(char *format, ...)
 {
-	va_list		argptr;
+	va_list			argptr;
 	static char		string[1024];
 
 	va_start(argptr, format);

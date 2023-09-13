@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #if defined(WIN32)
 
 #include <Windows.h>
-#include <io.h>
 
 #endif
 
@@ -43,75 +42,93 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if defined(WIN32)
 
-char	findbase[MAX_OSPATH];
-char	findpath[MAX_OSPATH];
-int		findhandle;
+char		findbase[MAX_OSPATH];
+char		findpath[MAX_OSPATH];
+HANDLE		findhandle = nullptr;
 
 static qboolean CompareAttributes( unsigned found, unsigned musthave, unsigned canthave )
 {
-	if ( ( found & _A_RDONLY ) && ( canthave & SFF_RDONLY ) )
-		return false;
-	if ( ( found & _A_HIDDEN ) && ( canthave & SFF_HIDDEN ) )
-		return false;
-	if ( ( found & _A_SYSTEM ) && ( canthave & SFF_SYSTEM ) )
-		return false;
-	if ( ( found & _A_SUBDIR ) && ( canthave & SFF_SUBDIR ) )
-		return false;
-	if ( ( found & _A_ARCH ) && ( canthave & SFF_ARCH ) )
+	if ((found & FILE_ATTRIBUTE_READONLY) && (canthave & SFF_RDONLY))
 		return false;
 
-	if ( ( musthave & SFF_RDONLY ) && !( found & _A_RDONLY ) )
+	if ((found & FILE_ATTRIBUTE_HIDDEN) && (canthave & SFF_HIDDEN))
 		return false;
-	if ( ( musthave & SFF_HIDDEN ) && !( found & _A_HIDDEN ) )
+
+	if ((found & FILE_ATTRIBUTE_SYSTEM) && (canthave & SFF_SYSTEM))
 		return false;
-	if ( ( musthave & SFF_SYSTEM ) && !( found & _A_SYSTEM ) )
+
+	if ((found & FILE_ATTRIBUTE_DIRECTORY) && (canthave & SFF_SUBDIR))
 		return false;
-	if ( ( musthave & SFF_SUBDIR ) && !( found & _A_SUBDIR ) )
+
+	if ((found & FILE_ATTRIBUTE_ARCHIVE) && (canthave & SFF_ARCH))
 		return false;
-	if ( ( musthave & SFF_ARCH ) && !( found & _A_ARCH ) )
+
+
+	if ((musthave & SFF_RDONLY) && !(found & FILE_ATTRIBUTE_READONLY))
 		return false;
+
+	if ((musthave & SFF_HIDDEN) && !(found & FILE_ATTRIBUTE_HIDDEN))
+		return false;
+
+	if ((musthave & SFF_SYSTEM) && !(found & FILE_ATTRIBUTE_SYSTEM))
+		return false;
+
+	if ((musthave & SFF_SUBDIR) && !(found & FILE_ATTRIBUTE_DIRECTORY))
+		return false;
+
+	if ((musthave & SFF_ARCH) && !(found & FILE_ATTRIBUTE_ARCHIVE))
+		return false;
+
 
 	return true;
 }
 
 char *Sys_FindFirst (char *path, unsigned musthave, unsigned canthave )
 {
-	struct _finddata_t findinfo;
+	WIN32_FIND_DATA findinfo;
 
 	if (findhandle)
-		Sys_Error ("Sys_BeginFind without close");
-	findhandle = 0;
+		Sys_Error("Sys_BeginFind without close");
 
-	COM_FilePath (path, findbase);
-	findhandle = _findfirst (path, &findinfo);
-	if (findhandle == -1)
-		return NULL;
-	if ( !CompareAttributes( findinfo.attrib, musthave, canthave ) )
-		return NULL;
-	Com_sprintf (findpath, sizeof(findpath), "%s/%s", findbase, findinfo.name);
+	findhandle = nullptr;
+
+	COM_FilePath(path, findbase);
+	findhandle = FindFirstFileA(path, &findinfo);
+
+	if (findhandle == nullptr)
+		return nullptr;
+
+	if (!CompareAttributes(findinfo.dwFileAttributes, musthave, canthave))
+		return nullptr;
+
+	Com_sprintf(findpath, sizeof(findpath), "%s/%s", findbase, findinfo.cFileName);
 	return findpath;
 }
 
 char *Sys_FindNext ( unsigned musthave, unsigned canthave )
 {
-	struct _finddata_t findinfo;
+	WIN32_FIND_DATA findinfo;
 
-	if (findhandle == -1)
-		return NULL;
-	if (_findnext (findhandle, &findinfo) == -1)
-		return NULL;
-	if ( !CompareAttributes( findinfo.attrib, musthave, canthave ) )
-		return NULL;
+	if (findhandle == nullptr)
+		return nullptr;
 
-	Com_sprintf (findpath, sizeof(findpath), "%s/%s", findbase, findinfo.name);
+	if (!FindNextFileA(findhandle, &findinfo))
+		return nullptr;
+
+	if (!CompareAttributes(findinfo.dwFileAttributes, musthave, canthave))
+		return nullptr;
+
+	Com_sprintf(findpath, sizeof(findpath), "%s/%s", findbase, findinfo.cFileName);
 	return findpath;
 }
 
 void Sys_FindClose (void)
 {
-	if (findhandle != -1)
-		_findclose (findhandle);
-	findhandle = 0;
+	if (findhandle != nullptr)
+	{
+		FindClose(findhandle);
+		findhandle = nullptr;
+	}
 }
 
 
