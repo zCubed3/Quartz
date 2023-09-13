@@ -36,8 +36,6 @@ extern "C" {
 
 #include "../game/q_shared.h"
 
-#include "qexport.h"
-
 #define	VERSION		3.21
 
 #define	BASEDIRNAME	"baseq2"

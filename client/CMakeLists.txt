@@ -12,15 +12,12 @@ list(APPEND CLIENT_SRCS
     ${SERVER_SRCS}
 
     "${QCOMMON_DIR}/crc.c"
-    "${QCOMMON_DIR}/cmd.c"
     "${QCOMMON_DIR}/cmodel.c"
     "${QCOMMON_DIR}/common.c"
-    "${QCOMMON_DIR}/cvar.c"
     "${QCOMMON_DIR}/files.c"
     "${QCOMMON_DIR}/net_chan.c"
     "${QCOMMON_DIR}/pmove.c"
     "${QCOMMON_DIR}/md4.c"
-    "${QCOMMON_DIR}/qlib.c"
 
     "${CMAKE_SOURCE_DIR}/game/q_shared.c"
     "${CMAKE_SOURCE_DIR}/game/m_flash.c"

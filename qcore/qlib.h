@@ -24,54 +24,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // This is a wrapper around HINSTANCE / void* dynamic linking
 //
 
-#ifndef ZEALOT_SHARED_LIB_H
-#define ZEALOT_SHARED_LIB_H
-
-//============================================================================
-
-#ifdef __cplusplus
-
-extern "C" {
-
-#endif
+#ifndef ZEALOT_QLIB_H
+#define ZEALOT_QLIB_H
 
 //============================================================================
 
 #include "qexport.h"
 
-#ifdef WIN32
+//============================================================================
 
-#include <Windows.h>
+typedef 	void* 	qlib;
 
-typedef HMODULE 	qlib;
-
-#elif
-
-#include <dl.h>
-typedef void* 		qlib;
-
-#endif
-
-
-typedef void*(*qlib_fptr)(void*);
-
-QEXTERN_VAR const char* 		qlib_postfix;
-
-
-QEXTERN_FUNC qlib QLib_LoadLibrary(const char* path);
-
-QEXTERN_FUNC int QLib_UnloadLibrary(qlib lib);
-
-QEXTERN_FUNC qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func);
+typedef 	void*(*qlib_fptr)(void*);
 
 //============================================================================
 
-#ifdef __cplusplus
-
-};
-
-#endif
+QEXTERN_VAR const char*		qlib_postfix;
 
 //============================================================================
 
-#endif //ZEALOT_SHARED_LIB_H
+QEXTERN_FUNC void* QLib_LoadLibrary(const char* path);
+
+QEXTERN_FUNC int QLib_UnloadLibrary(void* lib);
+
+QEXTERN_FUNC qlib_fptr QLib_GetFuncPtr(void* lib, const char* func);
+
+//============================================================================
+
+#endif //ZEALOT_QLIB_H

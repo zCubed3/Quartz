@@ -24,13 +24,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "qlib.h"
 
-#include "qcommon.h"
-
 #ifdef WIN32
 
 #include <Windows.h>
 
+//============================================================================
+
 const char*	qlib_postfix = ".dll";
+
+//============================================================================
 
 qlib QLib_LoadLibrary(const char* path)
 {
@@ -47,7 +49,13 @@ qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func)
 	return (qlib_fptr)GetProcAddress(lib, func);
 }
 
-#elif __linux__
+//============================================================================
+
+#endif
+
+//============================================================================
+
+#ifdef __linux__
 
 const char*	qlib_postfix = ".so";
 

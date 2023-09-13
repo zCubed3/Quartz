@@ -17,9 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// cvar.c -- dynamic variable tracking
 
-#include "qcommon.h"
+//
+// cvar.c -- dynamic variable tracking
+//
+// Formerly in qcommon
+//
+
+#include "../../qcommon/qcommon.h"
 
 cvar_t	*cvar_vars;
 
