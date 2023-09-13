@@ -19,68 +19,37 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qcore.h - Common definitions, between all modules
+// qcvar.h - CVar declaration (here because it is uniform across the entire engine)
 //
 
-#ifndef ZEALOT_QCORE_H
-#define ZEALOT_QCORE_H
+#ifndef ZEALOT_QCVAR_H
+#define ZEALOT_QCVAR_H
 
 //============================================================================
 
-#ifdef __cplusplus
-
-extern "C" {
-
-#endif
-
-//============================================================================
-
-#include "qlimits.h"
-
-#include "qdefs.h"
-
-#include "qtypes.h"
-
-#include "qmath.h"
-
-#include "qstr.h"
-
-#include "qendian.h"
-
-#include "qhunk.h"
-
-#include "qsys.h"
-
-#include "qcvar.h"
+typedef enum
+{
+	CVAR_ARCHIVE 	= 1,
+	CVAR_USERINFO 	= 2,
+	CVAR_SERVERINFO = 4,
+	CVAR_NOSET 		= 8,
+	CVAR_LATCH 		= 16
+} cvar_flags_t;
 
 //============================================================================
 
-/*
-==============================================================
-
-MISC FUNCTIONS / DEFS
-
-==============================================================
-*/
-
-char	*va(char *format, ...);
-
-//============================================================================
-
-#define SFF_ARCH    0x01
-#define SFF_HIDDEN  0x02
-#define SFF_RDONLY  0x04
-#define SFF_SUBDIR  0x08
-#define SFF_SYSTEM  0x10
+// nothing outside the Cvar_*() functions should modify these fields!
+typedef struct cvar_s
+{
+	char			*name;
+	char			*string;
+	char			*latched_string;	// for CVAR_LATCH vars
+	cvar_flags_t	flags;
+	qboolean		modified;	// set each time the cvar is changed
+	float			value;
+	struct cvar_s 	*next;
+} cvar_t;
 
 //============================================================================
 
-#ifdef __cplusplus
-
-};
-
-#endif
-
-//============================================================================
-
-#endif //ZEALOT_QCORE_H
+#endif//ZEALOT_QCVAR_H

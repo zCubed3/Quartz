@@ -19,68 +19,55 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// qcore.h - Common definitions, between all modules
+// qsys.h - Common system functions
 //
 
-#ifndef ZEALOT_QCORE_H
-#define ZEALOT_QCORE_H
+#ifndef ZEALOT_QSYS_H
+#define ZEALOT_QSYS_H
 
 //============================================================================
 
-#ifdef __cplusplus
-
-extern "C" {
-
-#endif
+// time returned by last Sys_Milliseconds
+extern int		curtime;
 
 //============================================================================
 
-#include "qlimits.h"
+//
+// NOTE: These functions are forward declared!
+//
 
-#include "qdefs.h"
+//
+// These functions are implemented inside the "q_sh*" files for platforms
+//
+// The game DLL must be linked to the same platform as the client for these to work!
+//
 
-#include "qtypes.h"
+// TODO: Import these via the import struct?
 
-#include "qmath.h"
+int		Sys_Milliseconds (void);
+void	Sys_Mkdir (char *path);
 
-#include "qstr.h"
+// pass in an attribute mask of things you wish to REJECT
+char*	Sys_FindFirst(char *path, unsigned musthave, unsigned canthave );
 
-#include "qendian.h"
-
-#include "qhunk.h"
-
-#include "qsys.h"
-
-#include "qcvar.h"
-
-//============================================================================
-
-/*
-==============================================================
-
-MISC FUNCTIONS / DEFS
-
-==============================================================
-*/
-
-char	*va(char *format, ...);
+char*	Sys_FindNext( unsigned musthave, unsigned canthave );
+void	Sys_FindClose(void);
 
 //============================================================================
 
-#define SFF_ARCH    0x01
-#define SFF_HIDDEN  0x02
-#define SFF_RDONLY  0x04
-#define SFF_SUBDIR  0x08
-#define SFF_SYSTEM  0x10
+//
+// NOTE: These functions are forward declared!
+//
+
+// Their declarations only exist for core functionality!
+//
+// The client will implement these as-is
+//
+// The game will implement bodies that forward to the client version (via imported functions)
+
+void 	Sys_Error(char *error, ...);
+void 	Com_Printf(char *msg, ...);
 
 //============================================================================
 
-#ifdef __cplusplus
-
-};
-
-#endif
-
-//============================================================================
-
-#endif //ZEALOT_QCORE_H
+#endif//ZEALOT_QSYS_H

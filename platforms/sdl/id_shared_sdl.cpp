@@ -125,64 +125,6 @@ void Sys_Mkdir (char *path)
 //===============================================================================
 
 /*
-==============================================================================
-
- HUNK ALLOCATION
-
-==============================================================================
-*/
-
-int				hunkcount;
-
-unsigned char	*membase;
-int				hunkmaxsize;
-int				cursize;
-
-void *Hunk_Begin (int maxsize)
-{
-	// reserve a huge chunk of memory, but don't commit any yet
-	cursize = 0;
-	hunkmaxsize = maxsize;
-
-	membase = (unsigned char*)malloc(maxsize);
-	memset (membase, 0, maxsize);
-
-	if (!membase)
-		Sys_Error("VirtualAlloc reserve failed");
-
-	return (void *)membase;
-}
-
-void *Hunk_Alloc (int size)
-{
-	// round to cacheline
-	size = (size+31)&~31;
-
-	cursize += size;
-	if (cursize > hunkmaxsize)
-		Sys_Error ("Hunk_Alloc overflow");
-
-	return (void *)(membase+cursize-size);
-}
-
-int Hunk_End (void)
-{
-	hunkcount++;
-
-	return cursize;
-}
-
-void Hunk_Free (void *base)
-{
-	if (base)
-		free(base);
-
-	hunkcount--;
-}
-
-//===============================================================================
-
-/*
 ================
 Sys_Milliseconds
 ================
