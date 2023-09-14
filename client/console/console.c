@@ -589,7 +589,7 @@ void Con_DrawConsole (float frac)
 	SCR_AddDirtyPoint (0,0);
 	SCR_AddDirtyPoint (viddef.width-1,lines-1);
 
-	Com_sprintf (version, sizeof(version), "Zealot Q2 - v%4.2f", VERSION);
+	Com_sprintf (version, sizeof(version), "Zealot - v%4.2f", VERSION);
 
 	ver_len = 0;
 	ver_pad = 0;

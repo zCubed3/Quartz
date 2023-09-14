@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ZEALOT_ID_SYSTEM_SDL_HPP
 #define ZEALOT_ID_SYSTEM_SDL_HPP
 
-#include "../../qcommon/id_system.hpp"
+#include "../../client/id_system.hpp"
 
 #include "../../qcore/qlib.h"
 

@@ -67,7 +67,7 @@ qboolean QGL_Init( const char *dllname )
 	// We must have a valid window beforehand
 	// Thanks Windows!
 	glw_state.sdl_window = SDL_CreateWindow(
-		"Quake 2 [ZQ2 : SDL2 + OpenGL 2.0]",
+		"Zealot - Quake 2 - OpenGL 2.0",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		640,
@@ -100,7 +100,8 @@ qboolean QGL_Init( const char *dllname )
 
 void GLimp_EnableLogging( qboolean enable )
 {
-	ri.Con_Printf(PRINT_ALL, "*** DEBUG LOGGING IS NOT IMPLEMENTED! ***\n");
+	if (enable)
+		ri.Con_Printf(PRINT_ALL, "[RefGL2]: Logging does not function!");
 }
 
 
