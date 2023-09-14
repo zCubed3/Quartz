@@ -50,6 +50,7 @@ cvar_t		*scr_centertime;
 cvar_t		*scr_showturtle;
 cvar_t		*scr_showpause;
 cvar_t		*scr_printspeed;
+cvar_t 		*scr_conlerp;
 
 cvar_t		*scr_netgraph;
 cvar_t		*scr_timegraph;
@@ -421,6 +422,8 @@ void SCR_Init (void)
 	scr_graphshift = Cvar_Get ("graphshift", "0", 0);
 	scr_drawall = Cvar_Get ("scr_drawall", "0", 0);
 
+	scr_conlerp = Cvar_Get ("scr_conlerp", "2", 0);
+
 //
 // register our commands
 //
@@ -495,24 +498,27 @@ Scroll it up or down
 */
 void SCR_RunConsole (void)
 {
-// decide on the height of the console
-	if (cls.key_dest == key_console)
-		scr_conlines = 0.5;		// half screen
-	else
-		scr_conlines = 0;				// none visible
-	
-	if (scr_conlines < scr_con_current)
-	{
-		scr_con_current -= scr_conspeed->value*cls.frametime;
-		if (scr_conlines > scr_con_current)
-			scr_con_current = scr_conlines;
+	float 		con_vel;
+	qboolean 	con_open;
 
-	}
-	else if (scr_conlines > scr_con_current)
+	con_vel = scr_conspeed->value * cls.frametime;
+	con_open = cls.key_dest == key_console;
+
+	// decide on the height of the console
+	if (con_open)
+		scr_conlines = 0.5F;		// half screen
+	
+	if (con_open)
 	{
-		scr_con_current += scr_conspeed->value*cls.frametime;
-		if (scr_conlines < scr_con_current)
-			scr_con_current = scr_conlines;
+		scr_con_current += con_vel;
+		if (scr_con_current > 1.0F)
+			scr_con_current = 1.0F;
+	}
+	else
+	{
+		scr_con_current -= con_vel;
+		if (scr_con_current < 0.0F)
+			scr_con_current = 0.0F;
 	}
 
 }
@@ -541,7 +547,15 @@ void SCR_DrawConsole (void)
 
 	if (scr_con_current)
 	{
-		Con_DrawConsole (scr_con_current);
+		// Remaps src_con_current to a smoothstep (if requested)
+		float 	smooth_current;
+
+		if (scr_conlerp->value == 2)
+			smooth_current = scr_con_current * scr_con_current * (3.0F - 2.0F * scr_con_current);
+		else
+			smooth_current = scr_con_current;
+
+		Con_DrawConsole(scr_conlines * smooth_current);
 	}
 	else
 	{

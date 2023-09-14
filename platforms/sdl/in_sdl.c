@@ -918,18 +918,10 @@ int MapSDLKey(SDL_KeyCode code)
 			return K_UPARROW;
 	}
 
-	// ==========
-	// Ascii keys
-	// ==========
-	if (code >= SDLK_a && code <= SDLK_z)
-	{
-		return (int)code;
-	}
-
-	// ==========
-	// Alpha keys
-	// ==========
-	if (code >= SDLK_0 && code <= SDLK_9)
+	// =================
+	// Ascii range keys
+	// =================
+	if (code >= SDLK_EXCLAIM && code <= SDLK_z)
 	{
 		return (int)code;
 	}
