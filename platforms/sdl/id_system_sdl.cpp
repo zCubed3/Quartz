@@ -20,17 +20,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// system_sdl.cpp
+// id_system_sdl.cpp
 //
-
-#include "../../qcommon/qcommon.h"
 
 #include "id_system_sdl.hpp"
 
-#include "sdlquake.h"
+#include "id_input_sdl.hpp"
 
-#include <errno.h>
-#include <stdio.h>
+#include "../../client/id_client.hpp"
+
+extern "C" {
+	#include "../../qcommon/qcommon.h"
+
+	#include "sdlquake.h"
+};
+
+#include <cerrno>
+#include <cstdio>
 
 #include <SDL.h>
 
@@ -66,7 +72,7 @@ void idSystemSDL::Init()
 
 void idSystemSDL::Quit()
 {
-	CL_Shutdown();
+	id_cl->Shutdown();
 	Qcommon_Shutdown();
 
 	exit(0);
@@ -81,7 +87,7 @@ void idSystemSDL::Error(char *error, va_list argptr)
 {
 	char text[1024];
 
-	CL_Shutdown();
+	id_cl->Shutdown();
 	Qcommon_Shutdown();
 
 	vsprintf(text, error, argptr);
@@ -279,7 +285,7 @@ int main(int argc, char** argv)
 	while (1)
 	{
 		// Poll SDL events
-		IN_PollSDL();
+		reinterpret_cast<idInputSDL*>(id_in)->PollSDL();
 
 		// if at a full screen console, don't update unless needed
 		if (Minimized || (dedicated && dedicated->value))

@@ -20,85 +20,105 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// in_sdl.c -- windows 95 mouse and joystick code
+// id_input_sdl.cpp -- idInput implementation for SDL
 //
-
-#include "../../client/client.h"
-#include "sdlquake.h"
 
 #include <SDL.h>
 
-extern	unsigned	sys_msg_time;
+#include "id_input_sdl.hpp"
 
-// joystick defines and variables
-// where should defines be moved?
-#define JOY_ABSOLUTE_AXIS	0x00000000		// control like a joystick
-#define JOY_RELATIVE_AXIS	0x00000010		// control like a mouse, spinner, trackball
-#define	JOY_MAX_AXES		6				// X, Y, Z, R, U, V
-#define JOY_AXIS_X			0
-#define JOY_AXIS_Y			1
-#define JOY_AXIS_Z			2
-#define JOY_AXIS_R			3
-#define JOY_AXIS_U			4
-#define JOY_AXIS_V			5
+//============================================================================
 
-enum _ControlList
-{
-	AxisNada = 0, AxisForward, AxisLook, AxisSide, AxisTurn, AxisUp
+extern "C" {
+	#include "../../client/client.h"
+	#include "sdlquake.h"
+}
+
+//============================================================================
+
+extern "C" {
+	extern unsigned 	sys_msg_time;
+
+	// joystick defines and variables
+	// where should defines be moved?
+	#define JOY_ABSOLUTE_AXIS	0x00000000		// control like a joystick
+	#define JOY_RELATIVE_AXIS	0x00000010		// control like a mouse, spinner, trackball
+	#define	JOY_MAX_AXES		6				// X, Y, Z, R, U, V
+	#define JOY_AXIS_X			0
+	#define JOY_AXIS_Y			1
+	#define JOY_AXIS_Z			2
+	#define JOY_AXIS_R			3
+	#define JOY_AXIS_U			4
+	#define JOY_AXIS_V			5
+
+	enum _ControlList
+	{
+		AxisNada = 0, AxisForward, AxisLook, AxisSide, AxisTurn, AxisUp
+	};
+
+	DWORD	dwAxisFlags[JOY_MAX_AXES] =
+	{
+		JOY_RETURNX, JOY_RETURNY, JOY_RETURNZ, JOY_RETURNR, JOY_RETURNU, JOY_RETURNV
+	};
+
+	DWORD	dwAxisMap[JOY_MAX_AXES];
+	DWORD	dwControlMap[JOY_MAX_AXES];
+	PDWORD	pdwRawValue[JOY_MAX_AXES];
+
+	cvar_t	*in_mouse;
+	cvar_t	*in_joystick;
+
+
+	// none of these cvars are saved over a session
+	// this means that advanced controller configuration needs to be executed
+	// each time.  this avoids any problems with getting back to a default usage
+	// or when changing from one controller to another.  this way at least something
+	// works.
+	cvar_t	*joy_name;
+	cvar_t	*joy_advanced;
+	cvar_t	*joy_advaxisx;
+	cvar_t	*joy_advaxisy;
+	cvar_t	*joy_advaxisz;
+	cvar_t	*joy_advaxisr;
+	cvar_t	*joy_advaxisu;
+	cvar_t	*joy_advaxisv;
+	cvar_t	*joy_forwardthreshold;
+	cvar_t	*joy_sidethreshold;
+	cvar_t	*joy_pitchthreshold;
+	cvar_t	*joy_yawthreshold;
+	cvar_t	*joy_forwardsensitivity;
+	cvar_t	*joy_sidesensitivity;
+	cvar_t	*joy_pitchsensitivity;
+	cvar_t	*joy_yawsensitivity;
+	cvar_t	*joy_upthreshold;
+	cvar_t	*joy_upsensitivity;
+
+	cvar_t	*v_centermove;
+	cvar_t	*v_centerspeed;
+
+	qboolean	joy_avail, joy_advancedinit, joy_haspov;
+	DWORD		joy_oldbuttonstate, joy_oldpovstate;
+
+	int			joy_id;
+	DWORD		joy_flags;
+	DWORD		joy_numbuttons;
+
+	static JOYINFOEX	ji;
+
+	qboolean	in_appactive;
+
+	// forward-referenced functions
+	void IN_StartupJoystick (void);
+	void Joy_AdvancedUpdate_f (void);
+	void IN_JoyMove (usercmd_t *cmd);
+
 };
 
-DWORD	dwAxisFlags[JOY_MAX_AXES] =
-{
-	JOY_RETURNX, JOY_RETURNY, JOY_RETURNZ, JOY_RETURNR, JOY_RETURNU, JOY_RETURNV
-};
+//============================================================================
 
-DWORD	dwAxisMap[JOY_MAX_AXES];
-DWORD	dwControlMap[JOY_MAX_AXES];
-PDWORD	pdwRawValue[JOY_MAX_AXES];
+idInput* 	id_in = new idInputSDL();
 
-cvar_t	*in_mouse;
-cvar_t	*in_joystick;
-
-
-// none of these cvars are saved over a session
-// this means that advanced controller configuration needs to be executed
-// each time.  this avoids any problems with getting back to a default usage
-// or when changing from one controller to another.  this way at least something
-// works.
-cvar_t	*joy_name;
-cvar_t	*joy_advanced;
-cvar_t	*joy_advaxisx;
-cvar_t	*joy_advaxisy;
-cvar_t	*joy_advaxisz;
-cvar_t	*joy_advaxisr;
-cvar_t	*joy_advaxisu;
-cvar_t	*joy_advaxisv;
-cvar_t	*joy_forwardthreshold;
-cvar_t	*joy_sidethreshold;
-cvar_t	*joy_pitchthreshold;
-cvar_t	*joy_yawthreshold;
-cvar_t	*joy_forwardsensitivity;
-cvar_t	*joy_sidesensitivity;
-cvar_t	*joy_pitchsensitivity;
-cvar_t	*joy_yawsensitivity;
-cvar_t	*joy_upthreshold;
-cvar_t	*joy_upsensitivity;
-
-qboolean	joy_avail, joy_advancedinit, joy_haspov;
-DWORD		joy_oldbuttonstate, joy_oldpovstate;
-
-int			joy_id;
-DWORD		joy_flags;
-DWORD		joy_numbuttons;
-
-static JOYINFOEX	ji;
-
-qboolean	in_appactive;
-
-// forward-referenced functions
-void IN_StartupJoystick (void);
-void Joy_AdvancedUpdate_f (void);
-void IN_JoyMove (usercmd_t *cmd);
+//============================================================================
 
 /*
 ============================================================
@@ -140,71 +160,6 @@ IN_ActivateMouse
 Called when the window gains focus or changes in some way
 ===========
 */
-void IN_ActivateMouse (void)
-{
-	int		width, height;
-
-	if (!mouseinitialized)
-		return;
-
-	if (!in_mouse->value)
-	{
-		mouseactive = false;
-		return;
-	}
-	if (mouseactive)
-		return;
-
-	mouseactive = true;
-
-	SDL_GetWindowSize(cl_window, &width, &height);
-
-	window_center_x = width / 2;
-	window_center_y = height / 2;
-
-	// TODO: Capture the cursor
-	SDL_WarpMouseInWindow(cl_window, window_center_x, window_center_y);
-	SDL_ShowCursor(false);
-}
-
-
-/*
-===========
-IN_DeactivateMouse
-
-Called when the window loses focus
-===========
-*/
-void IN_DeactivateMouse (void)
-{
-	if (!mouseinitialized)
-		return;
-
-	if (!mouseactive)
-		return;
-
-	mouseactive = false;
-	SDL_ShowCursor(true);
-}
-
-
-
-/*
-===========
-IN_StartupMouse
-===========
-*/
-void IN_StartupMouse (void)
-{
-	cvar_t		*cv;
-
-	cv = Cvar_Get ("in_initmouse", "1", CVAR_NOSET);
-	if ( !cv->value ) 
-		return; 
-
-	mouseinitialized = true;
-	mouse_buttons = 3;
-}
 
 /*
 ===========
@@ -297,150 +252,369 @@ void IN_MouseMove (usercmd_t *cmd)
 	// force the mouse to the center, so there's room to move
 	if (mx || my)
 		SDL_WarpMouseInWindow(cl_window, window_center_x, window_center_y);
+
+	printf("%i\n", current_pos_x);
 }
 
+//============================================================================
 
-/*
-=========================================================================
-
-VIEW CENTERING
-
-=========================================================================
-*/
-
-cvar_t	*v_centermove;
-cvar_t	*v_centerspeed;
-
-
-/*
-===========
-IN_Init
-===========
-*/
-void IN_Init (void)
+// =============
+//  Input State
+// =============
+void idInputSDL::Init()
 {
 	// mouse variables
-	m_filter				= Cvar_Get ("m_filter",					"0",		0);
-    in_mouse				= Cvar_Get ("in_mouse",					"1",		CVAR_ARCHIVE);
+	m_filter 				= Cvar_Get("m_filter", "0", 0);
+	in_mouse 				= Cvar_Get("in_mouse", "1", CVAR_ARCHIVE);
 
 	// joystick variables
-	in_joystick				= Cvar_Get ("in_joystick",				"0",		CVAR_ARCHIVE);
-	joy_name				= Cvar_Get ("joy_name",					"joystick",	0);
-	joy_advanced			= Cvar_Get ("joy_advanced",				"0",		0);
-	joy_advaxisx			= Cvar_Get ("joy_advaxisx",				"0",		0);
-	joy_advaxisy			= Cvar_Get ("joy_advaxisy",				"0",		0);
-	joy_advaxisz			= Cvar_Get ("joy_advaxisz",				"0",		0);
-	joy_advaxisr			= Cvar_Get ("joy_advaxisr",				"0",		0);
-	joy_advaxisu			= Cvar_Get ("joy_advaxisu",				"0",		0);
-	joy_advaxisv			= Cvar_Get ("joy_advaxisv",				"0",		0);
-	joy_forwardthreshold	= Cvar_Get ("joy_forwardthreshold",		"0.15",		0);
-	joy_sidethreshold		= Cvar_Get ("joy_sidethreshold",		"0.15",		0);
-	joy_upthreshold  		= Cvar_Get ("joy_upthreshold",			"0.15",		0);
-	joy_pitchthreshold		= Cvar_Get ("joy_pitchthreshold",		"0.15",		0);
-	joy_yawthreshold		= Cvar_Get ("joy_yawthreshold",			"0.15",		0);
-	joy_forwardsensitivity	= Cvar_Get ("joy_forwardsensitivity",	"-1",		0);
-	joy_sidesensitivity		= Cvar_Get ("joy_sidesensitivity",		"-1",		0);
-	joy_upsensitivity		= Cvar_Get ("joy_upsensitivity",		"-1",		0);
-	joy_pitchsensitivity	= Cvar_Get ("joy_pitchsensitivity",		"1",		0);
-	joy_yawsensitivity		= Cvar_Get ("joy_yawsensitivity",		"-1",		0);
+	in_joystick 			= Cvar_Get("in_joystick", "0", CVAR_ARCHIVE);
+	joy_name 				= Cvar_Get("joy_name", "joystick", 0);
+	joy_advanced 			= Cvar_Get("joy_advanced", "0", 0);
+	joy_advaxisx 			= Cvar_Get("joy_advaxisx", "0", 0);
+	joy_advaxisy 			= Cvar_Get("joy_advaxisy", "0", 0);
+	joy_advaxisz 			= Cvar_Get("joy_advaxisz", "0", 0);
+	joy_advaxisr 			= Cvar_Get("joy_advaxisr", "0", 0);
+	joy_advaxisu 			= Cvar_Get("joy_advaxisu", "0", 0);
+	joy_advaxisv 			= Cvar_Get("joy_advaxisv", "0", 0);
+	joy_forwardthreshold 	= Cvar_Get("joy_forwardthreshold", "0.15", 0);
+	joy_sidethreshold 		= Cvar_Get("joy_sidethreshold", "0.15", 0);
+	joy_upthreshold			= Cvar_Get("joy_upthreshold", "0.15", 0);
+	joy_pitchthreshold 		= Cvar_Get("joy_pitchthreshold", "0.15", 0);
+	joy_yawthreshold 		= Cvar_Get("joy_yawthreshold", "0.15", 0);
+	joy_forwardsensitivity 	= Cvar_Get("joy_forwardsensitivity", "-1", 0);
+	joy_sidesensitivity 	= Cvar_Get("joy_sidesensitivity", "-1", 0);
+	joy_upsensitivity 		= Cvar_Get("joy_upsensitivity", "-1", 0);
+	joy_pitchsensitivity 	= Cvar_Get("joy_pitchsensitivity", "1", 0);
+	joy_yawsensitivity 		= Cvar_Get("joy_yawsensitivity", "-1", 0);
 
 	// centering
-	v_centermove			= Cvar_Get ("v_centermove",				"0.15",		0);
-	v_centerspeed			= Cvar_Get ("v_centerspeed",			"500",		0);
+	v_centermove 			= Cvar_Get("v_centermove", "0.15", 0);
+	v_centerspeed 			= Cvar_Get("v_centerspeed", "500", 0);
 
-	Cmd_AddCommand ("+mlook", IN_MLookDown);
-	Cmd_AddCommand ("-mlook", IN_MLookUp);
+	Cmd_AddCommand("+mlook", IN_MLookDown);
+	Cmd_AddCommand("-mlook", IN_MLookUp);
 
-	Cmd_AddCommand ("joy_advancedupdate", Joy_AdvancedUpdate_f);
+	//Cmd_AddCommand("joy_advancedupdate", Joy_AdvancedUpdate_f);
 
-	IN_StartupMouse ();
-	IN_StartupJoystick ();
+	InitMouse();
+	//IN_StartupJoystick();
 }
 
-/*
-===========
-IN_Shutdown
-===========
-*/
-void IN_Shutdown (void)
+void idInputSDL::Shutdown()
 {
-	IN_DeactivateMouse ();
+	ActivateMouse(false);
 }
 
-
-/*
-===========
-IN_Activate
-
-Called when the main window gains or loses focus.
-The window may have been destroyed and recreated
-between a deactivate and an activate.
-===========
-*/
-void IN_Activate (qboolean active)
+void idInputSDL::Activate(qboolean active)
 {
 	in_appactive = active;
 	mouseactive = !active;		// force a new window check or turn off
 }
 
+//============================================================================
 
-/*
-==================
-IN_Frame
+// ===============
+//  Input Methods
+// ===============
+void idInputSDL::Commands()
+{
+	// TODO: Restore id's joystick code
 
-Called every frame, even if not generating commands
-==================
-*/
-void IN_Frame (void)
+	/*
+	int i, key_index;
+	DWORD buttonstate, povstate;
+
+	if (!joy_avail)
+	{
+		return;
+	}
+
+
+	// loop through the joystick buttons
+	// key a joystick event or auxillary event for higher number buttons for each state change
+	buttonstate = ji.dwButtons;
+	for (i = 0; i < joy_numbuttons; i++)
+	{
+		if ((buttonstate & (1 << i)) && !(joy_oldbuttonstate & (1 << i)))
+		{
+			key_index = (i < 4) ? K_JOY1 : K_AUX1;
+			Key_Event(key_index + i, true, 0);
+		}
+
+		if (!(buttonstate & (1 << i)) && (joy_oldbuttonstate & (1 << i)))
+		{
+			key_index = (i < 4) ? K_JOY1 : K_AUX1;
+			Key_Event(key_index + i, false, 0);
+		}
+	}
+	joy_oldbuttonstate = buttonstate;
+
+	if (joy_haspov)
+	{
+		// convert POV information into 4 bits of state information
+		// this avoids any potential problems related to moving from one
+		// direction to another without going through the center position
+		povstate = 0;
+		if (ji.dwPOV != JOY_POVCENTERED)
+		{
+			if (ji.dwPOV == JOY_POVFORWARD)
+				povstate |= 0x01;
+			if (ji.dwPOV == JOY_POVRIGHT)
+				povstate |= 0x02;
+			if (ji.dwPOV == JOY_POVBACKWARD)
+				povstate |= 0x04;
+			if (ji.dwPOV == JOY_POVLEFT)
+				povstate |= 0x08;
+		}
+		// determine which bits have changed and key an auxillary event for each change
+		for (i = 0; i < 4; i++)
+		{
+			if ((povstate & (1 << i)) && !(joy_oldpovstate & (1 << i)))
+			{
+				Key_Event(K_AUX29 + i, true, 0);
+			}
+
+			if (!(povstate & (1 << i)) && (joy_oldpovstate & (1 << i)))
+			{
+				Key_Event(K_AUX29 + i, false, 0);
+			}
+		}
+		joy_oldpovstate = povstate;
+	}
+	*/
+}
+
+void idInputSDL::Frame()
 {
 	if (!mouseinitialized)
 		return;
 
 	if (!in_mouse || !in_appactive)
 	{
-		IN_DeactivateMouse ();
+		ActivateMouse(false);
 		return;
 	}
 
-	if ( !cl.refresh_prepped
+	if (!cl.refresh_prepped
 		|| cls.key_dest == key_console
 		|| cls.key_dest == key_menu)
 	{
 		// temporarily deactivate if in fullscreen
-		if (Cvar_VariableValue ("vid_fullscreen") == 0)
+		if (Cvar_VariableValue("vid_fullscreen") == 0)
 		{
-			IN_DeactivateMouse ();
+			ActivateMouse(false);
 			return;
 		}
 	}
 
-	IN_ActivateMouse ();
+	ActivateMouse(true);
 }
 
-/*
-===========
-IN_Move
-===========
-*/
-void IN_Move (usercmd_t *cmd)
+void idInputSDL::Move(usercmd_t *cmd)
 {
-	IN_MouseMove (cmd);
+	IN_MouseMove(cmd);
 
-	if (ActiveApp)
-		IN_JoyMove (cmd);
+	// TODO: Fix joysticks
+	//if (ActiveApp)
+	//	IN_JoyMove(cmd);
 }
 
+//============================================================================
 
-/*
-===================
-IN_ClearStates
-===================
-*/
-void IN_ClearStates (void)
+// =============
+//  SDL Methods
+// =============
+void idInputSDL::ActivateMouse(qboolean active)
 {
-	mouse_oldbuttonstate = 0;
+	int		width, height;
+
+	if (!mouseinitialized)
+		return;
+
+	if (!in_mouse->value)
+	{
+		mouseactive = false;
+		return;
+	}
+
+	mouseactive = active;
+
+	// If the mouse is activated, warp to the center of the window
+	if (mouseactive)
+	{
+		SDL_GetWindowSize(cl_window, &width, &height);
+
+		window_center_x = width / 2;
+		window_center_y = height / 2;
+
+		// TODO: Capture the cursor?
+		//SDL_WarpMouseInWindow(cl_window, window_center_x, window_center_y);
+		SDL_ShowCursor(false);
+	}
+	else // Otherwise, just make it visible
+	{
+		SDL_ShowCursor(true);
+	}
 }
 
+void idInputSDL::PollSDL()
+{
+	SDL_Event event;
+	int event_time;
+
+	event_time = Sys_Milliseconds();
+
+	while (SDL_PollEvent(&event))
+	{
+		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+		{
+			qboolean pressed = event.key.state == SDL_PRESSED;
+			int key = MapSDLKey(event.key.keysym.sym);
+
+			if (key != -1)
+				Key_Event(key, pressed, event_time);
+		}
+
+		if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
+		{
+			qboolean pressed = event.button.state == SDL_PRESSED;
+
+			// TODO: Fix out of bounds for MOUSE4 and MOUSE5
+			int button = MapSDLMouseButton(event.button.button);
+
+			if (button != -1)
+				Key_Event(button, pressed, event_time);
+		}
+
+		if (event.type == SDL_WINDOWEVENT)
+		{
+			if (event.window.event == SDL_WINDOWEVENT_ENTER)
+				Activate(true);
+
+			if (event.window.event == SDL_WINDOWEVENT_LEAVE)
+				Activate(false);
+		}
+	}
+}
+
+//============================================================================
+
+// =============
+//  Input State
+// =============
+void idInputSDL::InitMouse()
+{
+	cvar_t		*cv;
+
+	cv = Cvar_Get ("in_initmouse", "1", CVAR_NOSET);
+	if ( !cv->value )
+		return;
+
+	mouseinitialized = true;
+	mouse_buttons = 3;
+}
+
+//============================================================================
+
+// =========
+//  Helpers
+// =========
+
+int idInputSDL::MapSDLKey(SDL_Keycode code)
+{
+	// TODO: Handle foreign keyboards
+	switch (code)
+	{
+		// ============
+		// Special keys
+		// ============
+		case SDLK_MINUS:
+			return '-';
+
+		case SDLK_EQUALS:
+			return '=';
+
+		case SDLK_BACKQUOTE:
+			return '~';
+
+		case SDLK_BACKSPACE:
+			return K_BACKSPACE;
+
+		case SDLK_RETURN:
+			return K_ENTER;
+
+		case SDLK_SPACE:
+			return K_SPACE;
+
+		case SDLK_ESCAPE:
+			return K_ESCAPE;
+
+		case SDLK_PAUSE:
+			return K_PAUSE;
+
+		case SDLK_LSHIFT:
+		case SDLK_RSHIFT:
+			return K_SHIFT;
+
+			// ==========
+			// Arrow keys
+			// ==========
+		case SDLK_LEFT:
+			return K_LEFTARROW;
+
+		case SDLK_RIGHT:
+			return K_RIGHTARROW;
+
+		case SDLK_DOWN:
+			return K_DOWNARROW;
+
+		case SDLK_UP:
+			return K_UPARROW;
+	}
+
+	// =================
+	// Ascii range keys
+	// =================
+	if (code >= SDLK_EXCLAIM && code <= SDLK_z)
+	{
+		return (int)code;
+	}
+
+	// ==========
+	// Function keys
+	// ==========
+	if (code >= SDLK_F1 && code <= SDLK_F12)
+	{
+		int off = code - SDLK_F1;
+		return (int)K_F1 + off;
+	}
+
+	// =========
+	// Error key
+	// =========
+	return -1;
+}
+
+int idInputSDL::MapSDLMouseButton(int index)
+{
+	if (index == 1)
+		return K_MOUSE1;
+	else if (index == 2)
+		return K_MOUSE2;
+	else if (index == 3)
+		return K_MOUSE3;
+
+	return -1;
+}
+
+//============================================================================
+
+//
+// Legacy joystick code (needs to be ported / updated to SDL)
+//
+
+#if 0
 
 /*
 =========================================================================
@@ -450,26 +624,26 @@ JOYSTICK
 =========================================================================
 */
 
-/* 
-=============== 
-IN_StartupJoystick 
-=============== 
-*/  
-void IN_StartupJoystick (void) 
-{ 
+/*
+===============
+IN_StartupJoystick
+===============
+*/
+void IN_StartupJoystick (void)
+{
 	int			numdevs;
 	JOYCAPS		jc;
 	MMRESULT	mmr;
 	cvar_t		*cv;
 
  	// assume no joystick
-	joy_avail = false; 
+	joy_avail = false;
 
 	// abort startup if user requests no joystick
 	cv = Cvar_Get ("in_initjoy", "1", CVAR_NOSET);
-	if ( !cv->value ) 
-		return; 
- 
+	if ( !cv->value )
+		return;
+
 	// verify joystick driver is present
 	if ((numdevs = joyGetNumDevs ()) == 0)
 	{
@@ -486,7 +660,7 @@ void IN_StartupJoystick (void)
 
 		if ((mmr = joyGetPosEx (joy_id, &ji)) == JOYERR_NOERROR)
 			break;
-	} 
+	}
 
 	// abort startup if we didn't find a valid joystick
 	if (mmr != JOYERR_NOERROR)
@@ -500,7 +674,7 @@ void IN_StartupJoystick (void)
 	memset (&jc, 0, sizeof(jc));
 	if ((mmr = joyGetDevCaps (joy_id, &jc, sizeof(jc))) != JOYERR_NOERROR)
 	{
-		Com_Printf ("\njoystick not found -- invalid joystick capabilities (%x)\n\n", mmr); 
+		Com_Printf ("\njoystick not found -- invalid joystick capabilities (%x)\n\n", mmr);
 		return;
 	}
 
@@ -514,10 +688,10 @@ void IN_StartupJoystick (void)
 	// mark the joystick as available and advanced initialization not completed
 	// this is needed as cvars are not available during initialization
 
-	joy_avail = true; 
+	joy_avail = true;
 	joy_advancedinit = false;
 
-	Com_Printf ("\njoystick detected\n\n"); 
+	Com_Printf ("\njoystick detected\n\n");
 }
 
 
@@ -619,88 +793,18 @@ void Joy_AdvancedUpdate_f (void)
 
 
 /*
-===========
-IN_Commands
-===========
-*/
-void IN_Commands (void)
-{
-	int		i, key_index;
-	DWORD	buttonstate, povstate;
-
-	if (!joy_avail)
-	{
-		return;
-	}
-
-	
-	// loop through the joystick buttons
-	// key a joystick event or auxillary event for higher number buttons for each state change
-	buttonstate = ji.dwButtons;
-	for (i=0 ; i < joy_numbuttons ; i++)
-	{
-		if ( (buttonstate & (1<<i)) && !(joy_oldbuttonstate & (1<<i)) )
-		{
-			key_index = (i < 4) ? K_JOY1 : K_AUX1;
-			Key_Event (key_index + i, true, 0);
-		}
-
-		if ( !(buttonstate & (1<<i)) && (joy_oldbuttonstate & (1<<i)) )
-		{
-			key_index = (i < 4) ? K_JOY1 : K_AUX1;
-			Key_Event (key_index + i, false, 0);
-		}
-	}
-	joy_oldbuttonstate = buttonstate;
-
-	if (joy_haspov)
-	{
-		// convert POV information into 4 bits of state information
-		// this avoids any potential problems related to moving from one
-		// direction to another without going through the center position
-		povstate = 0;
-		if(ji.dwPOV != JOY_POVCENTERED)
-		{
-			if (ji.dwPOV == JOY_POVFORWARD)
-				povstate |= 0x01;
-			if (ji.dwPOV == JOY_POVRIGHT)
-				povstate |= 0x02;
-			if (ji.dwPOV == JOY_POVBACKWARD)
-				povstate |= 0x04;
-			if (ji.dwPOV == JOY_POVLEFT)
-				povstate |= 0x08;
-		}
-		// determine which bits have changed and key an auxillary event for each change
-		for (i=0 ; i < 4 ; i++)
-		{
-			if ( (povstate & (1<<i)) && !(joy_oldpovstate & (1<<i)) )
-			{
-				Key_Event (K_AUX29 + i, true, 0);
-			}
-
-			if ( !(povstate & (1<<i)) && (joy_oldpovstate & (1<<i)) )
-			{
-				Key_Event (K_AUX29 + i, false, 0);
-			}
-		}
-		joy_oldpovstate = povstate;
-	}
-}
-
-
-/* 
-=============== 
+===============
 IN_ReadJoystick
-=============== 
-*/  
+===============
+*/
 qboolean IN_ReadJoystick (void)
 {
 
-	memset (&ji, 0, sizeof(ji));
+	memset(&ji, 0, sizeof(ji));
 	ji.dwSize = sizeof(ji);
 	ji.dwFlags = joy_flags;
 
-	if (joyGetPosEx (joy_id, &ji) == JOYERR_NOERROR)
+	if (joyGetPosEx(joy_id, &ji) == JOYERR_NOERROR)
 	{
 		return true;
 	}
@@ -714,7 +818,6 @@ qboolean IN_ReadJoystick (void)
 		return false;
 	}
 }
-
 
 /*
 ===========
@@ -738,9 +841,9 @@ void IN_JoyMove (usercmd_t *cmd)
 	// verify joystick is available and that the user wants to use it
 	if (!joy_avail || !in_joystick->value)
 	{
-		return; 
+		return;
 	}
- 
+
 	// collect the joystick data, if possible
 	if (IN_ReadJoystick () != true)
 	{
@@ -761,7 +864,7 @@ void IN_JoyMove (usercmd_t *cmd)
 		// move centerpoint to zero
 		fAxisValue -= 32768.0;
 
-		// convert range from -32768..32767 to -1..1 
+		// convert range from -32768..32767 to -1..1
 		fAxisValue /= 32768.0;
 
 		switch (dwAxisMap[i])
@@ -771,7 +874,7 @@ void IN_JoyMove (usercmd_t *cmd)
 			{
 				// user wants forward control to become look control
 				if (fabs(fAxisValue) > joy_pitchthreshold->value)
-				{		
+				{
 					// if mouse invert is on, invert the joystick pitch value
 					// only absolute control support here (joy_advanced is false)
 					if (m_pitch->value < 0.0)
@@ -859,153 +962,4 @@ void IN_JoyMove (usercmd_t *cmd)
 	}
 }
 
-/*
-===========
-MapSDLKey
-
-Remaps an SDL v-keycode into a Quake keycode
-===========
-*/
-int MapSDLKey(SDL_KeyCode code)
-{
-	// TODO: Handle foreign keyboards
-	switch (code)
-	{
-		// ============
-		// Special keys
-		// ============
-		case SDLK_MINUS:
-			return '-';
-
-		case SDLK_EQUALS:
-			return '=';
-
-		case SDLK_BACKQUOTE:
-			return '~';
-
-		case SDLK_BACKSPACE:
-			return K_BACKSPACE;
-
-		case SDLK_RETURN:
-			return K_ENTER;
-
-		case SDLK_SPACE:
-			return K_SPACE;
-
-		case SDLK_ESCAPE:
-			return K_ESCAPE;
-
-		case SDLK_PAUSE:
-			return K_PAUSE;
-
-		case SDLK_LSHIFT:
-		case SDLK_RSHIFT:
-			return K_SHIFT;
-
-		// ==========
-		// Arrow keys
-		// ==========
-		case SDLK_LEFT:
-			return K_LEFTARROW;
-
-		case SDLK_RIGHT:
-			return K_RIGHTARROW;
-
-		case SDLK_DOWN:
-			return K_DOWNARROW;
-
-		case SDLK_UP:
-			return K_UPARROW;
-	}
-
-	// =================
-	// Ascii range keys
-	// =================
-	if (code >= SDLK_EXCLAIM && code <= SDLK_z)
-	{
-		return (int)code;
-	}
-
-	// ==========
-	// Function keys
-	// ==========
-	if (code >= SDLK_F1 && code <= SDLK_F12)
-	{
-		int off = code - SDLK_F1;
-		return (int)K_F1 + off;
-	}
-
-	// =========
-	// Error key
-	// =========
-	return -1;
-}
-
-/*
-===========
-MapSDLMouseButton
-
-Remaps an SDL mouse button into a Quake keycode
-===========
-*/
-int MapSDLMouseButton (int index)
-{
-	if (index == 1)
-		return K_MOUSE1;
-	else if (index == 2)
-		return K_MOUSE2;
-	else if (index == 3)
-		return K_MOUSE3;
-
-	return -1;
-}
-
-/*
-===========
-IN_PollSDL
-===========
-*/
-void IN_PollSDL (void)
-{
-	SDL_Event event;
-	int event_time;
-
-	event_time = Sys_Milliseconds();
-
-	while (SDL_PollEvent(&event))
-	{
-		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
-		{
-			qboolean pressed = event.key.state == SDL_PRESSED;
-			int key = MapSDLKey(event.key.keysym.sym);
-
-			if (key != -1)
-				Key_Event(key, pressed, event_time);
-		}
-
-		if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_MOUSEBUTTONUP)
-		{
-			qboolean pressed = event.button.state == SDL_PRESSED;
-
-			// TODO: Fix out of bounds for MOUSE4 and MOUSE5
-			int button = MapSDLMouseButton(event.button.button);
-
-			if (button != -1)
-				Key_Event(button, pressed, event_time);
-		}
-
-		if (event.type == SDL_MOUSEMOTION)
-		{
-
-		}
-
-		if (event.type == SDL_WINDOWEVENT)
-		{
-			if (event.window.event == SDL_WINDOWEVENT_ENTER)
-				IN_Activate(true);
-
-			if (event.window.event == SDL_WINDOWEVENT_LEAVE)
-				IN_Activate(false);
-		}
-	}
-}
+#endif

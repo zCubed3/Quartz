@@ -20,55 +20,53 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// id_client.hpp -- idClient declaration (formerly certain loose CL_ functions)
+// id_input.hpp -- idInput declaration
 //
-
-#ifndef ZEALOT_ID_CLIENT_HPP
-#define ZEALOT_ID_CLIENT_HPP
 
 #ifndef __cplusplus
 #error "Tried including C++ header inside of a C source file!"
 #endif
 
+#ifndef ZEALOT_ID_INPUT_HPP
+#define ZEALOT_ID_INPUT_HPP
+
 //============================================================================
 
-class idClient
-{
-public:
-	// ==============
-	//  Client State
-	// ==============
-	void 				Init();
-	void 				Shutdown();
-
-	void				RunFrame(int msec);
-
-	// =======
-	//  Input
-	// =======
-	struct usercmd_s	CreateCmd();
-
-protected:
-	// ==============
-	//  Client State
-	// ==============
-	void				InitLocal();
-
-	// ============
-	//  Networking
-	// ============
-	void				ReadPackets();
-	void				SendCommand();
-
-	// Actually sends a command (the full named function does safety checking)
-	void 				SendCmd();
-
+extern "C" {
+	#include "../games/quake2/q_shared.h"
 };
 
 //============================================================================
 
-extern idClient*	id_cl;
+class idInput
+{
+public:
+	// =============
+	//  Input State
+	// =============
+	virtual void 	Init() = 0;
+	virtual void 	Shutdown() = 0;
+
+	virtual void 	Activate(qboolean active) = 0;
+
+	// ===============
+	//  Input Methods
+	// ===============
+
+	// Allows devices to insert commands into the command buffer
+	virtual void 	Commands() = 0;
+
+	// Advances a frame
+	virtual void 	Frame() = 0;
+
+	// add additional movement on top of the keyboard move cmd
+	virtual void 	Move(usercmd_t *cmd) = 0;
+};
 
 //============================================================================
 
-#endif //ZEALOT_ID_CLIENT_HPP
+extern idInput*	id_in;
+
+//============================================================================
+
+#endif //ZEALOT_ID_INPUT_HPP

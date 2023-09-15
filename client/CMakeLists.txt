@@ -24,9 +24,9 @@ list(APPEND CLIENT_SRCS
     "${CMAKE_SOURCE_DIR}/games/quake2/q_shared.c"
     "${CMAKE_SOURCE_DIR}/games/quake2/m_flash.c"
 
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/in_sdl.c"
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.cpp"
 
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/id_input_sdl.cpp"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_system_sdl.cpp"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_shared_sdl.cpp"
 

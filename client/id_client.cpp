@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "id_client.hpp"
 
+#include "id_input.hpp"
+
 extern "C" {
 	#include "client.h"
 }
@@ -83,6 +85,7 @@ extern "C" {
 
 	extern cvar_t*		cl_lightlevel;
 
+	extern cvar_t*		cl_nodelta;
 
 	//
 	// userinfo
@@ -113,10 +116,16 @@ extern "C" {
 	extern cvar_t 	*allow_download_sounds;
 	extern cvar_t 	*allow_download_maps;
 
+	extern unsigned	sys_frame_time;
+	extern unsigned	frame_msec;
+	extern unsigned	old_sys_frame_time;
+
 // TODO: Don't forward declare this
 	extern void 	CL_ConnectionlessPacket(void);
 	extern void		CL_FixCvarCheats(void);
 	extern void		CL_CheckForResend(void);
+	extern void		CL_WriteConfiguration(void);
+
 	extern void 	CL_ForwardToServer_f(void);
 	extern void 	CL_Pause_f(void);
 	extern void 	CL_Skins_f(void);
@@ -127,6 +136,7 @@ extern "C" {
 	extern void 	CL_Rcon_f(void);
 	extern void 	CL_Setenv_f(void);
 	extern void 	CL_Precache_f(void);
+	extern void		CL_FinishMove(usercmd_t* cmd);
 };
 
 //============================================================================
@@ -164,11 +174,32 @@ void idClient::Init()
 
 	InitLocal();
 
-	IN_Init();
+	id_in->Init();
 
 //	Cbuf_AddText ("exec autoexec.cfg\n");
 	FS_ExecAutoexec();
 	Cbuf_Execute();
+}
+
+// id's fixme below
+// FIXME: this is a callback from Sys_Quit and Com_Error.  It would be better
+void idClient::Shutdown()
+{
+	static qboolean isdown = false;
+
+	if (isdown)
+	{
+		printf("[idClient]: recursive shutdown\n");
+		return;
+	}
+	isdown = true;
+
+	CL_WriteConfiguration();
+
+	CDAudio_Shutdown();
+	S_Shutdown();
+	id_in->Shutdown();
+	VID_Shutdown();
 }
 
 void idClient::RunFrame(int msec)
@@ -191,7 +222,7 @@ void idClient::RunFrame(int msec)
 	}
 
 	// let the mouse activate or deactivate
-	IN_Frame();
+	id_in->Frame();
 
 	// decide the simulation time
 	cls.frametime = extratime / 1000.0;
@@ -268,6 +299,33 @@ void idClient::RunFrame(int msec)
 			}
 		}
 	}
+}
+
+//============================================================================
+
+usercmd_t idClient::CreateCmd()
+{
+	usercmd_t	cmd;
+
+	frame_msec = sys_frame_time - old_sys_frame_time;
+	if (frame_msec < 1)
+		frame_msec = 1;
+	if (frame_msec > 200)
+		frame_msec = 200;
+
+	// get basic movement from keyboard
+	CL_BaseMove (&cmd);
+
+	// allow mice or other external controllers to add to the move
+	id_in->Move(&cmd);
+
+	CL_FinishMove (&cmd);
+
+	old_sys_frame_time = sys_frame_time;
+
+//cmd.impulse = cls.framecount;
+
+	return cmd;
 }
 
 //============================================================================
@@ -475,7 +533,7 @@ void idClient::SendCommand()
 	Sys_SendKeyEvents();
 
 	// allow mice or other external controllers to add commands
-	IN_Commands();
+	id_in->Commands();
 
 	// process console commands
 	Cbuf_Execute();
@@ -484,10 +542,102 @@ void idClient::SendCommand()
 	CL_FixCvarCheats();
 
 	// send intentions now
-	CL_SendCmd();
+	SendCmd();
 
 	// resend a connection request if necessary
 	CL_CheckForResend();
+}
+
+void idClient::SendCmd()
+{
+	sizebuf_t	buf;
+	byte		data[128];
+	int			i;
+	usercmd_t	*cmd, *oldcmd;
+	usercmd_t	nullcmd;
+	int			checksumIndex;
+
+	// zCubed: Fixes VCRT complaining
+	memset(&buf, 0, sizeof(buf));
+
+	// build a command even if not connected
+
+	// save this command off for prediction
+	i = cls.netchan.outgoing_sequence & (CMD_BACKUP-1);
+	cmd = &cl.cmds[i];
+	cl.cmd_time[i] = cls.realtime;	// for netgraph ping calculation
+
+	*cmd = CreateCmd();
+
+	cl.cmd = *cmd;
+
+	if (cls.state == ca_disconnected || cls.state == ca_connecting)
+		return;
+
+	if ( cls.state == ca_connected)
+	{
+		if (cls.netchan.message.cursize	|| curtime - cls.netchan.last_sent > 1000 )
+			Netchan_Transmit (&cls.netchan, 0, buf.data);
+		return;
+	}
+
+	// send a userinfo update if needed
+	if (userinfo_modified)
+	{
+		CL_FixUpGender();
+		userinfo_modified = false;
+		MSG_WriteByte (&cls.netchan.message, clc_userinfo);
+		MSG_WriteString (&cls.netchan.message, Cvar_Userinfo() );
+	}
+
+	SZ_Init (&buf, data, sizeof(data));
+
+	if (cmd->buttons && cl.cinematictime > 0 && !cl.attractloop
+		&& cls.realtime - cl.cinematictime > 1000)
+	{	// skip the rest of the cinematic
+		SCR_FinishCinematic ();
+	}
+
+	// begin a client move command
+	MSG_WriteByte (&buf, clc_move);
+
+	// save the position for a checksum byte
+	checksumIndex = buf.cursize;
+	MSG_WriteByte (&buf, 0);
+
+	// let the server know what the last frame we
+	// got was, so the next message can be delta compressed
+	if (cl_nodelta->value || !cl.frame.valid || cls.demowaiting)
+		MSG_WriteLong (&buf, -1);	// no compression
+	else
+		MSG_WriteLong (&buf, cl.frame.serverframe);
+
+	// send this and the previous cmds in the message, so
+	// if the last packet was dropped, it can be recovered
+	i = (cls.netchan.outgoing_sequence-2) & (CMD_BACKUP-1);
+	cmd = &cl.cmds[i];
+	memset (&nullcmd, 0, sizeof(nullcmd));
+	MSG_WriteDeltaUsercmd (&buf, &nullcmd, cmd);
+	oldcmd = cmd;
+
+	i = (cls.netchan.outgoing_sequence-1) & (CMD_BACKUP-1);
+	cmd = &cl.cmds[i];
+	MSG_WriteDeltaUsercmd (&buf, oldcmd, cmd);
+	oldcmd = cmd;
+
+	i = (cls.netchan.outgoing_sequence) & (CMD_BACKUP-1);
+	cmd = &cl.cmds[i];
+	MSG_WriteDeltaUsercmd (&buf, oldcmd, cmd);
+
+	// calculate a checksum over the move commands
+	buf.data[checksumIndex] = COM_BlockSequenceCRCByte(
+		buf.data + checksumIndex + 1, buf.cursize - checksumIndex - 1,
+		cls.netchan.outgoing_sequence);
+
+	//
+	// deliver the message
+	//
+	Netchan_Transmit (&cls.netchan, buf.cursize, buf.data);
 }
 
 //============================================================================

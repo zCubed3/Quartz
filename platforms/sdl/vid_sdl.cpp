@@ -21,36 +21,42 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // Main windowed and fullscreen graphics interface module. This module
 // is used for both the software and OpenGL rendering versions of the
 // Quake refresh engine.
-#include <assert.h>
-#include <float.h>
 
-#include "../../client/client.h"
+extern "C" {
+	#include "../../client/client.h"
 
-#include "../../qcore/qlib.h"
+	#include "../../qcore/qlib.h"
 
-#include "sdlquake.h"
+	#include "sdlquake.h"
+};
 
-// Structure containing functions exported from refresh DLL
-refexport_t	re;
+#include "../../client/id_input.hpp"
 
-// Console variables that we need to access from this module
-cvar_t		*vid_gamma;
-cvar_t		*vid_ref;			// Name of Refresh DLL loaded
-cvar_t		*vid_xpos;			// X coordinate of window position
-cvar_t		*vid_ypos;			// Y coordinate of window position
-cvar_t		*vid_fullscreen;
+#include <cassert>
 
-// Global variables used internally by this module
-viddef_t	viddef;				// global video state; used by other modules
-qlib		qlib_ref;			// Handle to refresh DLL
-qboolean	reflib_active = 0;
+extern "C" {
+	// Structure containing functions exported from refresh DLL
+	refexport_t	re;
 
-HWND        cl_hwnd;            // Main window handle for life of program
-SDL_Window	*cl_window;			// SDL window handle
+	// Console variables that we need to access from this module
+	cvar_t		*vid_gamma;
+	cvar_t		*vid_ref;			// Name of Refresh DLL loaded
+	cvar_t		*vid_xpos;			// X coordinate of window position
+	cvar_t		*vid_ypos;			// Y coordinate of window position
+	cvar_t		*vid_fullscreen;
 
-#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
+	// Global variables used internally by this module
+	viddef_t	viddef;				// global video state; used by other modules
+	qlib		qlib_ref;			// Handle to refresh DLL
+	qboolean	reflib_active = 0;
 
-extern	unsigned	sys_msg_time;
+	HWND        cl_hwnd;            // Main window handle for life of program
+	SDL_Window	*cl_window;			// SDL window handle
+
+	#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
+
+	extern	unsigned	sys_msg_time;
+};
 
 /*
 ==========================================================================
@@ -101,7 +107,7 @@ void VID_Error (int err_level, char *fmt, ...)
 
 //==========================================================================
 
-void AppActivate(BOOL fActive, BOOL minimize)
+void AppActivate(qboolean fActive, qboolean minimize)
 {
 	Minimized = minimize;
 
@@ -116,13 +122,13 @@ void AppActivate(BOOL fActive, BOOL minimize)
 	// minimize/restore mouse-capture on demand
 	if (!ActiveApp)
 	{
-		IN_Activate (false);
+		id_in->Activate(false);
 		CDAudio_Activate (false);
 		S_Activate (false);
 	}
 	else
 	{
-		IN_Activate (true);
+		id_in->Activate(true);
 		CDAudio_Activate (true);
 		S_Activate (true);
 	}
@@ -251,7 +257,7 @@ qboolean VID_LoadRefresh( char *name )
 	ri.FS_LoadFile = FS_LoadFile;
 	ri.FS_FreeFile = FS_FreeFile;
 	ri.FS_Gamedir = FS_Gamedir;
-	ri.Cvar_Get = Cvar_Get;
+	ri.Cvar_Get = CAST_FUNC(Cvar_Get, cvar_t*, char*, char*, int);
 	ri.Cvar_Set = Cvar_Set;
 	ri.Cvar_SetValue = Cvar_SetValue;
 	ri.Vid_GetModeInfo = VID_GetModeInfo;

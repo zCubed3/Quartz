@@ -208,7 +208,7 @@ void Com_Error (int code, char *fmt, ...)
 	else
 	{
 		SV_Shutdown (va("Server fatal crashed: %s\n", msg), false);
-		CL_Shutdown ();
+		id_cl->Shutdown();
 	}
 
 	if (logfile)
@@ -232,7 +232,7 @@ do the apropriate things.
 void Com_Quit (void)
 {
 	SV_Shutdown ("Server quit\n", false);
-	CL_Shutdown ();
+	id_cl->Shutdown();
 
 	if (logfile)
 	{

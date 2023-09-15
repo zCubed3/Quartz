@@ -20,61 +20,67 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// id_system.hpp -- idSystem declaration
+// id_input_sdl.hpp -- idInput implementation for SDL
 //
 
 #ifndef __cplusplus
 #error "Tried including C++ header inside of a C source file!"
 #endif
 
-#ifndef ZEALOT_ID_SYSTEM_HPP
-#define ZEALOT_ID_SYSTEM_HPP
+#ifndef ZEALOT_ID_INPUT_SDL_HPP
+#define ZEALOT_ID_INPUT_SDL_HPP
 
 //============================================================================
 
-#include <cstdarg>
+#include "../../client/id_input.hpp"
+
+#include <SDL.h>
 
 //============================================================================
 
-class idSystem
+class idInputSDL : public idInput
 {
 public:
-	// ==============
-	//  System State
-	// ==============
-	virtual void	Init() = 0;
-	virtual void	Quit() = 0;
+	// =============
+	//  Input State
+	// =============
+	virtual void 	Init() override;
+	virtual void 	Shutdown() override;
 
-	virtual void	AppActivate() = 0;
+	virtual void 	Activate(qboolean active) override;
 
-	virtual void	Error(char *error, va_list argptr) = 0;
+	// ===============
+	//  Input Methods
+	// ===============
+	virtual void 	Commands() override;
 
-	// =================
-	//  Game Management
-	// =================
-	virtual void	UnloadGame() = 0;
-	virtual void*	GetGameAPI(void *parms) = 0;
+	virtual void 	Frame() override;
 
-	// ============
-	//  Console IO
-	// ============
-	virtual char*	ConsoleInput() = 0;
-	virtual void	ConsoleOutput(char *string) = 0;
+	virtual void 	Move(usercmd_t *cmd) override;
 
-	virtual void	SendKeyEvents() = 0;
+	// =============
+	//  SDL Methods
+	// =============
+	void			ActivateMouse(qboolean active);
+	void			PollSDL();
 
-	// ===========
-	//  System IO
-	// ===========
-	virtual char*	GetClipboardData() = 0;
+protected:
+	// =============
+	//  Input State
+	// =============
+	void 			InitMouse();
 
-	virtual void 	GetCurrentDir(char *string, long size) = 0;
+	// =========
+	//  Helpers
+	// =========
+
+	// Remaps an SDL v-keycode into a Quake keycode
+	int 			MapSDLKey(SDL_Keycode code);
+
+	// Remaps an SDL mouse button into a Quake keycode
+	int 			MapSDLMouseButton(int index);
 };
 
 //============================================================================
 
-extern idSystem*	id_sys;
-
-//============================================================================
-
-#endif //ZEALOT_ID_SYSTEM_HPP
+#endif //ZEALOT_ID_INPUT_SDL_HPP

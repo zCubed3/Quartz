@@ -22,6 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // q_shared.h -- included first by ALL program modules
 //
 
+#ifndef ZEALOT_QUAKE2_Q_SHARED_H
+#define ZEALOT_QUAKE2_Q_SHARED_H
+
 #include "../../qcore/qcore.h"
 
 #include <assert.h>
@@ -924,3 +927,5 @@ typedef enum
 extern vidref_t vidref_val;
 
 // ==================
+
+#endif
