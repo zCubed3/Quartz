@@ -252,8 +252,6 @@ void IN_MouseMove (usercmd_t *cmd)
 	// force the mouse to the center, so there's room to move
 	if (mx || my)
 		SDL_WarpMouseInWindow(cl_window, window_center_x, window_center_y);
-
-	printf("%i\n", current_pos_x);
 }
 
 //============================================================================
@@ -505,14 +503,14 @@ void idInputSDL::PollSDL()
 // =============
 void idInputSDL::InitMouse()
 {
-	cvar_t		*cv;
+	cvar_t *cv;
 
-	cv = Cvar_Get ("in_initmouse", "1", CVAR_NOSET);
-	if ( !cv->value )
+	cv = Cvar_Get("in_initmouse", "1", CVAR_NOSET);
+	if (!cv->value)
 		return;
 
 	mouseinitialized = true;
-	mouse_buttons = 3;
+	mouse_buttons = 5;
 }
 
 //============================================================================
@@ -598,14 +596,11 @@ int idInputSDL::MapSDLKey(SDL_Keycode code)
 
 int idInputSDL::MapSDLMouseButton(int index)
 {
-	if (index == 1)
-		return K_MOUSE1;
-	else if (index == 2)
-		return K_MOUSE2;
-	else if (index == 3)
-		return K_MOUSE3;
+	int 	actual;
 
-	return -1;
+	actual = index - 1;
+
+	return K_MOUSE1 + actual;
 }
 
 //============================================================================
