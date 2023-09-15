@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "qcommon.h"
 #include <setjmp.h>
 
+#include "../client/id_client.hpp"
+
 #define	MAXPRINTMSG	4096
 
 #define MAX_NUM_ARGVS	50
@@ -75,7 +77,7 @@ void Com_BeginRedirect (int target, char *buffer, int buffersize, void (*flush))
 	rd_target = target;
 	rd_buffer = buffer;
 	rd_buffersize = buffersize;
-	rd_flush = flush;
+	rd_flush = CAST_FUNC(flush, void, int, char*);
 
 	*rd_buffer = 0;
 }
@@ -290,7 +292,7 @@ void MSG_WriteChar (sizebuf_t *sb, int c)
 		Com_Error (ERR_FATAL, "MSG_WriteChar: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 1);
+	buf = (byte*)SZ_GetSpace(sb, 1);
 	buf[0] = c;
 }
 
@@ -303,7 +305,7 @@ void MSG_WriteByte (sizebuf_t *sb, int c)
 		Com_Error (ERR_FATAL, "MSG_WriteByte: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 1);
+	buf = (byte*)SZ_GetSpace(sb, 1);
 	buf[0] = c;
 }
 
@@ -316,7 +318,7 @@ void MSG_WriteShort (sizebuf_t *sb, int c)
 		Com_Error (ERR_FATAL, "MSG_WriteShort: range error");
 #endif
 
-	buf = SZ_GetSpace (sb, 2);
+	buf = (byte*)SZ_GetSpace(sb, 2);
 	buf[0] = c&0xff;
 	buf[1] = c>>8;
 }
@@ -325,7 +327,7 @@ void MSG_WriteLong (sizebuf_t *sb, int c)
 {
 	byte	*buf;
 	
-	buf = SZ_GetSpace (sb, 4);
+	buf = (byte*)SZ_GetSpace(sb, 4);
 	buf[0] = c&0xff;
 	buf[1] = (c>>8)&0xff;
 	buf[2] = (c>>16)&0xff;
@@ -1033,7 +1035,7 @@ char *CopyString (char *in)
 {
 	char	*out;
 	
-	out = Z_Malloc (strlen(in)+1);
+	out = (char*)Z_Malloc(strlen(in)+1);
 	strcpy (out, in);
 	return out;
 }
@@ -1166,11 +1168,15 @@ Z_TagMalloc
 void *Z_TagMalloc (int size, int tag)
 {
 	zhead_t	*z;
-	
+
+	// TODO: Replace malloc with new?
+
 	size = size + sizeof(zhead_t);
-	z = malloc(size);
-	if (!z)
-		Com_Error (ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes",size);
+	z = (zhead_t*)malloc(size);
+
+	if (z == nullptr)
+		Com_Error (ERR_FATAL, "Z_Malloc: failed on allocation of %i bytes", size);
+
 	memset (z, 0, size);
 	z_count++;
 	z_bytes += size;
@@ -1376,8 +1382,11 @@ float	crand(void)
 	return (rand()&32767)* (2.0/32767) - 1;
 }
 
-void Key_Init (void);
-void SCR_EndLoadingPlaque (void);
+// TODO: Replace these ugly extern blocks
+extern "C" {
+	void Key_Init(void);
+	void SCR_EndLoadingPlaque(void);
+}
 
 /*
 =============
@@ -1466,7 +1475,8 @@ void Qcommon_Init (int argc, char **argv)
 	Netchan_Init ();
 
 	SV_Init ();
-	CL_Init ();
+
+	id_cl->Init();
 
 	// add + commands from command line
 	if (!Cbuf_AddLateCommands ())
@@ -1491,6 +1501,11 @@ void Qcommon_Init (int argc, char **argv)
 Qcommon_Frame
 =================
 */
+extern "C" {
+	extern int c_traces, c_brush_traces;
+	extern int c_pointcontents;
+}
+
 void Qcommon_Frame (int msec)
 {
 	char	*s;
@@ -1534,9 +1549,6 @@ void Qcommon_Frame (int msec)
 
 	if (showtrace->value)
 	{
-		extern	int c_traces, c_brush_traces;
-		extern	int	c_pointcontents;
-
 		Com_Printf ("%4i traces  %4i points\n", c_traces, c_pointcontents);
 		c_traces = 0;
 		c_brush_traces = 0;
@@ -1559,7 +1571,7 @@ void Qcommon_Frame (int msec)
 	if (host_speeds->value)
 		time_between = Sys_Milliseconds ();		
 
-	CL_Frame (msec);
+	id_cl->RunFrame(msec);
 
 	if (host_speeds->value)
 		time_after = Sys_Milliseconds ();		

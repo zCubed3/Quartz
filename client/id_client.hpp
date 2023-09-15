@@ -20,57 +20,48 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// id_system.hpp -- idSystem declaration
+// id_client.hpp -- idClient declaration (formerly certain loose CL_ functions)
 //
+
+#ifndef ZEALOT_ID_CLIENT_HPP
+#define ZEALOT_ID_CLIENT_HPP
 
 #ifndef __cplusplus
 #error "Tried including C++ header inside of a C source file!"
 #endif
 
-#ifndef ZEALOT_ID_SYSTEM_HPP
-#define ZEALOT_ID_SYSTEM_HPP
-
 //============================================================================
 
-class idSystem
+class idClient
 {
 public:
 	// ==============
-	//  System State
+	//  Client State
 	// ==============
-	virtual void	Init() = 0;
-	virtual void	Quit() = 0;
+	void 	Init();
+	void	RunFrame(int msec);
 
-	virtual void	AppActivate() = 0;
-
-	virtual void	Error(char *error, va_list argptr) = 0;
-
-	// =================
-	//  Game Management
-	// =================
-	virtual void	UnloadGame() = 0;
-	virtual void*	GetGameAPI(void *parms) = 0;
+protected:
+	// ==============
+	//  Client State
+	// ==============
+	void	InitLocal();
 
 	// ============
-	//  Console IO
+	//  Networking
 	// ============
-	virtual char*	ConsoleInput() = 0;
-	virtual void	ConsoleOutput(char *string) = 0;
+	void	ReadPackets();
+	void	SendCommand();
 
-	virtual void	SendKeyEvents() = 0;
+	// Actually sends a command (the full named function does safety checking)
+	void 	SendCmd();
 
-	// ===========
-	//  System IO
-	// ===========
-	virtual char*	GetClipboardData() = 0;
-
-	virtual void 	GetCurrentDir(char *string, long size) = 0;
 };
 
 //============================================================================
 
-extern idSystem*	id_sys;
+extern idClient*	id_cl;
 
 //============================================================================
 
-#endif //ZEALOT_ID_SYSTEM_HPP
+#endif //ZEALOT_ID_CLIENT_HPP

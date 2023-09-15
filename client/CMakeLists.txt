@@ -4,6 +4,8 @@
 file(GLOB_RECURSE CLIENT_SRCS
     ${CMAKE_CURRENT_LIST_DIR}/*.c
     ${CMAKE_CURRENT_LIST_DIR}/*.h
+    ${CMAKE_CURRENT_LIST_DIR}/*.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/*.hpp
 )
 
 include(${CMAKE_SOURCE_DIR}/server/CMakeLists.txt)
@@ -13,7 +15,7 @@ list(APPEND CLIENT_SRCS
 
     "${QCOMMON_DIR}/crc.c"
     "${QCOMMON_DIR}/cmodel.c"
-    "${QCOMMON_DIR}/common.c"
+    "${QCOMMON_DIR}/common.cpp"
     "${QCOMMON_DIR}/files.c"
     "${QCOMMON_DIR}/net_chan.c"
     "${QCOMMON_DIR}/pmove.c"
