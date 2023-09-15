@@ -34,7 +34,7 @@ extern "C" {
 
 //============================================================================
 
-#include "../game/q_shared.h"
+#include "../games/quake2/q_shared.h"
 
 #define	VERSION		3.21
 

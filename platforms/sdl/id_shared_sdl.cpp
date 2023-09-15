@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // id_shared_sdl.cpp
 //
 
-#include "../../qcommon/qcommon.h"
+#include "../../qcore/qcore.h"
 
 #if defined(WIN32)
 

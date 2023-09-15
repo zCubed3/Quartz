@@ -743,7 +743,7 @@ void R_DrawAliasModel (entity_t *e)
 		glPushMatrix();
 		glLoadIdentity();
 		glScalef( -1, 1, 1 );
-	    MYgluPerspective( r_newrefdef.fov_y, ( float ) r_newrefdef.width / r_newrefdef.height,  4,  4096);
+	    MYgluPerspective( r_newrefdef.fov_y, ( float ) 1,  4,  4096);
 		glMatrixMode( GL_MODELVIEW );
 
 		glCullFace( GL_BACK );

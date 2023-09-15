@@ -19,8 +19,8 @@ list(APPEND CLIENT_SRCS
     "${QCOMMON_DIR}/pmove.c"
     "${QCOMMON_DIR}/md4.c"
 
-    "${CMAKE_SOURCE_DIR}/game/q_shared.c"
-    "${CMAKE_SOURCE_DIR}/game/m_flash.c"
+    "${CMAKE_SOURCE_DIR}/games/quake2/q_shared.c"
+    "${CMAKE_SOURCE_DIR}/games/quake2/m_flash.c"
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/in_sdl.c"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.c"

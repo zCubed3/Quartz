@@ -34,4 +34,20 @@ int 	Q_strncasecmp(char *s1, char *s2, int n);
 
 //============================================================================
 
+char*	COM_SkipPath(char *pathname);
+void 	COM_StripExtension(char *in, char *out);
+void 	COM_FileBase(char *in, char *out);
+void 	COM_FilePath(char *in, char *out);
+void 	COM_DefaultExtension(char *path, char *extension);
+
+//============================================================================
+
+char*	COM_Parse(char **data_p);
+
+//============================================================================
+
+void 	Com_sprintf(char *dest, int size, char *fmt, ...);
+
+//============================================================================
+
 #endif//ZEALOT_QSTR_H

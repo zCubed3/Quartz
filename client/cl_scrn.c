@@ -530,6 +530,8 @@ SCR_DrawConsole
 */
 void SCR_DrawConsole (void)
 {
+	const float 	NOLVL_HEIGHT = 0.9F;
+
 	Con_CheckResize ();
 	
 	if (cls.state == ca_disconnected || cls.state == ca_connecting)
@@ -539,9 +541,11 @@ void SCR_DrawConsole (void)
 	}
 
 	if (cls.state != ca_active || !cl.refresh_prepped)
-	{	// connected, but can't render
-		Con_DrawConsole (0.5);
-		re.DrawFill (0, viddef.height/2, viddef.width, viddef.height/2, 0);
+	{
+		// connected, but can't render
+		scr_conlines = NOLVL_HEIGHT;
+		Con_DrawConsole(NOLVL_HEIGHT);
+		re.DrawFill(0, viddef.height * NOLVL_HEIGHT, viddef.width, viddef.height * NOLVL_HEIGHT, 0);
 		return;
 	}
 

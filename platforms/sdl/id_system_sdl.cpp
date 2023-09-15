@@ -42,7 +42,6 @@ qboolean	Minimized;
 unsigned	sys_msg_time;
 unsigned	sys_frame_time;
 
-#define	MAX_NUM_ARGVS	128
 int			argc;
 char		*argv[MAX_NUM_ARGVS];
 
