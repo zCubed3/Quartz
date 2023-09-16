@@ -57,7 +57,7 @@ public:
 	// Returns a mount error code
 	zeal_mount_state_t 		MountNode(zealFSNode* node);
 
-	// Attempts to open a file at the given path
+	// Attempts to open a file at the given path, you provide the node explicitly
 	// TODO: Use std::string?
 	zealFSStream* 			Open(const char* node, const char* path);
 	zealFSStream* 			Open(const char* url);

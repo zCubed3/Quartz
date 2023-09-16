@@ -73,8 +73,8 @@ public:
 		node_stack = new_top;
 	}
 
-	// Removes the top element from the stack and returns it
-	// May return an invalid entry, please validate your results! For value types, check if valid!
+	// Removes the top element from the stack and assigns it to out
+	// Returns a boolean value of whether the pop operation was a success
 	bool Pop(T& out)
 	{
 		node_t* 	ret;
