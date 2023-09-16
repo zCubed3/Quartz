@@ -117,6 +117,7 @@ extern "C" {
 	// imgui
 	//
 #ifdef USE_IMGUI
+	cvar_t*				imgui_visible;
 	cvar_t*				imgui_showdemo;
 #endif
 
@@ -478,6 +479,7 @@ void idClient::InitLocal()
 	cl_vwep = Cvar_Get("cl_vwep", "1", CVAR_ARCHIVE);
 
 #ifdef USE_IMGUI
+	imgui_visible = Cvar_Get("imgui_visible", "1", 0);
 	imgui_showdemo = Cvar_Get("imgui_showdemo", "0", 0);
 #endif
 
@@ -711,6 +713,9 @@ void idClient::SendCmd()
 void idClient::StaticDrawImGui()
 {
 #ifdef USE_IMGUI
+	if (!imgui_visible->value)
+		return;
+
 	ImGui::Begin("idClient");
 
 	// Last timings
@@ -756,6 +761,46 @@ void idClient::StaticDrawImGui()
 			}
 
 			ImGui::EndTable();
+		}
+
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("Client State"))
+	{
+		if (ImGui::TreeNode("Current Frame"))
+		{
+			ImGui::Text("deltaframe: %i", cl.frame.deltaframe);
+
+			if (ImGui::TreeNode("Player State"))
+			{
+				ImGui::Text("fov: %f", cl.frame.playerstate.fov);
+				ImGui::Text("v_fov: %f", cl.frame.playerstate.v_fov);
+
+				ImGui::TreePop();
+			}
+
+			ImGui::TreePop();
+		}
+
+		if (ImGui::TreeNode("Movement (Decoded)"))
+		{
+			pmove_state_t state = cl.frame.playerstate.pmove;
+			vec3_t origin, velocity;
+
+			origin[0] = state.origin[0] * 0.125;
+			origin[1] = state.origin[1] * 0.125;
+			origin[2] = state.origin[2] * 0.125;
+
+			velocity[0] = state.velocity[0] * 0.125;
+			velocity[1] = state.velocity[1] * 0.125;
+			velocity[2] = state.velocity[2] * 0.125;
+
+			ImGui::Text("origin: %f, %f, %f", origin[0], origin[1], origin[2]);
+			ImGui::Text("velocity: %f, %f, %f", velocity[0], velocity[1], velocity[2]);
+			ImGui::Text("magnitude: %f", VectorNormalize(velocity));
+
+			ImGui::TreePop();
 		}
 
 		ImGui::TreePop();

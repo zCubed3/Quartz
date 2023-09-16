@@ -430,6 +430,10 @@ void idInputSDL::Move(usercmd_t *cmd)
 // =============
 //  SDL Methods
 // =============
+
+// TODO: Organize
+qboolean	mwheel_delay = false;
+
 void idInputSDL::ActivateMouse(qboolean active)
 {
 	int		width, height;
@@ -465,10 +469,17 @@ void idInputSDL::ActivateMouse(qboolean active)
 
 void idInputSDL::PollSDL()
 {
-	SDL_Event event;
-	int event_time;
+	SDL_Event 	event;
+	int 		event_time;
 
 	event_time = Sys_Milliseconds();
+
+	if (mwheel_delay)
+	{
+		mwheel_delay = false;
+		Key_Event(K_MWHEELUP, false, event_time);
+		Key_Event(K_MWHEELDOWN, false, event_time);
+	}
 
 	while (SDL_PollEvent(&event))
 	{
@@ -494,11 +505,28 @@ void idInputSDL::PollSDL()
 
 		if (event.type == SDL_WINDOWEVENT)
 		{
-			if (event.window.event == SDL_WINDOWEVENT_ENTER)
+			if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
 				Activate(true);
 
-			if (event.window.event == SDL_WINDOWEVENT_LEAVE)
+			if (event.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
 				Activate(false);
+		}
+
+		if (event.type == SDL_MOUSEWHEEL)
+		{
+			// Allow bhop, delay the mwheel up release by one frame
+
+			if (event.wheel.y > 0)
+			{
+				mwheel_delay = true;
+				Key_Event(K_MWHEELUP, true, event_time);
+			}
+
+			if (event.wheel.y < 0)
+			{
+				mwheel_delay = true;
+				Key_Event(K_MWHEELDOWN, true, event_time);
+			}
 		}
 
 #ifdef USE_IMGUI
