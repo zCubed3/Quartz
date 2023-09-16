@@ -48,7 +48,7 @@ protected:
 public:
 	~zealLinkedList()
 	{
-		do
+		while(node_stack != nullptr)
 		{
 			node_t* 	current;
 
@@ -57,7 +57,7 @@ public:
 
 			zealOptionalDelete(current->value);
 			delete current;
-		} while(node_stack != nullptr);
+		}
 	}
 
 	// Pushes to the top of the stack, shifting the contents downward

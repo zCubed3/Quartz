@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "zeal_linked_list.hpp"
 #include "zeal_fs.hpp"
+#include "zeal_string.hpp"
 
 #include <cstdio>
 
@@ -53,6 +54,26 @@ int main(int argc, char** argv)
 		{
 			printf("%f\n", float_out);
 		}
+	}
+
+	// Test our string type
+	{
+		zealString	str_default;
+		zealString	str_alloc("Hello, World!");
+		zealString 	str_copy(str_alloc);
+
+		zealString 	str_added;
+
+		for (int s = 0; s < 100; s++)
+		{
+			str_added += str_alloc;
+		}
+
+		// Print each string
+		printf("str_default = %s\n", str_default.CStr());
+		printf("str_alloc = %s\n", str_alloc.CStr());
+		printf("str_copy = %s\n", str_copy.CStr());
+		printf("str_added = %s\n", str_added.CStr());
 	}
 }
 
