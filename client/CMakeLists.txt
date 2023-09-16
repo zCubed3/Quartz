@@ -31,6 +31,13 @@ list(APPEND CLIENT_SRCS
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_shared_sdl.cpp"
 
     "${CMAKE_SOURCE_DIR}/platforms/null/cd_null.c" # TODO: Replace CD Audio!
+
+    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui.cpp"
+    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_tables.cpp"
+    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_widgets.cpp"
+    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_demo.cpp"
+    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_draw.cpp"
+    "${CMAKE_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_sdl2.cpp"
 )
 
 list(APPEND CLIENT_LIBS
@@ -41,10 +48,12 @@ list(APPEND CLIENT_LIBS
 
 list(APPEND CLIENT_INC_DIRS
     SDL2
+    ${CMAKE_SOURCE_DIR}/third_party/imgui
 )
 
 list(APPEND CLIENT_DEFS
     ${ZEALOT_GDEFS}
+    USE_IMGUI
 )
 
 #

@@ -16,10 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-*/
+//
+// qgl_sdl.cpp
+//
+
 /*
-** QGL_WIN.C
-**
 ** This file implements the operating system binding of GL to QGL function
 ** pointers.  When doing a port of Quake2 you must implement the following
 ** two functions:
@@ -27,9 +28,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ** QGL_Init() - loads libraries, assigns function pointers, etc.
 ** QGL_Shutdown() - unloads libraries, NULLs function pointers
 */
-#include <float.h>
-#include "../../../renderers/ref_gl2/gl_local.h"
-#include "gl2_sdl.h"
+
+extern "C" {
+	#include "../../../renderers/ref_gl2/gl_local.h"
+}
+
+#include "gl2_sdl.hpp"
+
+#ifdef USE_IMGUI
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_opengl2.h>
+#endif
 
 /*
 ** QGL_Shutdown
@@ -72,7 +82,7 @@ qboolean QGL_Init( const char *dllname )
 		SDL_WINDOWPOS_CENTERED,
 		640,
 		480,
-		SDL_WINDOW_OPENGL
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 	);
 
 	if (!glw_state.sdl_window)
@@ -94,6 +104,19 @@ qboolean QGL_Init( const char *dllname )
 		return false;
 
 	gl_config.allow_cds = true;
+
+	// Initialize ImGui (if enabled)
+#ifdef USE_IMGUI
+	ImGui::CreateContext();
+
+	ImGui_ImplSDL2_InitForOpenGL(glw_state.sdl_window, glw_state.sdl_gl_ctx);
+	ImGui_ImplOpenGL2_Init();
+
+	glw_state.imgui_ctx = ImGui::GetCurrentContext();
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	ImGui::StyleColorsDark(&style);
+#endif
 
 	return true;
 }

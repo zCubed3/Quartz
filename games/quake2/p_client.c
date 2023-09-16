@@ -1403,14 +1403,27 @@ void ClientUserinfoChanged (edict_t *ent, char *userinfo)
 	if (deathmatch->value && ((int)dmflags->value & DF_FIXED_FOV))
 	{
 		ent->client->ps.fov = 90;
+		ent->client->ps.v_fov = 90;
 	}
 	else
 	{
 		ent->client->ps.fov = atoi(Info_ValueForKey(userinfo, "fov"));
+
+		// Clamp the world fov
 		if (ent->client->ps.fov < 1)
 			ent->client->ps.fov = 90;
-		else if (ent->client->ps.fov > 160)
+
+		if (ent->client->ps.fov > 160)
 			ent->client->ps.fov = 160;
+
+		ent->client->ps.v_fov = atoi(Info_ValueForKey(userinfo, "v_fov"));
+
+		// Clamp the view fov
+		if (ent->client->ps.v_fov < 50)
+			ent->client->ps.v_fov = 50;
+
+		if (ent->client->ps.v_fov > 150)
+			ent->client->ps.v_fov = 150;
 	}
 
 	// handedness

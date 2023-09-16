@@ -27,9 +27,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "id_input.hpp"
 
+//============================================================================
+
 extern "C" {
 	#include "client.h"
 }
+
+//============================================================================
+
+#ifdef USE_IMGUI
+#include <imgui.h>
+#include <imgui_internal.h>
+#endif
 
 //============================================================================
 
@@ -96,12 +105,20 @@ extern "C" {
 	extern cvar_t*		skin;
 	extern cvar_t*		rate;
 	extern cvar_t*		fov;
+	cvar_t*				v_fov;
 	extern cvar_t*		msg;
 	extern cvar_t*		hand;
 	extern cvar_t*		gender;
 	extern cvar_t*		gender_auto;
 
 	extern cvar_t*		cl_vwep;
+
+	//
+	// imgui
+	//
+#ifdef USE_IMGUI
+	cvar_t*				imgui_showdemo;
+#endif
 
 	extern client_static_t	cls;
 	extern client_state_t	cl;
@@ -142,6 +159,13 @@ extern "C" {
 //============================================================================
 
 idClient* 	id_cl = new idClient();
+
+//============================================================================
+
+#define MAX_DATA_COUNT 128
+
+float	timings_cl_frame[MAX_DATA_COUNT];
+float	timings_ref[MAX_DATA_COUNT];
 
 //============================================================================
 
@@ -207,6 +231,13 @@ void idClient::RunFrame(int msec)
 	static int extratime;
 	static int lasttimecalled;
 
+	int			time_begin, time_end;
+
+	if (host_speeds->value)
+		time_begin = Sys_Milliseconds();
+	else
+		time_begin = 0; // Prevents VC++ Runtime error
+
 	if (dedicated->value)
 		return;
 
@@ -261,10 +292,25 @@ void idClient::RunFrame(int msec)
 	if (host_speeds->value)
 		time_before_ref = Sys_Milliseconds();
 
-	SCR_UpdateScreen();
+	// Because we want to draw ImGui, we inject a callback (to a static method)
+	// TODO: Instead need to have a "draw ImGui" stage of the screen proc
+	// Or instead begin the ImGui frame decoupled from the actual ref!
+	SCR_UpdateScreen(StaticDrawImGui);
 
 	if (host_speeds->value)
+	{
 		time_after_ref = Sys_Milliseconds();
+
+		// Move everything to the right
+		int last = time_after_ref - time_before_ref;
+		for (int i = 0; i < MAX_DATA_COUNT; i++) {
+			int prior = timings_ref[i];
+
+			timings_ref[i] = last;
+
+			last = prior;
+		}
+	}
 
 	// update audio
 	S_Update(cl.refdef.vieworg, cl.v_forward, cl.v_right, cl.v_up);
@@ -297,6 +343,21 @@ void idClient::RunFrame(int msec)
 
 				lasttimecalled = now;
 			}
+		}
+	}
+
+	if (host_speeds->value)
+	{
+		time_end = Sys_Milliseconds();
+
+		// Move everything to the right
+		int last = time_end - time_begin;
+		for (int i = 0; i < MAX_DATA_COUNT; i++) {
+			int prior = timings_cl_frame[i];
+
+			timings_cl_frame[i] = last;
+
+			last = prior;
 		}
 	}
 }
@@ -409,11 +470,16 @@ void idClient::InitLocal()
 	msg = Cvar_Get("msg", "1", CVAR_USERINFO | CVAR_ARCHIVE);
 	hand = Cvar_Get("hand", "0", CVAR_USERINFO | CVAR_ARCHIVE);
 	fov = Cvar_Get("fov", "90", CVAR_USERINFO | CVAR_ARCHIVE);
+	v_fov = Cvar_Get("v_fov", "90", CVAR_USERINFO | CVAR_ARCHIVE);
 	gender = Cvar_Get("gender", "male", CVAR_USERINFO | CVAR_ARCHIVE);
 	gender_auto = Cvar_Get("gender_auto", "1", CVAR_ARCHIVE);
 	gender->modified = false; // clear this so we know when user sets it manually
 
 	cl_vwep = Cvar_Get("cl_vwep", "1", CVAR_ARCHIVE);
+
+#ifdef USE_IMGUI
+	imgui_showdemo = Cvar_Get("imgui_showdemo", "0", 0);
+#endif
 
 
 	//
@@ -638,6 +704,68 @@ void idClient::SendCmd()
 	// deliver the message
 	//
 	Netchan_Transmit (&cls.netchan, buf.cursize, buf.data);
+}
+
+//============================================================================
+
+void idClient::StaticDrawImGui()
+{
+#ifdef USE_IMGUI
+	ImGui::Begin("idClient");
+
+	// Last timings
+	if (ImGui::TreeNode("Timings"))
+	{
+		if (ImGui::Button("toggle host_speeds"))
+		{
+			if (host_speeds->value)
+				Cvar_Set("host_speeds", "0");
+			else
+				Cvar_Set("host_speeds", "1");
+		}
+
+		ImGui::PlotLines("idClient::RunFrame()", timings_cl_frame, MAX_DATA_COUNT);
+		ImGui::PlotLines("idClient::RunFrame()->SCR_UpdateScreen", timings_ref, MAX_DATA_COUNT);
+
+		ImGui::TreePop();
+	}
+
+	if (ImGui::TreeNode("Cvars"))
+	{
+		if (ImGui::BeginTable("Cvar Table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+		{
+			cvar_t *var;
+
+			ImGui::TableSetupColumn("Name");
+			ImGui::TableSetupColumn("String Value");
+			ImGui::TableSetupColumn("Float Value");
+			ImGui::TableHeadersRow();
+
+			for (var = cvar_vars; var; var = var->next)
+			{
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("%s", var->name);
+
+				ImGui::TableSetColumnIndex(1);
+				ImGui::Text("%s", var->string);
+
+				ImGui::TableSetColumnIndex(2);
+				ImGui::Text("%f", var->value);
+			}
+
+			ImGui::EndTable();
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::End();
+
+	if (imgui_showdemo->value)
+		ImGui::ShowDemoWindow();
+#endif
 }
 
 //============================================================================

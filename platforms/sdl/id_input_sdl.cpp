@@ -36,6 +36,13 @@ extern "C" {
 
 //============================================================================
 
+#ifdef USE_IMGUI
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#endif
+
+//============================================================================
+
 extern "C" {
 	extern unsigned 	sys_msg_time;
 
@@ -493,7 +500,19 @@ void idInputSDL::PollSDL()
 			if (event.window.event == SDL_WINDOWEVENT_LEAVE)
 				Activate(false);
 		}
+
+#ifdef USE_IMGUI
+		// If the game is active do not give ImGui any input
+		if (!mouseactive)
+			ImGui_ImplSDL2_ProcessEvent(&event);
+#endif
 	}
+
+	// TODO: Find a better home for this
+#ifdef USE_IMGUI
+	if (mouseactive)
+		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+#endif
 }
 
 //============================================================================

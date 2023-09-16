@@ -265,13 +265,13 @@ void CL_PrepRefresh (void)
 
 	// register models, pics, and skins
 	Com_Printf ("Map: %s\r", mapname); 
-	SCR_UpdateScreen ();
+	SCR_UpdateScreen (NULL);
 	re.BeginRegistration (mapname);
 	Com_Printf ("                                     \r");
 
 	// precache status bar pics
 	Com_Printf ("pics\r"); 
-	SCR_UpdateScreen ();
+	SCR_UpdateScreen (NULL);
 	SCR_TouchPics ();
 	Com_Printf ("                                     \r");
 
@@ -286,7 +286,7 @@ void CL_PrepRefresh (void)
 		name[37] = 0;	// never go beyond one line
 		if (name[0] != '*')
 			Com_Printf ("%s\r", name); 
-		SCR_UpdateScreen ();
+		SCR_UpdateScreen (NULL);
 		Sys_SendKeyEvents ();	// pump message loop
 		if (name[0] == '#')
 		{
@@ -311,7 +311,7 @@ void CL_PrepRefresh (void)
 	}
 
 	Com_Printf ("images\r", i); 
-	SCR_UpdateScreen ();
+	SCR_UpdateScreen (NULL);
 	for (i=1 ; i<MAX_IMAGES && cl.configstrings[CS_IMAGES+i][0] ; i++)
 	{
 		cl.image_precache[i] = re.RegisterPic (cl.configstrings[CS_IMAGES+i]);
@@ -324,7 +324,7 @@ void CL_PrepRefresh (void)
 		if (!cl.configstrings[CS_PLAYERSKINS+i][0])
 			continue;
 		Com_Printf ("client %i\r", i); 
-		SCR_UpdateScreen ();
+		SCR_UpdateScreen (NULL);
 		Sys_SendKeyEvents ();	// pump message loop
 		CL_ParseClientinfo (i);
 		Com_Printf ("                                     \r");
@@ -334,7 +334,7 @@ void CL_PrepRefresh (void)
 
 	// set sky textures and speed
 	Com_Printf ("sky\r", i); 
-	SCR_UpdateScreen ();
+	SCR_UpdateScreen (NULL);
 	rotate = atof (cl.configstrings[CS_SKYROTATE]);
 	sscanf (cl.configstrings[CS_SKYAXIS], "%f %f %f", 
 		&axis[0], &axis[1], &axis[2]);
@@ -347,7 +347,7 @@ void CL_PrepRefresh (void)
 	// clear any lines of console text
 	Con_ClearNotify ();
 
-	SCR_UpdateScreen ();
+	SCR_UpdateScreen (NULL);
 	cl.refresh_prepped = true;
 	cl.force_refdef = true;	// make sure we have a valid refdef
 
@@ -503,8 +503,11 @@ void V_RenderView( float stereo_separation )
 		cl.refdef.y = scr_vrect.y;
 		cl.refdef.width = scr_vrect.width;
 		cl.refdef.height = scr_vrect.height;
-		cl.refdef.fov_y = CalcFov (cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
 		cl.refdef.time = cl.time*0.001;
+
+		// Calc fovs
+		cl.refdef.fov_y = CalcFov(cl.refdef.fov_x, cl.refdef.width, cl.refdef.height);
+		cl.refdef.v_fov_y = CalcFov(cl.refdef.v_fov_x, cl.refdef.width, cl.refdef.height);
 
 		cl.refdef.areabits = cl.frame.areabits;
 

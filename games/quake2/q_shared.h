@@ -905,6 +905,7 @@ typedef struct
 	float		blend[4];		// rgba full screen effect
 	
 	float		fov;			// horizontal field of view
+	float 		v_fov;			// horizontal viewmodel field of view
 
 	int			rdflags;		// refdef flags
 
@@ -918,10 +919,10 @@ typedef struct
 
 typedef enum
 {
-	VIDREF_GL,
-	VIDREF_SOFT,
-	VIDREF_GL_4,
-	VIDREF_OTHER
+	VIDREF_GL 		= 1,
+	VIDREF_SOFT 	= 2,
+	VIDREF_GL_4 	= 3,
+	VIDREF_OTHER 	= 4
 } vidref_t;
 
 extern vidref_t vidref_val;

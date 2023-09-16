@@ -732,21 +732,37 @@ void R_DrawAliasModel (entity_t *e)
 	//
 	// draw all the triangles
 	//
+
+	// TODO: Replace depthhack?
 	if (currententity->flags & RF_DEPTHHACK) // hack the depth range to prevent view model from poking into walls
 		glDepthRange (gldepthmin, gldepthmin + 0.3*(gldepthmax-gldepthmin));
 
-	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
+	// Is this a weapon model?
+	if (currententity->flags & RF_WEAPONMODEL)
 	{
-		extern void MYgluPerspective( GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar );
+		float mirror;
+		int cull;
 
-		glMatrixMode( GL_PROJECTION );
+		if (r_lefthand->value)
+		{
+			mirror = -1;
+			cull = GL_BACK;
+		} else
+		{
+			mirror = 1;
+			cull = GL_FRONT;
+		}
+
+		extern void MYgluPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar);
+
+		glMatrixMode(GL_PROJECTION);
 		glPushMatrix();
 		glLoadIdentity();
-		glScalef( -1, 1, 1 );
-	    MYgluPerspective( r_newrefdef.fov_y, ( float ) r_newrefdef.width / r_newrefdef.height,  4,  4096);
-		glMatrixMode( GL_MODELVIEW );
+		glScalef(mirror, 1, 1);
+		MYgluPerspective(r_newrefdef.v_fov_y, (float) r_newrefdef.width / r_newrefdef.height, 4, 4096);
+		glMatrixMode(GL_MODELVIEW);
 
-		glCullFace( GL_BACK );
+		glCullFace(cull);
 	}
 
     glPushMatrix ();
@@ -825,7 +841,7 @@ void R_DrawAliasModel (entity_t *e)
 	glEnable( GL_CULL_FACE );
 #endif
 
-	if ( ( currententity->flags & RF_WEAPONMODEL ) && ( r_lefthand->value == 1.0F ) )
+	if (currententity->flags & RF_WEAPONMODEL)
 	{
 		glMatrixMode( GL_PROJECTION );
 		glPopMatrix();

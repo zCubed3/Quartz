@@ -863,7 +863,7 @@ void CL_Skins_f (void)
 		if (!cl.configstrings[CS_PLAYERSKINS+i][0])
 			continue;
 		Com_Printf ("client %i: %s\n", i, cl.configstrings[CS_PLAYERSKINS+i]); 
-		SCR_UpdateScreen ();
+		SCR_UpdateScreen (NULL);
 		Sys_SendKeyEvents ();	// pump message loop
 		CL_ParseClientinfo (i);
 	}

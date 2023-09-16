@@ -1577,6 +1577,8 @@ void Qcommon_Frame (int msec)
 		time_after = Sys_Milliseconds ();		
 
 
+	// TODO: Bring this back but better
+	/*
 	if (host_speeds->value)
 	{
 		int			all, sv, gm, cl, rf;
@@ -1590,7 +1592,8 @@ void Qcommon_Frame (int msec)
 		cl -= rf;
 		Com_Printf ("all:%3i sv:%3i gm:%3i cl:%3i rf:%3i\n",
 			all, sv, gm, cl, rf);
-	}	
+	}
+	 */
 }
 
 /*

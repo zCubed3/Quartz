@@ -34,6 +34,10 @@ extern "C" {
 
 #include <cassert>
 
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif
+
 extern "C" {
 	// Structure containing functions exported from refresh DLL
 	refexport_t	re;
@@ -165,17 +169,18 @@ typedef struct vidmode_s
 
 vidmode_t vid_modes[] =
 {
-	{ "Mode 0: 320x240",   320, 240,   0 },
-	{ "Mode 1: 400x300",   400, 300,   1 },
-	{ "Mode 2: 512x384",   512, 384,   2 },
-	{ "Mode 3: 640x480",   640, 480,   3 },
-	{ "Mode 4: 800x600",   800, 600,   4 },
-	{ "Mode 5: 960x720",   960, 720,   5 },
-	{ "Mode 6: 1024x768",  1024, 768,  6 },
-	{ "Mode 7: 1152x864",  1152, 864,  7 },
-	{ "Mode 8: 1280x960",  1280, 960, 8 },
-	{ "Mode 9: 1600x1200", 1600, 1200, 9 },
-	{ "Mode 10: 2048x1536", 2048, 1536, 10 }
+	{ "Mode 0: 320x240",   		320, 240,   	0 },
+	{ "Mode 1: 400x300",   		400, 300,   	1 },
+	{ "Mode 2: 512x384",   		512, 384,   	2 },
+	{ "Mode 3: 640x480",   		640, 480,   	3 },
+	{ "Mode 4: 800x600",   		800, 600,   	4 },
+	{ "Mode 5: 960x720",   		960, 720,   	5 },
+	{ "Mode 6: 1024x768",  		1024, 768,  	6 },
+	{ "Mode 7: 1152x864",  		1152, 864,  	7 },
+	{ "Mode 8: 1280x960",  		1280, 960,  	8 },
+	{ "Mode 9: 1280x720",   	1280, 720,   	9 },
+	{ "Mode 10: 1920x1080",   	1920, 1080,   	10 },
+	{ "Mode 11: 2560x1440",   	2560, 1440,   	11 },
 };
 
 qboolean VID_GetModeInfo( int *width, int *height, int mode )
@@ -201,7 +206,7 @@ void VID_UpdateWindowPosAndSize( int x, int y )
 /*
 ** VID_NewWindow
 */
-void VID_NewWindow ( SDL_Window *window, int width, int height)
+void VID_NewWindow ( SDL_Window *window, void* extra, int width, int height)
 {
 	cl_window = window;
 
@@ -209,6 +214,11 @@ void VID_NewWindow ( SDL_Window *window, int width, int height)
 	viddef.height = height;
 
 	cl.force_refdef = true;		// can't use a paused refdef
+
+	// Extra is imgui
+#ifdef USE_IMGUI
+	ImGui::SetCurrentContext(static_cast<ImGuiContext*>(extra));
+#endif
 }
 
 void VID_FreeReflib (void)
@@ -416,4 +426,4 @@ void VID_Shutdown (void)
 	}
 }
 
-
+//============================================================================

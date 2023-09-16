@@ -200,17 +200,18 @@ void VID_MenuInit( void )
 {
 	static const char *resolutions[] =
 	{
-		"[320 240]",
-		"[400 300]",
-		"[512 384]",
-		"[640 480]",
-		"[800 600]",
-		"[960 720]",
-		"[1024 768]",
-		"[1152 864]",
-		"[1280 960]",
-		"[1600 1200]",
-		"[2048 1536]",
+		"[320x240 (4:3)]",
+		"[400x300 (4:3)]",
+		"[512x384 (4:3)]",
+		"[640x480 (4:3)]",
+		"[800x600 (4:3)]",
+		"[960x720 (4:3)]",
+		"[1024x768 (4:3)]",
+		"[1152x864 (4:3)]",
+		"[1280x960 (4:3)]",
+		"[1280x720 (16:9)]",
+		"[1920x1080 (16:9)]",
+		"[2560x1440 (16:9)]",
 		NULL
 	};
 	static const char *refs[] =
@@ -277,12 +278,14 @@ void VID_MenuInit( void )
 
 	for (i = 0; i < 2; i++)
 	{
-		s_ref_list[i].generic.type = MTYPE_SPINCONTROL;
-		s_ref_list[i].generic.name = "driver";
-		s_ref_list[i].generic.x = 0;
-		s_ref_list[i].generic.y = 0;
-		s_ref_list[i].generic.callback = DriverCallback;
-		s_ref_list[i].itemnames = refs;
+		{
+			s_ref_list[i].generic.type = MTYPE_SPINCONTROL;
+			s_ref_list[i].generic.name = "driver";
+			s_ref_list[i].generic.x = 0;
+			s_ref_list[i].generic.y = 0;
+			s_ref_list[i].generic.callback = DriverCallback;
+			s_ref_list[i].itemnames = refs;
+		}
 
 		{
 			s_mode_list[i].generic.type = MTYPE_SPINCONTROL;

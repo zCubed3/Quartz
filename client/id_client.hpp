@@ -63,6 +63,13 @@ protected:
 	// Actually sends a command (the full named function does safety checking)
 	void 				SendCmd();
 
+	// ============
+	//  Dear ImGui
+	// ============
+
+	// Not ifdef'ed because it's stubbed on non USE_IMGUI builds
+	// TODO: This is sloppy, please for the love of all that's good replace it at some point
+	static void			StaticDrawImGui();
 };
 
 //============================================================================

@@ -30,31 +30,43 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ** GLimp_SwitchFullscreen
 **
 */
-#include <assert.h>
 
-#include "../../../renderers/ref_gl2/gl_local.h"
+extern "C" {
+	#include "../../../renderers/ref_gl2/gl_local.h"
+	#include "../sdlquake.h"
+};
 
-#include "../sdlquake.h"
+#include <cassert>
 
-#include "gl2_sdl.h"
+#include "gl2_sdl.hpp"
 
-static qboolean GLimp_SwitchFullscreen( int width, int height );
-qboolean GLimp_InitGL (void);
+#ifdef USE_IMGUI
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_opengl2.h>
+#endif
 
-glwstate_t glw_state;
+extern "C" {
+	static qboolean GLimp_SwitchFullscreen(int width, int height);
+	qboolean GLimp_InitGL(void);
 
-extern cvar_t *vid_fullscreen;
-extern cvar_t *vid_ref;
+	glwstate_t glw_state;
+
+	extern cvar_t *vid_fullscreen;
+	extern cvar_t *vid_ref;
+};
 
 /*
 ** VID_CreateWindow
 */
 qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 {
-	cvar_t *vid_xpos, *vid_ypos;
-	int x, y;
+	cvar_t 	*vid_xpos, *vid_ypos;
+	int		x, y;
+	void	*extra;
+	char	title[256];
 
-	if (fullscreen)
+	if (fullscreen == 1)
 	{
 		x = 0;
 		y = 0;
@@ -71,7 +83,10 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		ri.Sys_Error(ERR_FATAL, "SDL window was NULL!");
 
 	// Update our window
-	SDL_SetWindowPosition(glw_state.sdl_window, x, y);
+	// (Position only if fullscreen isn't greater than one)
+	if (!fullscreen)
+		SDL_SetWindowPosition(glw_state.sdl_window, x, y);
+
 	SDL_SetWindowSize(glw_state.sdl_window, width, height);
 
 	// Set fullscreen
@@ -88,10 +103,20 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 		return false;
 	}
 
+	sprintf(title, "Zealot (Quake 2) - OpenGL 2.0 + SDL2 (%i x %i)", width, height);
+
+	SDL_SetWindowTitle(glw_state.sdl_window, title);
 	SDL_RaiseWindow(glw_state.sdl_window);
 
-	// let the sound and input subsystems know about the new window
-	ri.Vid_NewWindow(glw_state.sdl_window, width, height);
+	// let the sound and input subsystems know about the new window (and ImGui if initialized)
+
+#if USE_IMGUI
+	extra = glw_state.imgui_ctx;
+#else
+	extra = NULL;
+#endif
+
+	ri.Vid_NewWindow(glw_state.sdl_window, extra, width, height);
 
 	return true;
 }
@@ -100,7 +125,7 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 /*
 ** GLimp_SetMode
 */
-rserr_t GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+int GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
 {
 	int width, height;
 	const char *win_fs[] = { "W", "FS" };
@@ -204,45 +229,7 @@ void GLimp_Shutdown( void )
 */
 qboolean GLimp_Init( void *hinstance, void *wndproc )
 {
-	/*
-	#define OSR2_BUILD_NUMBER 1111
-
-	OSVERSIONINFO	vinfo;
-
-	vinfo.dwOSVersionInfoSize = sizeof(vinfo);
-
-	glw_state.allowdisplaydepthchange = false;
-
-	if ( GetVersionEx( &vinfo) )
-	{
-		if ( vinfo.dwMajorVersion > 4 )
-		{
-			glw_state.allowdisplaydepthchange = true;
-		}
-		else if ( vinfo.dwMajorVersion == 4 )
-		{
-			if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT )
-			{
-				glw_state.allowdisplaydepthchange = true;
-			}
-			else if ( vinfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS )
-			{
-				if ( LOWORD( vinfo.dwBuildNumber ) >= OSR2_BUILD_NUMBER )
-				{
-					glw_state.allowdisplaydepthchange = true;
-				}
-			}
-		}
-	}
-	else
-	{
-		ri.Con_Printf( PRINT_ALL, "GLimp_Init() - GetVersionEx failed\n" );
-		return false;
-	}
-
-	glw_state.hInstance = ( HINSTANCE ) hinstance;
-	glw_state.wndproc = wndproc;
-	*/
+	// TODO: Init imgui here instead?
 
 	return true;
 }
@@ -287,7 +274,31 @@ void GLimp_BeginFrame( float camera_separation )
 	}
 	*/
 
+	// TODO: Make this a helluva lot less ugly and cludgy
+	// Has the window changed size?
+	// Check if our window size mismatches the vid def
+	{
+		int 	new_width, new_height;
+		SDL_GetWindowSize(glw_state.sdl_window, &new_width, &new_height);
+
+		if (new_width != vid.width || new_height != vid.height)
+		{
+			vid.width = new_width;
+			vid.height = new_height;
+			VID_CreateWindow(new_width, new_height, false);
+		}
+	}
+
 	// TODO: Is there anything we need to do with GLAD here?
+
+	//
+	// Begin ImGui
+	//
+#ifdef USE_IMGUI
+	ImGui_ImplOpenGL2_NewFrame();
+	ImGui_ImplSDL2_NewFrame(glw_state.sdl_window);
+	ImGui::NewFrame();
+#endif
 }
 
 /*
@@ -301,14 +312,25 @@ void GLimp_EndFrame (void)
 {
 	int		err;
 
-	err = glGetError();
-	assert(err == GL_NO_ERROR);
+	//err = glGetError();
+	//assert(err == GL_NO_ERROR);
 
-	if ( stricmp( gl_drawbuffer->string, "GL_BACK" ) == 0 )
-	{
-		SDL_GL_SwapWindow(glw_state.sdl_window);
-		//ri.Sys_Error( ERR_FATAL, "GLimp_EndFrame() - SwapBuffers() failed!\n" );
-	}
+	//
+	// End ImGui
+	//
+#ifdef USE_IMGUI
+	ImGui::Render();
+
+	// Disable Quake's blending
+	glDisable(GL_ALPHA_TEST);
+	ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+	glEnable(GL_ALPHA_TEST);
+#endif
+
+	//
+	// Present
+	//
+	SDL_GL_SwapWindow(glw_state.sdl_window);
 }
 
 /*

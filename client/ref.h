@@ -104,7 +104,8 @@ typedef struct
 typedef struct
 {
 	int			x, y, width, height;// in virtual screen coordinates
-	float		fov_x, fov_y;
+	float		fov_x, fov_y;		// World FOV
+	float 		v_fov_x, v_fov_y;	// View FOV
 	float		vieworg[3];
 	float		viewangles[3];
 	float		blend[4];			// rgba 0-1 full screen blend
@@ -185,6 +186,11 @@ typedef struct
 
 	void	(*AppActivate)( qboolean activate );
 
+#ifdef USE_IMGUI
+	void	(*InitImGui)(void);
+	void 	(*ShutdownImGui)(void);
+#endif
+
 } refexport_t;
 
 //
@@ -220,7 +226,7 @@ typedef struct
 
 	qboolean	(*Vid_GetModeInfo)( int *width, int *height, int mode );
 	void		(*Vid_MenuInit)( void );
-	void		(*Vid_NewWindow)( SDL_Window *window, int width, int height );
+	void		(*Vid_NewWindow)( SDL_Window *window, void* extra, int width, int height );
 } refimport_t;
 
 

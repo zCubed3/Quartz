@@ -19,10 +19,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifndef ZEALOT_GL_SDL_H
-#define ZEALOT_GL_SDL_H
+#ifndef ZEALOT_GL_SDL_HPP
+#define ZEALOT_GL_SDL_HPP
 
 #include <SDL.h>
+
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif
 
 typedef struct
 {
@@ -32,10 +36,16 @@ typedef struct
 
 	FILE *log_fp;
 
-	SDL_Window 		*sdl_window; // SDL Window handle
-	SDL_GLContext 	*sdl_gl_ctx; // SDL OpenGL handle
+	SDL_Window*		sdl_window; // SDL Window handle
+	SDL_GLContext 	sdl_gl_ctx; // SDL OpenGL handle
+
+#ifdef USE_IMGUI
+	ImGuiContext*	imgui_ctx; // The ImGui context
+#endif
 } glwstate_t;
 
-extern glwstate_t glw_state;
+extern "C" {
+	extern glwstate_t glw_state;
+}
 
 #endif

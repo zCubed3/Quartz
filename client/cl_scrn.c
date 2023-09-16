@@ -592,7 +592,7 @@ void SCR_BeginLoadingPlaque (void)
 		scr_draw_loading = 2;	// clear to balack first
 	else
 		scr_draw_loading = 1;
-	SCR_UpdateScreen ();
+	SCR_UpdateScreen (NULL);
 	cls.disable_screen = Sys_Milliseconds ();
 	cls.disable_servercount = cl.servercount;
 }
@@ -1282,7 +1282,7 @@ This is called every frame, and can also be called explicitly to flush
 text to the screen.
 ==================
 */
-void SCR_UpdateScreen (void)
+void SCR_UpdateScreen(void(*inject_fptr)(void))
 {
 	int numframes;
 	int i;
@@ -1413,6 +1413,10 @@ void SCR_UpdateScreen (void)
 			M_Draw ();
 
 			SCR_DrawLoading ();
+		}
+
+		if (inject_fptr != NULL) {
+			inject_fptr();
 		}
 	}
 	re.EndFrame();

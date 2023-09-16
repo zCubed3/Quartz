@@ -42,7 +42,7 @@ int R_Init(void *param1, void *param2)
 		return false;
 
 	// Notify the game of our window
-	ri.Vid_NewWindow(gl4_state.sdl_window, gl4_state.width, gl4_state.height);
+	ri.Vid_NewWindow(gl4_state.sdl_window, NULL, gl4_state.width, gl4_state.height);
 
 	return true;
 }

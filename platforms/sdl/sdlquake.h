@@ -61,6 +61,13 @@ extern RECT		window_rect;
 
 extern unsigned sys_msg_time, sys_frame_time;
 
+#ifdef USE_IMGUI
+
+void VID_InitImGui(void);
+void VID_ShutdownImGui(void);
+
+#endif
+
 //============================================================================
 
 #ifdef __cplusplus

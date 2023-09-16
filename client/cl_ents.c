@@ -617,7 +617,10 @@ void CL_ParsePlayerstate (frame_t *oldframe, frame_t *newframe)
 	}
 
 	if (flags & PS_FOV)
-		state->fov = MSG_ReadByte (&net_message);
+	{
+		state->fov = MSG_ReadByte(&net_message);
+		state->v_fov = MSG_ReadByte(&net_message);
+	}
 
 	if (flags & PS_RDFLAGS)
 		state->rdflags = MSG_ReadByte (&net_message);
@@ -1343,8 +1346,10 @@ void CL_AddViewWeapon (player_state_t *ps, player_state_t *ops)
 		return;
 
 	// don't draw gun if in wide angle view
-	if (ps->fov > 90)
-		return;
+	//if (ps->fov > 90)
+	//	return;
+
+	// TODO: Draw the gun at a different fov instead
 
 	memset (&gun, 0, sizeof(gun));
 
@@ -1462,6 +1467,13 @@ void CL_CalcViewValues (void)
 
 	// interpolate field of view
 	cl.refdef.fov_x = ops->fov + lerp * (ps->fov - ops->fov);
+
+	// View fov is not interpolated (is the client fov)
+	// Only if v_fov is greater than 0!
+	if (ops->v_fov)
+		cl.refdef.v_fov_x = ops->v_fov;
+	else
+		cl.refdef.v_fov_x = cl.refdef.fov_x;
 
 	// don't interpolate blend color
 	for (i=0 ; i<4 ; i++)

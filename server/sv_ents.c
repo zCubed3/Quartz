@@ -288,7 +288,7 @@ void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, size
 		|| ps->blend[3] != ops->blend[3] )
 		pflags |= PS_BLEND;
 
-	if (ps->fov != ops->fov)
+	if (ps->fov != ops->fov || ps->v_fov != ops->v_fov)
 		pflags |= PS_FOV;
 
 	if (ps->rdflags != ops->rdflags)
@@ -388,8 +388,13 @@ void SV_WritePlayerstateToClient (client_frame_t *from, client_frame_t *to, size
 		MSG_WriteByte (msg, ps->blend[2]*255);
 		MSG_WriteByte (msg, ps->blend[3]*255);
 	}
+
 	if (pflags & PS_FOV)
-		MSG_WriteByte (msg, ps->fov);
+	{
+		MSG_WriteByte(msg, ps->fov);
+		MSG_WriteByte(msg, ps->v_fov);
+	}
+
 	if (pflags & PS_RDFLAGS)
 		MSG_WriteByte (msg, ps->rdflags);
 
