@@ -35,15 +35,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 class zealString
 {
 protected:
-	char* 	buffer 	= nullptr;
-	size_t	size 	= 0; // How large is the buffer?
-	size_t 	top 	= 0; // Where is the top most character (can't be greater than size!)
+	char* 	buffer 		= nullptr;
+	size_t	size 		= 0; // How large is the buffer?
+	size_t 	top 		= 0; // Where is the top most character (can't be greater than size!)
 
 protected:
 	// ==================
 	//  Internal Methods
 	// ==================
-	void Reallocate(size_t new_size, bool release = true);
+	void 			Reallocate(size_t new_size);
 
 public:
 	// ==============
@@ -54,6 +54,7 @@ public:
 
 	explicit zealString(size_t size);
 	explicit zealString(const char* str);
+	explicit zealString(const char* str, size_t size);
 
 	zealString(const zealString& str);
 
@@ -71,8 +72,13 @@ public:
 	char 			operator[](std::size_t index) const;
 
 	zealString 		operator+(const zealString& rhs) const;
-
 	zealString 		operator+=(const zealString& rhs);
+
+	zealString 		operator+(const char* rhs) const;
+	zealString 		operator+=(const char* rhs);
+
+	zealString 		operator+(const char& rhs) const;
+	zealString 		operator+=(const char& rhs);
 };
 
 //============================================================================

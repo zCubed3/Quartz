@@ -64,9 +64,12 @@ int main(int argc, char** argv)
 
 		zealString 	str_added;
 
-		for (int s = 0; s < 100; s++)
+		str_added += str_alloc;
+		str_added += " -- ";
+
+		for (char s = 'A'; s <= 'z'; s++)
 		{
-			str_added += str_alloc;
+			str_added += s;
 		}
 
 		// Print each string

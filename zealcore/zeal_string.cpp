@@ -33,15 +33,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ==================
 //  Internal Methods
 // ==================
-void zealString::Reallocate(size_t new_size, bool release)
+void zealString::Reallocate(size_t new_size)
 {
 	char*	old_buffer;
-	size_t 	old_size;
 	size_t 	real_size;
 	size_t 	copy_size;
 
 	old_buffer = this->buffer;
-	old_size = this->size;
 	real_size = new_size;
 
 	// Is top out of range?
@@ -63,8 +61,11 @@ void zealString::Reallocate(size_t new_size, bool release)
 	if (old_buffer != nullptr)
 		strncpy(buffer, old_buffer, copy_size);
 
-	if (release)
-		delete[] old_buffer;
+	// Zero out the rest
+	for (size_t t = top; t < size; t++)
+		buffer[t] = '\0';
+
+	delete[] old_buffer;
 }
 
 //============================================================================
@@ -80,9 +81,7 @@ zealString::~zealString()
 
 zealString::zealString()
 {
-	// Allocate a 256 character buffer
-	this->size = 256;
-	this->buffer = new char[size];
+	// Does nothing, should this do something?
 }
 
 zealString::zealString(size_t size)
@@ -105,6 +104,23 @@ zealString::zealString(const char* str)
 	strcpy(buffer, str);
 }
 
+zealString::zealString(const char* str, size_t size)
+{
+	size_t	actual_top;
+
+	// Top is either the last character or size - 1
+	actual_top = strlen(str);
+
+	if (size < actual_top)
+		actual_top = size - 1;
+
+	this->size = size;
+	this->top = actual_top;
+	this->buffer = new char[size];
+
+	strncpy(this->buffer, str, actual_top);
+}
+
 zealString::zealString(const zealString& str)
 {
 	// Copy size data
@@ -113,7 +129,7 @@ zealString::zealString(const zealString& str)
 
 	// Allocate new buffer and copy it over
 	this->buffer = new char[this->size];
-	strcpy(this->buffer, str.buffer);
+	strncpy(this->buffer, str.buffer, str.size);
 }
 
 //============================================================================
@@ -137,26 +153,26 @@ char zealString::operator[](std::size_t index) const
 	return '\0';
 }
 
+
 zealString zealString::operator+(const zealString &rhs) const
 {
-	zealString 	ret_str;
-	size_t 		combo_size;
-	char 		*lower, *upper;
+	zealString 	ret_str; // Uninitialized!
+	size_t 		final_size;
+	char		*write_dst;
 
-	combo_size = this->top + rhs.top;
-	ret_str.top = combo_size;
+	final_size = this->top + rhs.top;
 
-	// Check if the combo exceeds the default size
-	// Greater or eq because we need to validate that we don't go out of bounds
-	if (combo_size >= ret_str.size)
-		ret_str = zealString(combo_size + 1);
+	// Check if the combo exceeds our current size or is equal to it
+	// Therefore reallocate of double the current size
+	if (final_size >= this->size)
+		ret_str = zealString(this->buffer, final_size * 2);
+	else // Otherwise, just copy our string (entirely, size and all)
+		ret_str = zealString(*this);
 
-	// Copy the two strings
-	lower = ret_str.buffer;
-	upper = ret_str.buffer + this->top;
+	write_dst = ret_str.buffer + this->top;
 
-	strncpy(lower, this->buffer, this->top);
-	strncpy(upper, rhs.buffer, rhs.top);
+	strncpy(write_dst, rhs.buffer, rhs.top);
+	ret_str.top = final_size;
 
 	return ret_str;
 }
@@ -178,6 +194,98 @@ zealString zealString::operator+=(const zealString& rhs)
 
 	strncpy(upper, rhs.buffer, rhs.top);
 	this->top += rhs.top;
+
+	return *this;
+}
+
+
+zealString zealString::operator+(const char* rhs) const
+{
+	zealString 	ret_str; // Uninitialized!
+	size_t 		str_size;
+	size_t 		final_size;
+	char		*write_dst;
+
+	if (rhs == nullptr)
+		return zealString(*this);
+
+	str_size = strlen(rhs);
+	final_size = this->top + str_size;
+
+	// Check if the combo exceeds our current size or is equal to it
+	// Therefore reallocate of double the current size
+	if (final_size >= this->size)
+		ret_str = zealString(this->buffer, final_size * 2);
+	else // Otherwise, just copy our string (entirely, size and all)
+		ret_str = zealString(*this);
+
+	write_dst = ret_str.buffer + this->top;
+
+	strncpy(write_dst, rhs, str_size);
+	ret_str.top = final_size;
+
+	return ret_str;
+}
+
+zealString zealString::operator+=(const char* rhs)
+{
+	size_t 		combo_size;
+	size_t 		str_size;
+	char 		*upper;
+
+	if (rhs == nullptr) // Don't append
+		return *this;
+
+	str_size = strlen(rhs);
+	combo_size = this->top + str_size;
+
+	// If our combo size has gone way over our normal size, reallocate (in place, keeping old data in new copy)
+	// Our new size is two times the combo size to ensure subsequent additions are not causing many tiny reallocations
+	if (combo_size >= this->size)
+		Reallocate(combo_size * 2);
+
+	// We only care about the upper half of our new string
+	upper = this->buffer + this->top;
+
+	strncpy(upper, rhs, str_size);
+	this->top += str_size;
+
+	return *this;
+}
+
+zealString zealString::operator+(const char &rhs) const
+{
+	zealString 	ret_str; // Uninitialized!
+	size_t 		final_size;
+
+	final_size = this->top + 1;
+
+	// Check if the combo exceeds our current size or is equal to it
+	// Therefore allocate a new string, double the current size
+	if (final_size >= this->size)
+		ret_str = zealString(this->buffer, final_size * 2);
+	else // Otherwise, just copy our string (entirely, size and all)
+		ret_str = zealString(*this);
+
+	ret_str.buffer[final_size] = rhs;
+	ret_str.top = final_size;
+
+	return ret_str;
+}
+
+zealString zealString::operator+=(const char& rhs)
+{
+	size_t 		final_size;
+
+	final_size = this->top + 1;
+
+	// If our combo size has gone way over our normal size, reallocate (in place, keeping old data in new copy)
+	// Our new size is two times the combo size to ensure subsequent additions are not causing many tiny reallocations
+	if (final_size >= this->size)
+		Reallocate(final_size * 2);
+
+	this->buffer[this->top] = rhs;
+	this->top += 1;
 
 	return *this;
 }
