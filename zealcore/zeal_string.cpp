@@ -30,46 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
-// ==================
-//  Internal Methods
-// ==================
-void zealString::Reallocate(size_t new_size)
-{
-	char*	old_buffer;
-	size_t 	real_size;
-	size_t 	copy_size;
-
-	old_buffer = this->buffer;
-	real_size = new_size;
-
-	// Is top out of range?
-	// If so, make the effective size +1
-	// And reduce our copy to only the slice we can fit
-	if (top > new_size)
-	{
-		top = new_size;
-		real_size += 1;
-
-		copy_size = new_size;
-	}
-	else
-		copy_size = top;
-
-	this->size = real_size;
-	this->buffer = new char[real_size];
-
-	if (old_buffer != nullptr)
-		strncpy(buffer, old_buffer, copy_size);
-
-	// Zero out the rest
-	for (size_t t = top; t < size; t++)
-		buffer[t] = '\0';
-
-	delete[] old_buffer;
-}
-
-//============================================================================
-
 // ==============
 //  Construction
 // ==============
@@ -137,9 +97,59 @@ zealString::zealString(const zealString& str)
 // =========
 //  Methods
 // =========
-const char* zealString::CStr()
+char* zealString::Data()
 {
 	return buffer;
+}
+
+const char* zealString::CStr() const
+{
+	return buffer;
+}
+
+size_t zealString::Length() const
+{
+	return top;
+}
+
+size_t zealString::Capacity() const
+{
+	return size;
+}
+
+void zealString::Resize(size_t new_size)
+{
+	char*	old_buffer;
+	size_t 	real_size;
+	size_t 	copy_size;
+
+	old_buffer = this->buffer;
+	real_size = new_size;
+
+	// Is top out of range?
+	// If so, make the effective size +1
+	// And reduce our copy to only the slice we can fit
+	if (top > new_size)
+	{
+		top = new_size;
+		real_size += 1;
+
+		copy_size = new_size;
+	}
+	else
+		copy_size = top;
+
+	this->size = real_size;
+	this->buffer = new char[real_size];
+
+	if (old_buffer != nullptr)
+		strncpy(buffer, old_buffer, copy_size);
+
+	// Zero out the rest
+	for (size_t t = top; t < size; t++)
+		buffer[t] = '\0';
+
+	delete[] old_buffer;
 }
 
 //============================================================================
@@ -187,7 +197,7 @@ zealString zealString::operator+=(const zealString& rhs)
 	// If our combo size has gone way over our normal size, reallocate (in place, keeping old data in new copy)
 	// Our new size is two times the combo size to ensure subsequent additions are not causing many tiny reallocations
 	if (combo_size >= this->size)
-		Reallocate(combo_size * 2);
+		Resize(combo_size * 2);
 
 	// We only care about the upper half of our new string
 	upper = this->buffer + this->top;
@@ -242,7 +252,7 @@ zealString zealString::operator+=(const char* rhs)
 	// If our combo size has gone way over our normal size, reallocate (in place, keeping old data in new copy)
 	// Our new size is two times the combo size to ensure subsequent additions are not causing many tiny reallocations
 	if (combo_size >= this->size)
-		Reallocate(combo_size * 2);
+		Resize(combo_size * 2);
 
 	// We only care about the upper half of our new string
 	upper = this->buffer + this->top;
@@ -282,10 +292,42 @@ zealString zealString::operator+=(const char& rhs)
 	// If our combo size has gone way over our normal size, reallocate (in place, keeping old data in new copy)
 	// Our new size is two times the combo size to ensure subsequent additions are not causing many tiny reallocations
 	if (final_size >= this->size)
-		Reallocate(final_size * 2);
+		Resize(final_size * 2);
 
 	this->buffer[this->top] = rhs;
 	this->top += 1;
+
+	return *this;
+}
+
+zealString& zealString::operator=(const zealString &rhs)
+{
+	// Check if we have enough space to insert the other string
+	// If we don't, then replace the buffer in place
+	if (rhs.size > size)
+	{
+		delete[] this->buffer;
+
+		this->buffer = new char[rhs.size];
+		this->size = rhs.size;
+		this->top = rhs.top;
+
+		strcpy(this->buffer, rhs.buffer);
+	}
+	else // Otherwise, replace our buffer contents with no reallocation!
+	{
+		size_t 	old_top;
+
+		old_top	= this->top;
+		this->top = rhs.top;
+
+		// Zero out the remaining part
+		for (size_t t = old_top; t < this->top; t++)
+			this->buffer[t] = '\0';
+
+		// Then copy
+		strcpy(this->buffer, rhs.buffer);
+	}
 
 	return *this;
 }

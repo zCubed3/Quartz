@@ -41,12 +41,14 @@ list(APPEND CLIENT_SRCS
 )
 
 list(APPEND CLIENT_LIBS
+    ZealCore
     Zealot_Core
     SDL2
     SDL2main
 )
 
 list(APPEND CLIENT_INC_DIRS
+    ZealCore
     SDL2
     ${CMAKE_SOURCE_DIR}/third_party/imgui
 )

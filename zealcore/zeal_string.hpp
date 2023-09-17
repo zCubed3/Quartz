@@ -39,12 +39,6 @@ protected:
 	size_t	size 		= 0; // How large is the buffer?
 	size_t 	top 		= 0; // Where is the top most character (can't be greater than size!)
 
-protected:
-	// ==================
-	//  Internal Methods
-	// ==================
-	void 			Reallocate(size_t new_size);
-
 public:
 	// ==============
 	//  Construction
@@ -61,14 +55,17 @@ public:
 	// =========
 	//  Methods
 	// =========
-	const char* 	CStr();
+	char*			Data();
+	const char* 	CStr() const;
+
+	size_t			Length() const;
+	size_t			Capacity() const;
+
+	void 			Resize(size_t new_size);
 
 	// ===========
 	//  Operators
 	// ===========
-
-	// TODO: Move these to the source file?
-
 	char 			operator[](std::size_t index) const;
 
 	zealString 		operator+(const zealString& rhs) const;
@@ -79,6 +76,8 @@ public:
 
 	zealString 		operator+(const char& rhs) const;
 	zealString 		operator+=(const char& rhs);
+
+	zealString&		operator=(const zealString& rhs);
 };
 
 //============================================================================
