@@ -331,3 +331,21 @@ zealString& zealString::operator=(const zealString &rhs)
 
 	return *this;
 }
+
+bool zealString::operator==(const zealString &rhs) const
+{
+	if (this->buffer == nullptr || rhs.buffer == nullptr)
+		return false;
+
+	return strcmp(this->buffer, rhs.buffer) == 0;
+}
+
+bool zealString::operator==(const char* rhs) const
+{
+	if (this->buffer == nullptr || rhs == nullptr)
+		return false;
+
+	return strcmp(this->buffer, rhs) == 0;
+}
+
+//============================================================================

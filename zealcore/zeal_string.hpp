@@ -78,6 +78,9 @@ public:
 	zealString 		operator+=(const char& rhs);
 
 	zealString&		operator=(const zealString& rhs);
+
+	bool			operator==(const zealString& rhs) const;
+	bool			operator==(const char* rhs) const;
 };
 
 //============================================================================

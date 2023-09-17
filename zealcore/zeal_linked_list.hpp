@@ -38,7 +38,7 @@ class zealLinkedList
 public:
 	typedef struct node_s
 	{
-		T value;
+		T element;
 		struct node_s* next;
 	} node_t;
 
@@ -55,19 +55,19 @@ public:
 			current = node_stack;
 			node_stack = current->next;
 
-			zealOptionalDelete(current->value);
+			zealOptionalDelete(current->element);
 			delete current;
 		}
 	}
 
 	// Pushes to the top of the stack, shifting the contents downward
-	void Push(T value)
+	void Push(T element)
 	{
 		node_t* 	new_top;
 
 		new_top = new node_t;
 
-		new_top->value = value;
+		new_top->element = element;
 		new_top->next = node_stack;
 
 		node_stack = new_top;
@@ -86,7 +86,7 @@ public:
 
 		if (ret != nullptr)
 		{
-			out = ret->value;
+			out = ret->element;
 			delete ret;
 
 			return true;
@@ -96,8 +96,7 @@ public:
 	}
 
 	// Returns the top of the node stack, this is dangerous, use caution when iterating!
-	[[nodiscard]]
-	node_t* Top()
+	node_t* Top() const
 	{
 		return node_stack;
 	}

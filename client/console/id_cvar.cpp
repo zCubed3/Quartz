@@ -47,6 +47,11 @@ idCvar::idCvar(const zealString& name, float value, cvar_flags_t)
 
 //============================================================================
 
+zealString idCvar::GetName() const
+{
+	return name;
+}
+
 void idCvar::SetString(const zealString &string)
 {
 	this->string = string;

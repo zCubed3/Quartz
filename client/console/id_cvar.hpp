@@ -65,6 +65,8 @@ public:
 	// =========
 	//  Methods
 	// =========
+	zealString 	GetName() const;
+
 	void		SetString(const zealString& string);
 	void 		SetValue(float value);
 
