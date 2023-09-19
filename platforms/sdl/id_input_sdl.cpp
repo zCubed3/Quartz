@@ -46,35 +46,8 @@ extern "C" {
 extern "C" {
 	extern unsigned 	sys_msg_time;
 
-	// joystick defines and variables
-	// where should defines be moved?
-	#define JOY_ABSOLUTE_AXIS	0x00000000		// control like a joystick
-	#define JOY_RELATIVE_AXIS	0x00000010		// control like a mouse, spinner, trackball
-	#define	JOY_MAX_AXES		6				// X, Y, Z, R, U, V
-	#define JOY_AXIS_X			0
-	#define JOY_AXIS_Y			1
-	#define JOY_AXIS_Z			2
-	#define JOY_AXIS_R			3
-	#define JOY_AXIS_U			4
-	#define JOY_AXIS_V			5
-
-	enum _ControlList
-	{
-		AxisNada = 0, AxisForward, AxisLook, AxisSide, AxisTurn, AxisUp
-	};
-
-	DWORD	dwAxisFlags[JOY_MAX_AXES] =
-	{
-		JOY_RETURNX, JOY_RETURNY, JOY_RETURNZ, JOY_RETURNR, JOY_RETURNU, JOY_RETURNV
-	};
-
-	DWORD	dwAxisMap[JOY_MAX_AXES];
-	DWORD	dwControlMap[JOY_MAX_AXES];
-	PDWORD	pdwRawValue[JOY_MAX_AXES];
-
 	cvar_t	*in_mouse;
 	cvar_t	*in_joystick;
-
 
 	// none of these cvars are saved over a session
 	// this means that advanced controller configuration needs to be executed
@@ -104,13 +77,6 @@ extern "C" {
 	cvar_t	*v_centerspeed;
 
 	qboolean	joy_avail, joy_advancedinit, joy_haspov;
-	DWORD		joy_oldbuttonstate, joy_oldpovstate;
-
-	int			joy_id;
-	DWORD		joy_flags;
-	DWORD		joy_numbuttons;
-
-	static JOYINFOEX	ji;
 
 	qboolean	in_appactive;
 

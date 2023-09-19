@@ -59,7 +59,7 @@ extern "C" {
 /*
 ** VID_CreateWindow
 */
-qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
+qboolean VID_CreateWindow( int width, int height, int fullscreen )
 {
 	cvar_t 	*vid_xpos, *vid_ypos;
 	int		x, y;
@@ -84,14 +84,14 @@ qboolean VID_CreateWindow( int width, int height, qboolean fullscreen )
 
 	// Update our window
 	// (Position only if fullscreen isn't greater than one)
-	if (!fullscreen)
+	if (fullscreen == 0)
 		SDL_SetWindowPosition(glw_state.sdl_window, x, y);
 
 	SDL_SetWindowSize(glw_state.sdl_window, width, height);
 
 	// Set fullscreen
 	// TODO: Borderless?
-	if (fullscreen)
+	if (fullscreen == 1)
 		SDL_SetWindowFullscreen(glw_state.sdl_window, SDL_WINDOW_FULLSCREEN);
 	else
 		SDL_SetWindowFullscreen(glw_state.sdl_window, 0);
@@ -285,7 +285,7 @@ void GLimp_BeginFrame( float camera_separation )
 		{
 			vid.width = new_width;
 			vid.height = new_height;
-			VID_CreateWindow(new_width, new_height, false);
+			VID_CreateWindow(new_width, new_height, 2);
 		}
 	}
 

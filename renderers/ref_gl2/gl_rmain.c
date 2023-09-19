@@ -18,6 +18,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // r_main.c
+
 #include "gl_local.h"
 
 void R_Clear (void);
@@ -1162,10 +1163,10 @@ int R_Init( void *hinstance, void *hWnd )
 	//ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
 
 	strcpy( renderer_buffer, gl_config.renderer_string );
-	strlwr( renderer_buffer );
+	//strlwr( renderer_buffer );
 
 	strcpy( vendor_buffer, gl_config.vendor_string );
-	strlwr( vendor_buffer );
+	//strlwr( vendor_buffer );
 
 	if ( strstr( renderer_buffer, "voodoo" ) )
 	{

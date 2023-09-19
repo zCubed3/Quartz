@@ -30,7 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
-const char*	qlib_postfix = ".dll";
+const char*		qlib_postfix = ".dll";
+const char*		qlib_prefix = "";
 
 //============================================================================
 
@@ -55,23 +56,47 @@ qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func)
 
 //============================================================================
 
-#ifdef __linux__
+#if defined(__linux__)
 
-const char*	qlib_postfix = ".so";
+const char*		qlib_postfix = ".so";
 
-qlib QLib_LoadLibrary(char char* path)
+#endif
+
+#if defined(__linux__) || defined(__APPLE__)
+
+const char*		qlib_prefix = "lib/lib";
+
+#include <dlfcn.h>
+#include <stdlib.h>
+
+qlib QLib_LoadLibrary(const char* path)
 {
 	return dlopen(path, RTLD_LAZY);
 }
 
 int QLib_UnloadLibrary(qlib lib)
 {
-	return dlclose(lib);
+	if (lib == NULL)
+		return 1;
+
+	return dlclose(lib) == 0;
 }
 
-void* QLib_GetFuncPtr(qlib lib, const char* func)
+qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func)
 {
 	return dlsym(lib, func);
 }
+
+#endif
+
+//============================================================================
+
+#ifdef __APPLE__
+
+//============================================================================
+
+const char* 	qlib_postfix = ".dylib";
+
+//============================================================================
 
 #endif

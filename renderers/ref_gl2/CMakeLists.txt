@@ -55,6 +55,10 @@ if (UNIX)
     set(OPENGL_LIB "GL")
 endif()
 
+if (APPLE)
+    set(OPENGL_LIB "-framework OpenGL")
+endif()
+
 list(APPEND REF_GL_LIBS
     ${OPENGL_LIB}
 )

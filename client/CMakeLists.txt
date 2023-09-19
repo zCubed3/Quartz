@@ -25,6 +25,7 @@ list(APPEND CLIENT_SRCS
     "${CMAKE_SOURCE_DIR}/games/quake2/m_flash.c"
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.cpp"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_menu.c"
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_input_sdl.cpp"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_system_sdl.cpp"
@@ -63,9 +64,8 @@ list(APPEND CLIENT_DEFS
 #
 if (WIN32)
     list(APPEND CLIENT_SRCS
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/net_wins.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/snd_win.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_menu.c"
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/win32/net_wins.c"
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/win32/snd_win.c"
 
         "${CMAKE_SOURCE_DIR}/platforms/sdl/q2.rc"
     )
@@ -73,6 +73,13 @@ if (WIN32)
     list(APPEND CLIENT_LIBS
         "winmm"
         "ws2_32"
+    )
+endif()
+
+if (APPLE)
+    list(APPEND CLIENT_SRCS
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/posix/net_posix.c"
+        "${CMAKE_SOURCE_DIR}/platforms/null/snddma_null.c"
     )
 endif()
 

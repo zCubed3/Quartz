@@ -61,7 +61,7 @@ public:
 
 	// TODO: Pass flags to both
 	idCvar*		GetOrInitCvar(const zealString& name, const zealString& string);
-	idCvar*		GetOrInitCvar(const zealString& name, float value)
+	idCvar*		GetOrInitCvar(const zealString& name, float value);
 };
 
 //============================================================================

@@ -40,6 +40,7 @@ typedef 	void*(*qlib_fptr)(void*);
 //============================================================================
 
 QEXTERN_VAR const char*		qlib_postfix;
+QEXTERN_VAR const char*		qlib_prefix;
 
 //============================================================================
 

@@ -54,7 +54,6 @@ extern "C" {
 	qlib		qlib_ref;			// Handle to refresh DLL
 	qboolean	reflib_active = 0;
 
-	HWND        cl_hwnd;            // Main window handle for life of program
 	SDL_Window	*cl_window;			// SDL window handle
 
 	#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
@@ -91,8 +90,8 @@ void VID_Printf (int print_level, char *fmt, ...)
 	}
 	else if ( print_level == PRINT_ALERT )
 	{
-		MessageBox( 0, msg, "PRINT_ALERT", MB_ICONWARNING );
-		OutputDebugString( msg );
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "PRINT_ALERT", msg, nullptr);
+		Sys_ConsoleOutput( msg );
 	}
 }
 
@@ -240,6 +239,7 @@ qboolean VID_LoadRefresh( char *name )
 {
 	refimport_t ri;
 	GetRefAPI_t GetRefAPI;
+	void		*plat_data;
 
 	if (reflib_active)
 	{
@@ -287,7 +287,11 @@ qboolean VID_LoadRefresh( char *name )
 		Com_Error(ERR_FATAL, "%s has incompatible api_version", name);
 	}
 
-	if (re.Init(global_hInstance, NULL) == -1)
+#ifdef WIN32
+	plat_data = global_hInstance;
+#endif
+
+	if (re.Init(plat_data, NULL) == -1)
 	{
 		re.Shutdown();
 		VID_FreeReflib();
@@ -356,7 +360,7 @@ void VID_CheckChanges (void)
 			continue;
 		}
 
-		Com_sprintf( name, sizeof(name), "ref_%s.dll", vid_ref->string );
+		Com_sprintf( name, sizeof(name), "%sref_%s%s", qlib_prefix, vid_ref->string, qlib_postfix);
 
 		if ( !VID_LoadRefresh( name ) )
 		{

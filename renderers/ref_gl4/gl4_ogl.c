@@ -38,7 +38,7 @@ OPENGL STATE MANAGEMENT
 //
 // Initialization
 //
-int OGL_Init()
+qboolean OGL_Init()
 {
 	// Ensure SDL is initialized
 	SDL_Init(SDL_INIT_VIDEO);

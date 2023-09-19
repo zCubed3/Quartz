@@ -27,8 +27,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifndef __cplusplus
 
-#if WIN32
+#ifdef WIN32
 #define QEXPORT __declspec(dllexport)
+#endif
+
+#if defined(__clang__) || defined(__GNUC__)
+#define QEXPORT __attribute__((visibility("default")))
 #endif
 
 #ifndef QEXPORT
@@ -40,7 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #else
 
-#if WIN32
+#ifdef WIN32
 #define QEXPORT __declspec(dllexport) extern "C"
 #endif
 

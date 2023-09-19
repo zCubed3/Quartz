@@ -142,6 +142,90 @@ void Sys_Mkdir (char *path)
 //===============================================================================
 
 /*
+==============================================================================
+
+ POSIX CRAP
+
+==============================================================================
+*/
+
+#if defined(__linux__) || defined(__APPLE__)
+
+#include <dirent.h>
+#include <sys/stat.h>
+
+char			dirbase[MAX_OSPATH];
+char			dirpath[MAX_OSPATH];
+DIR*			dirhandle = nullptr;
+struct dirent*	dirent = nullptr;
+
+char *Sys_FindFirst (char *path, unsigned musthave, unsigned canthave )
+{
+	struct dirent* 	dirent;
+
+	if (dirhandle)
+		Sys_Error("Sys_BeginFind without close");
+
+	dirhandle = nullptr;
+
+	COM_FilePath(path, dirbase);
+	dirhandle = opendir(path);
+
+	if (dirhandle == nullptr)
+		return nullptr;
+
+	dirent = readdir(dirhandle);
+
+	if (dirent == nullptr)
+		return nullptr;
+
+	// TODO: Compare attributes!
+	//if (!CompareAttributes(findinfo.dwFileAttributes, musthave, canthave))
+	//	return nullptr;
+
+	Com_sprintf(dirpath, sizeof(dirpath), "%s/%s", dirbase, dirent->d_name);
+	return dirpath;
+}
+
+char *Sys_FindNext ( unsigned musthave, unsigned canthave )
+{
+	struct dirent* 	dirent;
+
+	if (dirhandle == nullptr)
+		return nullptr;
+
+	dirent = readdir(dirhandle);
+
+	if (dirent == nullptr)
+		return nullptr;
+
+	//if (!CompareAttributes(findinfo.dwFileAttributes, musthave, canthave))
+	//	return nullptr;
+
+	Com_sprintf(dirpath, sizeof(dirpath), "%s/%s", dirbase, dirent->d_name);
+	return dirpath;
+}
+
+void Sys_FindClose (void)
+{
+	if (dirhandle != nullptr)
+	{
+		closedir(dirhandle);
+		dirhandle = nullptr;
+	}
+}
+
+
+void Sys_Mkdir (char *path)
+{
+	mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO);
+}
+
+#endif
+
+//===============================================================================
+
+/*
 ================
 Sys_Milliseconds
 ================

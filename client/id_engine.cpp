@@ -44,7 +44,7 @@ idCvar* idEngine::SetCvarString(const zealString &name, const zealString &string
 
 	// TODO: Why would a cvar be nullptr?
 	if (cvar != nullptr)
-		cvar->SetString(value);
+		cvar->SetString(string);
 
 	return cvar;
 }

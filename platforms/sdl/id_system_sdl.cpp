@@ -40,6 +40,12 @@ extern "C" {
 
 #include <SDL.h>
 
+#if defined(__APPLE__) || defined(__linux__)
+
+#include <unistd.h>
+
+#endif
+
 // TODO: zCubed: Remove all the ancient Win32 code entirely!
 
 qboolean	ActiveApp;
@@ -132,7 +138,7 @@ void* idSystemSDL::GetGameAPI(void *parms)
 
 	sys_game_lib = Cvar_Get("sys_game_lib", "game", CVAR_ARCHIVE);
 
-	Com_sprintf(name, sizeof(name), "%s/%s%s", cwd, sys_game_lib->string, qlib_postfix);
+	Com_sprintf(name, sizeof(name), "%s/%s%s%s", cwd, qlib_prefix, sys_game_lib->string, qlib_postfix);
 	qlib_game = QLib_LoadLibrary(name);
 
 	if (qlib_game)
@@ -168,7 +174,7 @@ void idSystemSDL::ConsoleOutput(char *string)
 void idSystemSDL::SendKeyEvents()
 {
 	// TODO: Why is this still here?
-	sys_frame_time = timeGetTime();
+	sys_frame_time = Sys_Milliseconds();
 }
 
 //================================================================
@@ -183,8 +189,12 @@ char *idSystemSDL::GetClipboardData()
 
 void idSystemSDL::GetCurrentDir(char *string, long size)
 {
-#if WIN32
+#ifdef WIN32
 	GetCurrentDirectoryA(size, string);
+#endif
+
+#if defined(__APPLE__) || defined(__linux__)
+	getcwd(string, size);
 #endif
 }
 
@@ -277,7 +287,10 @@ main
 
 ==================
 */
+
+#ifdef WIN32
 HINSTANCE	global_hInstance;
+#endif
 
 int main(int argc, char** argv)
 {
@@ -286,7 +299,9 @@ int main(int argc, char** argv)
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	// TODO: This is temporary, replace Win32 entirely at some point!
+#ifdef WIN32
 	global_hInstance = GetModuleHandle(NULL);
+#endif
 
 	Qcommon_Init (argc, argv);
 	oldtime = Sys_Milliseconds ();
@@ -313,7 +328,7 @@ int main(int argc, char** argv)
 	}
 
 	// never gets here
-    return TRUE;
+    return 1;
 }
 
 //

@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // R_Init
 //
-int R_Init(void *param1, void *param2)
+qboolean R_Init(void *param1, void *param2)
 {
 	// param1 and param2 are unused
 	// They're "legacy" things

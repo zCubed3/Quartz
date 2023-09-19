@@ -51,8 +51,8 @@ if (ZEALOT_BUILD_REF_GL2)
 endif()
 
 if (ZEALOT_BUILD_REF_GL4)
-    add_subdirectory(third_party/glad_gl4)
-    add_subdirectory(renderers/ref_gl4)
+    #add_subdirectory(third_party/glad_gl4)
+    #add_subdirectory(renderers/ref_gl4)
 endif()
 
 # TODO: Make this prototype library an actual part of the engine
