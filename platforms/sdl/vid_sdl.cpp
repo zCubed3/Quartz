@@ -54,6 +54,10 @@ extern "C" {
 	qlib		qlib_ref;			// Handle to refresh DLL
 	qboolean	reflib_active = 0;
 
+#ifdef WIN32
+	HWND        cl_hwnd;
+#endif
+
 	SDL_Window	*cl_window;			// SDL window handle
 
 	#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
