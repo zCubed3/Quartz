@@ -63,6 +63,12 @@ protected:
 	// Actually sends a command (the full named function does safety checking)
 	void 				SendCmd();
 
+	// ==============
+	//  Console Cmds
+	// ==============
+	static void			CCmdDemoRecord();
+	static void			CCmdDemoStop();
+
 	// ============
 	//  Dear ImGui
 	// ============

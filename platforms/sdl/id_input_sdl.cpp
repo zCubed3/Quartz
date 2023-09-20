@@ -568,9 +568,12 @@ int idInputSDL::MapSDLKey(SDL_Keycode code)
 		case SDLK_RSHIFT:
 			return K_SHIFT;
 
-			// ==========
-			// Arrow keys
-			// ==========
+		case SDLK_TAB:
+			return K_TAB;
+
+		// ==========
+		// Arrow keys
+		// ==========
 		case SDLK_LEFT:
 			return K_LEFTARROW;
 

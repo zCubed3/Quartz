@@ -710,6 +710,124 @@ void idClient::SendCmd()
 
 //============================================================================
 
+// =============
+//  Client Cmds
+// =============
+void idClient::CCmdDemoRecord()
+{
+	char	name[MAX_OSPATH];
+	char	buf_data[MAX_MSGLEN];
+	sizebuf_t	buf;
+	int		i;
+	int		len;
+	entity_state_t	*ent;
+	entity_state_t	nullstate;
+
+	if (Cmd_Argc() != 2)
+	{
+		Com_Printf ("record <demoname>\n");
+		return;
+	}
+
+	if (cls.demorecording)
+	{
+		Com_Printf ("Already recording.\n");
+		return;
+	}
+
+	if (cls.state != ca_active)
+	{
+		Com_Printf ("You must be in a level to record.\n");
+		return;
+	}
+
+	//
+	// open the demo file
+	//
+	Com_sprintf (name, sizeof(name), "%s/demos/%s.dm2", FS_Gamedir(), Cmd_Argv(1));
+
+	Com_Printf ("recording to %s.\n", name);
+	FS_CreatePath (name);
+	cls.demofile = fopen (name, "wb");
+	if (!cls.demofile)
+	{
+		Com_Printf ("ERROR: couldn't open.\n");
+		return;
+	}
+	cls.demorecording = true;
+
+	// don't start saving messages until a non-delta compressed message is received
+	cls.demowaiting = true;
+
+	//
+	// write out messages to hold the startup information
+	//
+	SZ_Init (&buf, reinterpret_cast<byte*>(buf_data), sizeof(buf_data));
+
+	// send the serverdata
+	MSG_WriteByte (&buf, svc_serverdata);
+	MSG_WriteLong (&buf, PROTOCOL_VERSION);
+	MSG_WriteLong (&buf, 0x10000 + cl.servercount);
+	MSG_WriteByte (&buf, 1);	// demos are always attract loops
+	MSG_WriteString (&buf, cl.gamedir);
+	MSG_WriteShort (&buf, cl.playernum);
+
+	MSG_WriteString (&buf, cl.configstrings[CS_NAME]);
+
+	// configstrings
+	for (i=0 ; i<MAX_CONFIGSTRINGS ; i++)
+	{
+		if (cl.configstrings[i][0])
+		{
+			if (buf.cursize + strlen (cl.configstrings[i]) + 32 > buf.maxsize)
+			{	// write it out
+				len = LittleLong (buf.cursize);
+				fwrite (&len, 4, 1, cls.demofile);
+				fwrite (buf.data, buf.cursize, 1, cls.demofile);
+				buf.cursize = 0;
+			}
+
+			MSG_WriteByte (&buf, svc_configstring);
+			MSG_WriteShort (&buf, i);
+			MSG_WriteString (&buf, cl.configstrings[i]);
+		}
+
+	}
+
+	// baselines
+	memset (&nullstate, 0, sizeof(nullstate));
+	for (i=0; i<MAX_EDICTS ; i++)
+	{
+		ent = &cl_entities[i].baseline;
+		if (!ent->modelindex)
+			continue;
+
+		if (buf.cursize + 64 > buf.maxsize)
+		{	// write it out
+			len = LittleLong (buf.cursize);
+			fwrite (&len, 4, 1, cls.demofile);
+			fwrite (buf.data, buf.cursize, 1, cls.demofile);
+			buf.cursize = 0;
+		}
+
+		MSG_WriteByte (&buf, svc_spawnbaseline);
+		MSG_WriteDeltaEntity (&nullstate, &cl_entities[i].baseline, &buf, true, true);
+	}
+
+	MSG_WriteByte (&buf, svc_stufftext);
+	MSG_WriteString (&buf, "precache\n");
+
+	// write it to the demo file
+
+	len = LittleLong (buf.cursize);
+	fwrite (&len, 4, 1, cls.demofile);
+	fwrite (buf.data, buf.cursize, 1, cls.demofile);
+
+	// the rest of the demo file will be individual frames
+}
+
+//============================================================================
+
 void idClient::StaticDrawImGui()
 {
 #ifdef USE_IMGUI
