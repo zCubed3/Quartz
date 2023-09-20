@@ -80,6 +80,7 @@ qboolean OGL_Init()
 		ri.Con_Printf(PRINT_ALL, "Created SDL window successfully!\n");
 
 	// Set the resolution info
+	// TODO: Actually have a new window function that does this!
 	gl4_state.width = 640;
 	gl4_state.height = 480;
 

@@ -20,67 +20,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rdraw.c - Drawing functions
+// gl4_aimage.c - Image asset functions
 //
 
-#include "gl4_ref.h"
+//============================================================================
 
-#include <glad/glad.h>
-
-#include "../../zealcore/zeal_linked_list.hpp"
-
-//
-// Draw_GetPicSize
-//
-void Draw_GetPicSize(int *w, int *h, char *name)
-{
-
-}
-
-//
-// Draw_Pic
-//
-void Draw_Pic(int x, int y, char *name)
-{
-
-}
-
-//
-// Draw_StretchPic
-//
-void Draw_StretchPic(int x, int y, int w, int h, char *name)
-{
-
-}
-
-//
-// Draw_TileClear
-//
-void Draw_TileClear(int x, int y, int w, int h, char *name)
-{
-
-}
-
-//
-// Draw_Fill
-//
-void Draw_Fill(int x, int y, int w, int h, int c)
-{
-
-}
-
-//
-// Draw_FadeScreen
-//
-void Draw_FadeScreen(void)
-{
-
-}
-
-//
-// Draw_StretchRaw
-//
-void Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, byte *data)
-{
-
-}
+//============================================================================

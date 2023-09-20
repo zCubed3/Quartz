@@ -74,7 +74,7 @@ void R_EndFrame(void)
 	//
 	// Draw our queued characters
 	//
-	Draw_CharQueue();
+	Draw_FlushCharQueue();
 
 	//
 	// End ImGui

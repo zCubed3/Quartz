@@ -25,12 +25,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gl4_ref.h"
 
-#include "gl4_image.h"
+extern "C" {
+	#include "gl4_image.h"
+};
 
 #include <glad/glad.h>
 
-gl4_shader_t	*shader_hello_tri;
-gl4_shader_t	*shader_draw_char;
+extern "C" {
+	gl4_shader_t	*shader_hello_tri;
+	gl4_shader_t	*shader_draw_char;
+};
 
 //
 // LoadAllText
@@ -53,7 +57,11 @@ char *LoadAllText(const char *path)
 	len = ftell(file);
 	fseek(file, 0, SEEK_SET);
 
-	text = calloc(len + 1, 1);
+	text = new char[len + 1];
+
+	// Force zero terminate the text (some compilers don't init `new` memory)
+	memset(text, 0, len + 1);
+
 	fread(text, len, 1, file);
 
 	fclose(file);
@@ -159,14 +167,14 @@ gl4_shader_t *BuildShader(gl4_shader_proto_t *proto)
 		}
 		else
 		{
-			shader = malloc(sizeof(gl4_shader_t));
+			shader = new gl4_shader_t;
 			shader->handle = program;
 		}
 	}
 
 	// Clean up the prototype
-	free(proto->src_vert);
-	free(proto->src_frag);
+	delete proto->src_vert;
+	delete proto->src_frag;
 
 	proto->src_vert = NULL;
 	proto->src_frag = NULL;
@@ -225,7 +233,8 @@ qboolean R_LoadDefaultAssets(void)
 		LoadPCX("pics/conchars.pcx", &pic, &palette, &width, &height);
 
 		// We need to convert the palette image to an RGB image
-		recon_pic = malloc(width * height * 4);
+		recon_pic = new byte[width * height * 4];
+
 		for (int x = 0; x < width; x++)
 		{
 			for (int y = 0; y < height; y++)
@@ -262,6 +271,10 @@ qboolean R_LoadDefaultAssets(void)
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		free(pic);
+		free(palette);
+		free(recon_pic);
 	}
 
 	return true;

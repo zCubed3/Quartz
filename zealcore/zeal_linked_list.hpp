@@ -86,7 +86,8 @@ public:
 		if (node_stack != nullptr)
 			node_stack = node_stack->next;
 
-		count--;
+		if (count > 0)
+			count--;
 
 		if (ret != nullptr)
 		{
@@ -103,6 +104,12 @@ public:
 	node_t* Top() const
 	{
 		return node_stack;
+	}
+
+	// Returns the number of elements contained within this list
+	size_t Count() const
+	{
+		return count;
 	}
 };
 
