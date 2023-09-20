@@ -20,15 +20,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_sdl.h -- OpenGL 4 Renderer definition
+// gl4_sdl.hpp -- OpenGL 4 Renderer definition
 //
 
-#ifndef ZEALOT_GL4_SDL_H
-#define ZEALOT_GL4_SDL_H
+#ifndef ZEALOT_GL4_SDL_HPP
+#define ZEALOT_GL4_SDL_HPP
 
 #include <SDL.h>
 
 
 
-#endif//ZEALOT_GL4_SDL_H
+#endif//ZEALOT_GL4_SDL_HPP
 

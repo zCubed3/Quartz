@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_sdl.c -- OpenGL 4 Renderer implementation
+// gl4_sdl.cpp -- OpenGL 4 Renderer implementation
 //
 
-#include "gl4_sdl.h"
+#include "gl4_sdl.hpp"

@@ -25,9 +25,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "gl4_ref.h"
 
-#include "assets/gl4_image.h"
+#include "gl4_image.h"
 
 #include <glad/glad.h>
+
+gl4_shader_t	*shader_hello_tri;
+gl4_shader_t	*shader_draw_char;
 
 //
 // LoadAllText
@@ -85,6 +88,8 @@ qboolean BuildModule(int shader, char* src)
 		if (msg_len > 0)
 			ri.Con_Printf(PRINT_ALL, "[RefGL4]: Failed to compile shader with error\n\n'%s'\n", msg);
 	}
+
+	return compiled;
 }
 
 //
@@ -184,10 +189,79 @@ qboolean R_LoadDefaultAssets(void)
 		proto.src_vert = LoadAllText("gl4_src/hello_tri.vert.glsl");
 		proto.src_frag = LoadAllText("gl4_src/hello_tri.frag.glsl");
 
-		gl4_shader_hello_tri = BuildShader(&proto);
+		shader_hello_tri = BuildShader(&proto);
 
-		if (gl4_shader_hello_tri == NULL)
+		if (shader_hello_tri == NULL)
 			ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to build 'hello tri' shader!");
+	}
+
+	//
+	// Draw Char shader
+	//
+	{
+		gl4_shader_proto_t proto;
+
+		proto.src_vert = LoadAllText("ref_gl4/shaders/draw_char.vert.glsl");
+		proto.src_frag = LoadAllText("ref_gl4/shaders/draw_char.frag.glsl");
+
+		shader_draw_char = BuildShader(&proto);
+
+		if (shader_draw_char == NULL)
+			ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to build 'draw char' shader!");
+	}
+
+	//
+	// Draw Char Atlas
+	//
+
+	// TODO: Make a GL texture type
+	{
+		byte*	pic;
+		byte*	palette;
+		byte*	recon_pic;
+		int		width, height;
+		GLuint	tex;
+
+		LoadPCX("pics/conchars.pcx", &pic, &palette, &width, &height);
+
+		// We need to convert the palette image to an RGB image
+		recon_pic = malloc(width * height * 4);
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = 0; y < height; y++)
+			{
+				int 		recon_pt, pic_pt;
+				int 		p_index;
+				qboolean 	is_alpha;
+
+				recon_pt = (y * width * 4) + (x * 4);
+				pic_pt = (y * width) + x;
+
+				// Get our actual pic pixel
+				is_alpha = pic[pic_pt] == 255;
+				p_index = pic[pic_pt] * 3;
+
+				if (is_alpha)
+				{
+					recon_pic[recon_pt + 3] = 0x00;
+				}
+				else
+				{
+					recon_pic[recon_pt] 	= palette[p_index];
+					recon_pic[recon_pt + 1] = palette[p_index + 1];
+					recon_pic[recon_pt + 2] = palette[p_index + 2];
+					recon_pic[recon_pt + 3] = 0xFF;
+				}
+			}
+		}
+
+		glGenTextures(1, &tex);
+
+		glBindTexture(GL_TEXTURE_2D, tex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, recon_pic);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
 
 	return true;

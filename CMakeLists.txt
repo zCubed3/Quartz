@@ -22,6 +22,7 @@ list(APPEND ZEALOT_GDEFS
     C_ONLY
     $<$<CONFIG:Debug>:DEBUG>
     $<$<CONFIG:Release>:NDEBUG>
+    USE_IMGUI
 )
 
 #
@@ -30,8 +31,17 @@ list(APPEND ZEALOT_GDEFS
 option(ZEALOT_BUILD_REF_GL2 "Builds ref_gl2 (OpenGL 2.0 Renderer)" ON)
 option(ZEALOT_BUILD_REF_GL4 "Builds ref_gl4 (OpenGL 4.6 Renderer)" ON)
 
+option(ZEALOT_USE_IMGUI "Includes Dear ImGui support into the engine and modules" ON)
+
 include(BuildConfig.txt)
 # TODO: Generate a BuildConfig.gen.h file
+
+#
+# Optional modules
+#
+if (ZEALOT_USE_IMGUI)
+    list(APPEND ZEALOT_GDEFS "USE_IMGUI")
+endif()
 
 #
 # Dependencies
@@ -51,8 +61,8 @@ if (ZEALOT_BUILD_REF_GL2)
 endif()
 
 if (ZEALOT_BUILD_REF_GL4)
-    #add_subdirectory(third_party/glad_gl4)
-    #add_subdirectory(renderers/ref_gl4)
+    add_subdirectory(third_party/glad_gl4)
+    add_subdirectory(renderers/ref_gl4)
 endif()
 
 # TODO: Make this prototype library an actual part of the engine

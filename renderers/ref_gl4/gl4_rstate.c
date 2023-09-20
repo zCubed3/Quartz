@@ -41,8 +41,9 @@ qboolean R_Init(void *param1, void *param2)
 	if (!R_LoadDefaultAssets())
 		return false;
 
-	// Notify the game of our window
-	ri.Vid_NewWindow(gl4_state.sdl_window, NULL, gl4_state.width, gl4_state.height);
+	// Set up our initial OpenGL state
+	// This can change!
+	OGL_DefaultState();
 
 	return true;
 }

@@ -38,12 +38,13 @@ class zealLinkedList
 public:
 	typedef struct node_s
 	{
-		T element;
-		struct node_s* next;
+		T 				element;
+		struct node_s* 	next;
 	} node_t;
 
 protected:
-	node_t* node_stack = nullptr;
+	size_t count 			= 0;
+	node_t* node_stack 		= nullptr;
 
 public:
 	~zealLinkedList()
@@ -71,6 +72,7 @@ public:
 		new_top->next = node_stack;
 
 		node_stack = new_top;
+		count++;
 	}
 
 	// Removes the top element from the stack and assigns it to out
@@ -83,6 +85,8 @@ public:
 
 		if (node_stack != nullptr)
 			node_stack = node_stack->next;
+
+		count--;
 
 		if (ret != nullptr)
 		{

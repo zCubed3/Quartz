@@ -11,19 +11,10 @@ list(APPEND REF_GL_SRCS
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl2_sdl.cpp"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/ref_gl2/gl2_sdl_imp.cpp"
-
-    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui.cpp"
-    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_tables.cpp"
-    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_widgets.cpp"
-    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_demo.cpp"
-    "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_draw.cpp"
-    "${CMAKE_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_sdl2.cpp"
-    "${CMAKE_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_opengl2.cpp"
 )
 
 list(APPEND REF_GL_DEFS
     ${ZEALOT_GDEFS}
-    USE_IMGUI
 )
 
 list(APPEND REF_GL_LIBS
@@ -35,10 +26,26 @@ list(APPEND REF_GL_LIBS
 list(APPEND REF_GL_INC_DIRS
     SDL2
     GLAD_GL2
-
-    "${CMAKE_SOURCE_DIR}/third_party/imgui"
 )
 
+#
+# Optional features
+#
+if (ZEALOT_USE_IMGUI)
+    list(APPEND REF_GL_SRCS
+        "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui.cpp"
+        "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_tables.cpp"
+        "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_widgets.cpp"
+        "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_demo.cpp"
+        "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_draw.cpp"
+        "${CMAKE_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_sdl2.cpp"
+        "${CMAKE_SOURCE_DIR}/third_party/imgui/backends/imgui_impl_opengl2.cpp"
+    )
+
+    list(APPEND REF_GL_INC_DIRS
+        "${CMAKE_SOURCE_DIR}/third_party/imgui"
+    )
+endif()
 
 #
 # Platform specifics

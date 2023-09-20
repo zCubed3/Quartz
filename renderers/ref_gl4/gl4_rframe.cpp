@@ -20,12 +20,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rframe.c - Implementations of begin and end frame
+// gl4_rframe.cpp - Implementations of begin and end frame
 //
 
 #include "gl4_ref.h"
 
 #include <glad/glad.h>
+
+#ifdef USE_IMGUI
+
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_opengl3.h>
+
+#endif
 
 //
 // R_BeginFrame
@@ -38,10 +46,19 @@ void R_BeginFrame(float stereo_dist)
 		0, 1, 2
 	};
 
-	glClear(GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	OGL_BindShader(gl4_shader_hello_tri);
+	OGL_BindShader(shader_hello_tri);
 	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &indices);
+
+	//
+	// Begin ImGui
+	//
+#ifdef USE_IMGUI
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame(gl4_state.sdl_window);
+	ImGui::NewFrame();
+#endif
 }
 
 //
@@ -54,7 +71,22 @@ void R_EndFrame(void)
 	while ((err = glGetError()) != GL_NO_ERROR)
 		ri.Con_Printf(PRINT_ALL, "[RefGL4]: OpenGL error '%i'\n", err);
 
+	//
+	// Draw our queued characters
+	//
+	Draw_CharQueue();
+
+	//
+	// End ImGui
+	//
+#ifdef USE_IMGUI
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#endif
+
+	//
 	// Swap our buffers (present the image)
+	//
 	SDL_GL_SwapWindow(gl4_state.sdl_window);
 }
 

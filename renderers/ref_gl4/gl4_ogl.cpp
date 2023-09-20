@@ -27,6 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <glad/glad.h>
 
+#ifdef USE_IMGUI
+
+#include <imgui.h>
+#include <backends/imgui_impl_sdl2.h>
+#include <backends/imgui_impl_opengl3.h>
+
+#endif
+
 /*
 ====================================================================
 
@@ -40,12 +48,14 @@ OPENGL STATE MANAGEMENT
 //
 qboolean OGL_Init()
 {
+	void	*extra; // If USE_IMGUI, then this is the imgui context
+
 	// Ensure SDL is initialized
 	SDL_Init(SDL_INIT_VIDEO);
 
 	// Provide GL context hints
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -54,7 +64,7 @@ qboolean OGL_Init()
 	// Create an SDL window
 	//
 	gl4_state.sdl_window = SDL_CreateWindow(
-		"Zealot [OpenGL 4.6]",
+		"Zealot [OpenGL 4.0]",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
 		640,
@@ -99,6 +109,26 @@ qboolean OGL_Init()
 		return false;
 	}
 
+	//
+	// Then initialize ImGui
+	//
+	extra = nullptr;
+
+#ifdef USE_IMGUI
+	ImGui::CreateContext();
+
+	ImGui_ImplSDL2_InitForOpenGL(gl4_state.sdl_window, gl4_state.sdl_gl_ctx);
+	ImGui_ImplOpenGL3_Init("#version 150");
+
+	gl4_state.imgui_ctx = ImGui::GetCurrentContext();
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	ImGui::StyleColorsDark(&style);
+
+	extra = gl4_state.imgui_ctx;
+#endif
+
+	ri.Vid_NewWindow(gl4_state.sdl_window, extra, 640, 480);
 	ri.Con_Printf(PRINT_ALL, "****************\n");
 
 	return true;
@@ -133,6 +163,17 @@ void OGL_CleanupSDL()
 	{
 		SDL_GL_DeleteContext(gl4_state.sdl_gl_ctx);
 	}
+}
+
+//
+// OGL_DefaultState
+//
+// Initializes OpenGL into the default state we use (enabling features such as backface culling)
+//
+void OGL_DefaultState()
+{
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 }
 
 //

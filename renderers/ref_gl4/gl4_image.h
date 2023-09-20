@@ -59,4 +59,6 @@ typedef struct image_s
 
 #define	MAX_GLTEXTURES		1024
 
+void 	LoadPCX(char *filename, byte **pic, byte **palette, int *width, int *height);
+
 #endif //ZEALOT_GL4_IMAGE_H

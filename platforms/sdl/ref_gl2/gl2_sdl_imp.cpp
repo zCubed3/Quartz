@@ -110,7 +110,7 @@ qboolean VID_CreateWindow( int width, int height, int fullscreen )
 
 	// let the sound and input subsystems know about the new window (and ImGui if initialized)
 
-#if USE_IMGUI
+#ifdef USE_IMGUI
 	extra = glw_state.imgui_ctx;
 #else
 	extra = NULL;
