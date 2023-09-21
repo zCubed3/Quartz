@@ -59,15 +59,20 @@ gpu_char_t		char_batch[CHAR_BATCH_SIZE];
 //
 // OpenGL assets
 //
-GLuint 		char_vao;
-GLuint 		char_vbo;
-GLuint 		char_ibo;
-GLuint 		char_instance_vbo;
+GLuint 		char_vao 			= GL_INVALID_INDEX;
+GLuint 		char_vbo 			= GL_INVALID_INDEX;
+GLuint 		char_ibo		 	= GL_INVALID_INDEX;
+GLuint 		char_instance_vbo 	= GL_INVALID_INDEX;
+GLuint		u_charaspect		= GL_INVALID_INDEX;
 
 //============================================================================
 
 // Do character assets need to be initialized?
-qboolean	char_dirty = true;
+qboolean	char_assets_dirty = true;
+
+//============================================================================
+
+const float CHAR_SIZE = 16;
 
 //============================================================================
 
@@ -76,23 +81,12 @@ qboolean	char_dirty = true;
 //
 void WarmCharAssets()
 {
-	if (char_dirty)
+	if (char_assets_dirty)
 	{
 		const unsigned short TRIANGLES[6] = {
 			0, 2, 1,
 			3, 1, 2
 		};
-
-		const float CHAR_SIZE = 16;
-
-		float tex_x, tex_y;
-		float char_x, char_y;
-
-		tex_x = 1.0 / gl4_state.width;
-		tex_y = 1.0 / gl4_state.height;
-
-		char_x = tex_x * CHAR_SIZE;
-		char_y = tex_y * CHAR_SIZE;
 
 		float triangle_data[] = {
 			// Vertex 0
@@ -100,15 +94,15 @@ void WarmCharAssets()
 			0, 1,
 
 			// Vertex 1
-			char_x, 0,
+			1, 0,
 			1, 1,
 
 			// Vertex 2
-			0, -char_y,
+			0, -1,
 			0, 0,
 
 			// Vertex 3
-			char_x, -char_y,
+			1, -1,
 			1, 0
 		};
 
@@ -135,7 +129,7 @@ void WarmCharAssets()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(char_batch), char_batch, GL_DYNAMIC_DRAW);
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, NULL);
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, nullptr);
 		glVertexAttribDivisor(1, 1);
 
 		//
@@ -144,7 +138,7 @@ void WarmCharAssets()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, char_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(TRIANGLES), TRIANGLES, GL_STATIC_DRAW);
 
-		char_dirty = false;
+		char_assets_dirty = false;
 	}
 }
 
@@ -155,8 +149,6 @@ void WarmCharAssets()
 //
 void Draw_Char(int x, int y, int c)
 {
-	float 			tex_x, tex_y;
-	float 			org_x, org_y;
 	queued_char_t 	queued;
 
 	//
@@ -168,25 +160,15 @@ void Draw_Char(int x, int y, int c)
 	if (y < -8)
 		return;
 
-	tex_x = 1.0F / gl4_state.width; // TODO: Replace with actual width and height
-	tex_y = 1.0F / gl4_state.height;
+	//
+	// Character queuing
+	//
+	OGL_PixelToClip(x, y, queued.x, queued.y);
 
-	// Remap our passed x and y into screen coords (they were screen cords "back then")
-
-	org_x = x - (gl4_state.width / 2);
-	org_y = y - (gl4_state.height / 2);
-
-	org_x *= tex_x * 2;
-	org_y *= tex_y * 2;
-
-	queued.x = org_x;
-	queued.y = org_y;
 	queued.c = c;
 
 	queued_chars.Push(queued);
 }
-
-//============================================================================
 
 //============================================================================
 
@@ -198,10 +180,14 @@ void Draw_FlushCharQueue()
 	queued_char_t 	queued_char;
 	size_t 			queue_count;
 
+	//
 	// Ensure our character data is warmed up
+	//
 	WarmCharAssets();
 
+	//
 	// Set up the GL state
+	//
 	OGL_BindImage(image_conchars);
 	OGL_BindShader(shader_draw_char);
 
@@ -210,7 +196,17 @@ void Draw_FlushCharQueue()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, char_ibo);
 	//glBindBuffer(GL_ARRAY_BUFFER, char_vbo);
 
+	//
+	// Get and update our uniform
+	//
+	if (u_charaspect == GL_INVALID_INDEX)
+		u_charaspect = glGetUniformLocation(shader_draw_char->handle, "u_CharAspect");
+
+	glUniform2f(u_charaspect, 1.0F / gl4_state.width, 1.0F / gl4_state.height);
+
+	//
 	// Per batch size we issue a draw call
+	//
 	queue_count = queued_chars.Count();
 
 	for (size_t b = 0; b <= queue_count; b += CHAR_BATCH_SIZE)

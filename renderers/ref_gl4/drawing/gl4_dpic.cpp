@@ -36,29 +36,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // OpenGL assets
 //
-GLuint 		pic_vao;
-GLuint 		pic_vbo;
-GLuint 		pic_ibo;
+GLuint 		pic_vao 	= GL_INVALID_INDEX;
+GLuint 		pic_vbo 	= GL_INVALID_INDEX;
+GLuint 		pic_ibo 	= GL_INVALID_INDEX;
 
-GLint 		u_picinfo = GL_INVALID_INDEX;
+GLint 		u_picinfo 	= GL_INVALID_INDEX;
 
 //============================================================================
 
 // Do character assets need to be initialized?
-qboolean	pic_dirty = true;
+qboolean	pic_assets_dirty = true;
 
 //============================================================================
-
-void RemapPixelToGL(int x, int y, float *out_x, float *out_y)
-{
-	*out_x = ((float)x / gl4_state.width) * 2.0 - 1.0;
-	*out_y = ((float)y / gl4_state.height) * 2.0 - 1.0;
-}
 
 void WarmPicAssets()
 {
 	// Warm up our assets
-	if (pic_dirty)
+	if (pic_assets_dirty)
 	{
 		const unsigned short TRIANGLES[6] = {
 			0, 2, 1,
@@ -106,7 +100,7 @@ void WarmPicAssets()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, pic_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(TRIANGLES), TRIANGLES, GL_STATIC_DRAW);
 
-		pic_dirty = false;
+		pic_assets_dirty = false;
 	}
 }
 
@@ -166,7 +160,7 @@ void Draw_Pic(int x, int y, char *name)
 	tex_x = 1.0 / gl4_state.width;
 	tex_y = 1.0 / gl4_state.height;
 
-	RemapPixelToGL(x, y, &org_x, &org_y);
+	OGL_PixelToClip(x, y, org_x, org_y);
 
 	scl_x = image->width * tex_x * 2;
 	scl_y = image->height * tex_y * 2;
@@ -211,7 +205,7 @@ void Draw_StretchPic(int x, int y, int w, int h, char *name)
 	tex_x = 1.0 / gl4_state.width;
 	tex_y = 1.0 / gl4_state.height;
 
-	RemapPixelToGL(x, y, &org_x, &org_y);
+	OGL_PixelToClip(x, y, org_x, org_y);
 
 	scl_x = w * tex_x * 2;
 	scl_y = h * tex_y * 2;

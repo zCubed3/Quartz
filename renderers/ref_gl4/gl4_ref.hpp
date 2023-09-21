@@ -143,6 +143,7 @@ struct image_s* Draw_FindPic(const char* name);
 void		R_SetSky(char *name, float rotate, vec3_t axis);
 void 		R_SetPalette(const byte *palette);
 
+void		R_NewWindow(int width, int height, int fullscreen_mode);
 
 // ================
 //  Default assets
@@ -162,6 +163,8 @@ void 		OGL_DefaultState();
 
 void		OGL_BindShader(gl4_shader_t *shader);
 
+void 		OGL_PixelToClip(int x, int y, float& out_x, float& out_y);
+
 //============================================================================
 
 /*
@@ -178,6 +181,20 @@ extern gl4_shader_t		*shader_draw_char;
 extern gl4_shader_t		*shader_draw_pic;
 
 extern struct image_s	*image_conchars;
+
+//============================================================================
+
+/*
+====================================================================
+
+STATES
+
+====================================================================
+*/
+
+extern qboolean 		char_assets_dirty;
+extern qboolean 		pic_assets_dirty;
+
 
 //============================================================================
 

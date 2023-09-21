@@ -40,16 +40,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 void R_BeginFrame(float stereo_dist)
 {
-	// TODO: Handle window resizing
-	// TODO: Handle vsync changes
-	int indices[3] = {
-		0, 1, 2
-	};
+	//
+	// Check if the window has changed size
+	// TODO: Use the SDL event instead!
+	//
+	{
+		int 	new_width, new_height;
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		SDL_GetWindowSize(gl4_state.sdl_window, &new_width, &new_height);
 
-	OGL_BindShader(shader_hello_tri);
-	glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, &indices);
+		if (new_width != gl4_state.width || new_height != gl4_state.height)
+			R_NewWindow(new_width, new_height, 0);
+	}
+
+	//
+	// OpenGL frame commands
+	//
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, gl4_state.width, gl4_state.height);
 
 	//
 	// Begin ImGui

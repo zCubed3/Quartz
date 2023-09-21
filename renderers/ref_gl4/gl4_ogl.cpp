@@ -69,7 +69,7 @@ qboolean OGL_Init()
 		SDL_WINDOWPOS_CENTERED,
 		640,
 		480,
-		SDL_WINDOW_OPENGL
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 	);
 
 	ri.Con_Printf(PRINT_ALL, "*** OGL_Init ***\n");
@@ -78,11 +78,6 @@ qboolean OGL_Init()
 		ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to create window with error '%s'", SDL_GetError());
 	else
 		ri.Con_Printf(PRINT_DEVELOPER, "Created SDL window successfully!\n");
-
-	// Set the resolution info
-	// TODO: Actually have a new window function that does this!
-	gl4_state.width = 640;
-	gl4_state.height = 480;
 
 	//
 	// Then the GL context
@@ -129,7 +124,14 @@ qboolean OGL_Init()
 	extra = gl4_state.imgui_ctx;
 #endif
 
-	ri.Vid_NewWindow(gl4_state.sdl_window, extra, 640, 480);
+	//
+	// Tell everyone about our new window
+	//
+	R_NewWindow(640, 480, 0);
+
+	//
+	// Done!
+	//
 	ri.Con_Printf(PRINT_ALL, "****************\n");
 
 	return true;
@@ -188,4 +190,15 @@ void OGL_BindShader(gl4_shader_t *shader)
 		ri.Sys_Error(ERR_FATAL, "[RefGL4]: Shader was NULL!");
 
 	glUseProgram(shader->handle);
+}
+
+//
+// OGL_PixelToClip
+//
+// Converts a pixel to an OpenGL clip position
+//
+void OGL_PixelToClip(int x, int y, float& out_x, float& out_y)
+{
+	out_x = ((float)x / gl4_state.width) * 2.0 - 1.0;
+	out_y = ((float)y / gl4_state.height) * 2.0 - 1.0;
 }

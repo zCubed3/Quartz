@@ -32,6 +32,8 @@ layout(location = 1) in vec4 in_CharInfo;
 
 out vec2 v_TexCoord;
 
+uniform vec2 u_CharAspect;
+
 //
 // Constant data
 //
@@ -68,7 +70,8 @@ void main()
     Row = Char >> 4;
     Col = Char & 15;
 
-    Vertex = in_Vertex;
+    Vertex      = in_Vertex;
+    Vertex.xy   = Vertex.xy * u_CharAspect * CHAR_SIZE;
     //Vertex = DEBUG_VERTS[gl_VertexID];
 
     Offset = in_CharInfo.xy * vec2(1, -1);
