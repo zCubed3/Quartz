@@ -20,46 +20,38 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rstate.c - Handles the state section of the GL4 module
+// gl4_rsys.cpp - Defines Sys functions that aren't present when using a DLL
 //
 
-#include "gl4_ref.h"
+#include <stdarg.h>
+#include <stdio.h>
 
-//
-// R_Init
-//
-qboolean R_Init(void *param1, void *param2)
+#include "gl4_ref.hpp"
+
+#ifndef REF_HARD_LINKED
+// this is only here so the functions in q_shared.c and q_shwin.c can link
+void Sys_Error (char *error, ...)
 {
-	// param1 and param2 are unused
-	// They're "legacy" things
+	va_list		argptr;
+	char		text[1024];
 
-	// Initialize OpenGL first
-	if (!OGL_Init())
-		return false;
+	va_start (argptr, error);
+	vsprintf (text, error, argptr);
+	va_end (argptr);
 
-	// Then initialize the renderer resources
-	if (!R_LoadDefaultAssets())
-		return false;
-
-	// Set up our initial OpenGL state
-	// This can change!
-	OGL_DefaultState();
-
-	return true;
+	ri.Sys_Error (ERR_FATAL, "%s", text);
 }
 
-//
-// R_Shutdown
-//
-void R_Shutdown(void)
+void Com_Printf (char *fmt, ...)
 {
+	va_list		argptr;
+	char		text[1024];
 
+	va_start (argptr, fmt);
+	vsprintf (text, fmt, argptr);
+	va_end (argptr);
+
+	ri.Con_Printf (PRINT_ALL, "%s", text);
 }
 
-//
-// AppActivate
-//
-void R_AppActivate(qboolean active)
-{
-	// TODO: AppActivate
-}
+#endif

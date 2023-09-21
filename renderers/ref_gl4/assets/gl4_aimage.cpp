@@ -20,16 +20,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_aimage.c - Image asset functions
+// gl4_aimage.cpp - Image asset functions
 //
 
 //============================================================================
 
-#include "../gl4_ref.h"
+#include "../gl4_ref.hpp"
 
-extern "C" {
-	#include "../gl4_image.h"
-};
+#include "../gl4_image.hpp"
 
 #include <glad/glad.h>
 

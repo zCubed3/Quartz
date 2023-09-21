@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef ZEALOT_QEXPORT_H
 #define ZEALOT_QEXPORT_H
 
-#ifndef __cplusplus
+#if !defined(__cplusplus)
 
 #ifdef WIN32
 #define QEXPORT __declspec(dllexport)
@@ -45,11 +45,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 
 #ifdef WIN32
-#define QEXPORT __declspec(dllexport) extern "C"
+#define QEXPORT extern "C" __declspec(dllexport)
 #endif
 
-#ifndef QEXPORT
-#define QEXPORT extern "C"
+#if defined(__clang__) || defined(__GNUC__)
+#define QEXPORT extern "C" __attribute__((visibility("default")))
 #endif
 
 #define QEXTERN_FUNC extern

@@ -20,24 +20,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rassets.c - Default asset loading
+// gl4_rassets.cpp - Default asset loading
 //
 
-#include "gl4_ref.h"
+#include "gl4_ref.hpp"
 
-extern "C" {
-	#include "gl4_image.h"
-};
+#include "gl4_image.hpp"
 
 #include <glad/glad.h>
 
-extern "C" {
-	gl4_shader_t	*shader_hello_tri;
-	gl4_shader_t	*shader_draw_char;
-	gl4_shader_t	*shader_draw_pic;
+gl4_shader_t	*shader_hello_tri;
+gl4_shader_t	*shader_draw_char;
+gl4_shader_t	*shader_draw_pic;
 
-	image_t 		*image_conchars;
-};
+image_t 		*image_conchars;
 
 //
 // LoadAllText

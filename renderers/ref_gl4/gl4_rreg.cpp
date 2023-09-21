@@ -20,10 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rreg.c - Implementations of registration functions
+// gl4_rreg.cpp - Implementations of registration functions
 //
 
-#include "gl4_ref.h"
+#include "gl4_ref.hpp"
 
 #include <glad/glad.h>
 

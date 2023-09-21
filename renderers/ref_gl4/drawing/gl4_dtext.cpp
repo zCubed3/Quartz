@@ -20,18 +20,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_dtext.c - Text drawing functions
+// gl4_dtext.cpp - Text drawing functions
 //
 
 //============================================================================
 
-#include "../gl4_ref.h"
+#include "../gl4_ref.hpp"
+
+#include "../gl4_image.hpp"
 
 #include <glad/glad.h>
-
-extern "C" {
-	#include "../gl4_image.h"
-};
 
 #include "../../zealcore/zeal_linked_list.hpp"
 

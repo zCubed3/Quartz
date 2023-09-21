@@ -20,10 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_ogl.c - OpenGL binding layer, aka "OGL"
+// gl4_ogl.cpp - OpenGL binding layer, aka "OGL"
 //
 
-#include "gl4_ref.h"
+#include "gl4_ref.hpp"
 
 #include <glad/glad.h>
 
@@ -77,7 +77,7 @@ qboolean OGL_Init()
 	if (gl4_state.sdl_window == NULL)
 		ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to create window with error '%s'", SDL_GetError());
 	else
-		ri.Con_Printf(PRINT_ALL, "Created SDL window successfully!\n");
+		ri.Con_Printf(PRINT_DEVELOPER, "Created SDL window successfully!\n");
 
 	// Set the resolution info
 	// TODO: Actually have a new window function that does this!
@@ -96,7 +96,7 @@ qboolean OGL_Init()
 	}
 	else
 	{
-		ri.Con_Printf(PRINT_ALL, "Created GL context successfully!\n");
+		ri.Con_Printf(PRINT_DEVELOPER, "Created GL context successfully!\n");
 	}
 
 	//

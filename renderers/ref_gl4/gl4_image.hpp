@@ -20,11 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_ref.h - GL4 image asset
+// gl4_ref.hpp - GL4 image asset
 //
 
-#ifndef ZEALOT_GL4_IMAGE_H
-#define ZEALOT_GL4_IMAGE_H
+#ifndef ZEALOT_GL4_IMAGE_HPP
+#define ZEALOT_GL4_IMAGE_HPP
 
 #include "../../../qcommon/qcommon.h"
 
@@ -85,4 +85,4 @@ image_t*	OGL_LoadPCX(pcx_info_t* info);
 
 //============================================================================
 
-#endif //ZEALOT_GL4_IMAGE_H
+#endif //ZEALOT_GL4_IMAGE_HPP

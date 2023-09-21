@@ -20,10 +20,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rmisc.c - Misc functions
+// gl4_rmisc.cpp - Misc functions
 //
 
-#include "gl4_ref.h"
+#include "gl4_ref.hpp"
 
 //
 // R_SetSky
