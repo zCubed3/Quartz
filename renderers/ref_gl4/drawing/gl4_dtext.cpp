@@ -74,23 +74,15 @@ qboolean	char_dirty = true;
 //============================================================================
 
 //
-// Pushes a new instance vbo (usually done when we go over our batch size)
-//
-void PushInstanceVBO()
-{
-
-}
-
-//
 // Initializes / updates our character drawing assets
 //
-void WarmCharacters()
+void WarmCharAssets()
 {
 	if (char_dirty)
 	{
 		const unsigned short TRIANGLES[6] = {
-			0, 1, 2,
-			3, 2, 1
+			0, 2, 1,
+			3, 1, 2
 		};
 
 		const float CHAR_SIZE = 16;
@@ -107,19 +99,19 @@ void WarmCharacters()
 		float triangle_data[] = {
 			// Vertex 0
 			0, 0,
-			0, 0,
+			0, 1,
 
 			// Vertex 1
 			char_x, 0,
-			1, 0,
+			1, 1,
 
 			// Vertex 2
-			0, char_y,
-			0, 1,
+			0, -char_y,
+			0, 0,
 
 			// Vertex 3
-			char_x, char_y,
-			1, 1
+			char_x, -char_y,
+			1, 0
 		};
 
 		glGenVertexArrays(1, &char_vao);
@@ -209,7 +201,7 @@ void Draw_FlushCharQueue()
 	size_t 			queue_count;
 
 	// Ensure our character data is warmed up
-	WarmCharacters();
+	WarmCharAssets();
 
 	// Set up the GL state
 	OGL_BindImage(image_conchars);

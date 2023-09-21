@@ -64,6 +64,5 @@ struct image_s *R_RegisterSkin(char *name)
 //
 struct image_s *R_RegisterPic(char *name)
 {
-	ri.Con_Printf(PRINT_ALL, "R_RegisterPic wants to register '%s'\n", name);
-	return NULL;
+	return Draw_FindPic(name);
 }
