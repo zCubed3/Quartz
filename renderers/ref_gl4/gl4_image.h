@@ -77,6 +77,8 @@ void	ReleasePCX(pcx_info_t* info);
 // OpenGL functions
 //
 
+image_t* 	OGL_FindImage(const char* name);
+
 void 		OGL_BindImage(image_t* image);
 
 image_t*	OGL_LoadPCX(pcx_info_t* info);

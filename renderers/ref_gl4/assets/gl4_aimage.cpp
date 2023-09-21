@@ -33,6 +33,8 @@ extern "C" {
 
 #include <glad/glad.h>
 
+#include "../../zealcore/zeal_linked_list.hpp"
+
 //============================================================================
 
 void LoadPCX(const char *filename, pcx_info_t* info)
@@ -138,6 +140,50 @@ void ReleasePCX(pcx_info_t* info)
 
 //============================================================================
 
+zealLinkedList<image_t*> image_cache;
+
+image_t* OGL_FindImage(const char* name)
+{
+	zealLinkedList<image_t*>::node_t* 	iter;
+
+	size_t 	len;
+
+	if (!name)
+		return nullptr;    //	ri.Sys_Error (ERR_DROP, "GL_FindImage: NULL name");
+
+	len = strlen(name);
+
+	if (len < 5)
+		return nullptr;    //	ri.Sys_Error (ERR_DROP, "GL_FindImage: bad name: %s", name);
+
+	// Check if it's in our cache already
+	for (iter = image_cache.Top(); iter != nullptr; iter = iter->next)
+		if (!strcmp(name, iter->element->name))
+			return iter->element;
+
+	// Otherwise load it!
+	if (!strcmp(name+len-4, ".pcx"))
+	{
+		image_t* 	image;
+		pcx_info_t 	pcx_info;
+
+		LoadPCX(name, &pcx_info);
+
+		if (!pcx_info.palette || !pcx_info.pixels)
+			return nullptr; // ri.Sys_Error (ERR_DROP, "GL_FindImage: can't load %s", name);
+
+		image = OGL_LoadPCX(&pcx_info);
+		ReleasePCX(&pcx_info);
+
+		// Cache the image
+		image_cache.Push(image);
+
+		return image;
+	}
+
+	return nullptr;
+}
+
 void OGL_BindImage(image_t* image)
 {
 	if (image != nullptr)
@@ -200,8 +246,14 @@ image_t* OGL_LoadPCX(pcx_info_t* info)
 	glBindTexture(GL_TEXTURE_2D, image->handle);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->width, image->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, recon_pic);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	// Generate mipmaps
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	// TODO: Let the user decide the global filter type?
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 

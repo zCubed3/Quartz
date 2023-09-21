@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// draw_char.frag.glsl - (Text) Character drawing fragment shader
+// draw_pic.frag.glsl - Pic drawing fragment shader
 //
 
 #version 400
@@ -31,12 +31,12 @@ in vec2 v_TexCoord;
 
 out vec4 FragColor;
 
-uniform sampler2D AtlasChars;
+uniform sampler2D u_TexPic;
 
 void main()
 {
     //FragColor = vec4(v_TexCoord, 1, 1);
-    FragColor = texture(AtlasChars, v_TexCoord);
+    FragColor = texture(u_TexPic, v_TexCoord);
 
     if (FragColor.a < 0.01)
         discard;

@@ -142,9 +142,11 @@ void		Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, byte *data
 void			R_BeginRegistration(char *map);
 void			R_EndRegistration(void);
 
-struct model_s	*R_RegisterModel(char *name);
-struct image_s	*R_RegisterSkin(char *name);
-struct image_s	*R_RegisterPic(char *name);
+struct model_s* R_RegisterModel(char *name);
+struct image_s* R_RegisterSkin(char *name);
+struct image_s* R_RegisterPic(char *name);
+
+struct image_s* Draw_FindPic(const char* name);
 
 // ======
 //  Misc
@@ -184,6 +186,9 @@ extern gl4_image_t		*image_chars;
 
 extern gl4_shader_t		*shader_hello_tri;
 extern gl4_shader_t		*shader_draw_char;
+extern gl4_shader_t		*shader_draw_pic;
+
+extern struct image_s	*image_conchars;
 
 /*
 ====================================================================

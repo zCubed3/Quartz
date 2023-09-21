@@ -34,6 +34,9 @@ extern "C" {
 extern "C" {
 	gl4_shader_t	*shader_hello_tri;
 	gl4_shader_t	*shader_draw_char;
+	gl4_shader_t	*shader_draw_pic;
+
+	image_t 		*image_conchars;
 };
 
 //
@@ -50,8 +53,8 @@ char *LoadAllText(const char *path)
 
 	file = fopen(path, "r");
 
-	if (file == NULL)
-		return NULL;
+	if (file == nullptr)
+		return nullptr;
 
 	fseek(file, 0, SEEK_END);
 	len = ftell(file);
@@ -76,6 +79,9 @@ qboolean BuildModule(int shader, char* src)
 	qboolean	compiled;
 	const char*	srcs[1];
 	int 		src_len;
+
+	if (src == nullptr)
+		return false;
 
 	srcs[0] = src;
 	src_len = strlen(src);
@@ -199,7 +205,7 @@ qboolean R_LoadDefaultAssets(void)
 
 		shader_hello_tri = BuildShader(&proto);
 
-		if (shader_hello_tri == NULL)
+		if (shader_hello_tri == nullptr)
 			ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to build 'hello tri' shader!");
 	}
 
@@ -214,8 +220,23 @@ qboolean R_LoadDefaultAssets(void)
 
 		shader_draw_char = BuildShader(&proto);
 
-		if (shader_draw_char == NULL)
+		if (shader_draw_char == nullptr)
 			ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to build 'draw char' shader!");
+	}
+
+	//
+	// Draw Pic shader
+	//
+	{
+		gl4_shader_proto_t proto;
+
+		proto.src_vert = LoadAllText("ref_gl4/shaders/draw_pic.vert.glsl");
+		proto.src_frag = LoadAllText("ref_gl4/shaders/draw_pic.frag.glsl");
+
+		shader_draw_pic = BuildShader(&proto);
+
+		if (shader_draw_pic == nullptr)
+			ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to build 'draw pic' shader!");
 	}
 
 	//
@@ -230,11 +251,26 @@ qboolean R_LoadDefaultAssets(void)
 		// If the PCX loaded correctly, we need to convert it to a GL image
 		LoadPCX("pics/conchars.pcx", &pcx_info);
 
-		image = OGL_LoadPCX(&pcx_info);
-		OGL_BindImage(image);
+		image_conchars = OGL_LoadPCX(&pcx_info);
 
 		ReleasePCX(&pcx_info);
 	}
 
 	return true;
+}
+
+image_t* Draw_FindPic(const char* name)
+{
+	image_t*	gl;
+	char		fullname[MAX_QPATH];
+
+	if (name[0] != '/' && name[0] != '\\')
+	{
+		Com_sprintf (fullname, sizeof(fullname), "pics/%s.pcx", name);
+		gl = OGL_FindImage(fullname); // TODO: IMAGE_TYPE_PIC
+	}
+	else
+		gl = OGL_FindImage(name+1); // TODO: IMAGE_TYPE_PIC
+
+	return gl;
 }

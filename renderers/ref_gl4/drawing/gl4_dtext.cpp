@@ -29,6 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <glad/glad.h>
 
+extern "C" {
+	#include "../gl4_image.h"
+};
+
 #include "../../zealcore/zeal_linked_list.hpp"
 
 //============================================================================
@@ -208,6 +212,7 @@ void Draw_FlushCharQueue()
 	WarmCharacters();
 
 	// Set up the GL state
+	OGL_BindImage(image_conchars);
 	OGL_BindShader(shader_draw_char);
 
 	glBindVertexArray(char_vao);

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// draw_char.frag.glsl - (Text) Character drawing fragment shader
+// draw_pic.vert.glsl - Pic drawing vertex shader
 //
 
 #version 400
@@ -27,17 +27,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // Shader I/O
 //
-in vec2 v_TexCoord;
+layout(location = 0) in vec4 in_Vertex;
 
-out vec4 FragColor;
+out vec2 v_TexCoord;
 
-uniform sampler2D AtlasChars;
+uniform vec4 u_PicInfo;
 
+//
+// Program
+//
 void main()
 {
-    //FragColor = vec4(v_TexCoord, 1, 1);
-    FragColor = texture(AtlasChars, v_TexCoord);
+    vec2 Offset;
+    vec2 Size;
+    vec2 TexelSize;
+    vec2 Scaled;
 
-    if (FragColor.a < 0.01)
-        discard;
+    Offset  = u_PicInfo.xy;
+    Size    = u_PicInfo.zw;
+
+    Scaled  = (in_Vertex.xy * Size);
+
+    gl_Position     = vec4(Scaled + Offset, 0, 1);
+    v_TexCoord      = in_Vertex.zw;
+
+    // Flip the Y axis
+    v_TexCoord.y    = 1.0 - v_TexCoord.y;
 }
