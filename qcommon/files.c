@@ -391,7 +391,7 @@ Filename are reletive to the quake search path
 a null buffer will just return the file length without loading
 ============
 */
-int FS_LoadFile (char *path, void **buffer)
+int FS_LoadFile(const char *path, void **buffer)
 {
 	FILE	*h;
 	byte	*buf;

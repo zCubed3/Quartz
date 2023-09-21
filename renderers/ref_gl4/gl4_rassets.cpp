@@ -224,57 +224,16 @@ qboolean R_LoadDefaultAssets(void)
 
 	// TODO: Make a GL texture type
 	{
-		byte*	pic;
-		byte*	palette;
-		byte*	recon_pic;
-		int		width, height;
-		GLuint	tex;
+		pcx_info_t	pcx_info;
+		image_t* 	image;
 
-		LoadPCX("pics/conchars.pcx", &pic, &palette, &width, &height);
+		// If the PCX loaded correctly, we need to convert it to a GL image
+		LoadPCX("pics/conchars.pcx", &pcx_info);
 
-		// We need to convert the palette image to an RGB image
-		recon_pic = new byte[width * height * 4];
+		image = OGL_LoadPCX(&pcx_info);
+		OGL_BindImage(image);
 
-		for (int x = 0; x < width; x++)
-		{
-			for (int y = 0; y < height; y++)
-			{
-				int 		recon_pt, pic_pt;
-				int 		p_index;
-				qboolean 	is_alpha;
-
-				recon_pt = (y * width * 4) + (x * 4);
-				pic_pt = (y * width) + x;
-
-				// Get our actual pic pixel
-				is_alpha = pic[pic_pt] == 255;
-				p_index = pic[pic_pt] * 3;
-
-				if (is_alpha)
-				{
-					recon_pic[recon_pt + 3] = 0x00;
-				}
-				else
-				{
-					recon_pic[recon_pt] 	= palette[p_index];
-					recon_pic[recon_pt + 1] = palette[p_index + 1];
-					recon_pic[recon_pt + 2] = palette[p_index + 2];
-					recon_pic[recon_pt + 3] = 0xFF;
-				}
-			}
-		}
-
-		glGenTextures(1, &tex);
-
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, recon_pic);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		free(pic);
-		free(palette);
-		free(recon_pic);
+		ReleasePCX(&pcx_info);
 	}
 
 	return true;

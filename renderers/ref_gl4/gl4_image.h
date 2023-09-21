@@ -42,15 +42,11 @@ typedef struct image_s
 	char				name[MAX_QPATH];			// game path, including extension
 	imagetype_t			type;
 	int					width, height;				// source image
-	int					upload_width, upload_height;	// after power of two and picmip
-	int					registration_sequence;		// 0 = free
-	struct msurface_s	*texturechain;	// for sort-by-texture world drawing
-	int					texnum;						// gl texture binding
-	float				sl, tl, sh, th;				// 0,0 - 1,1 unless part of the scrap
-	qboolean			scrap;
-	qboolean			has_alpha;
 
-	qboolean 			paletted;
+	struct msurface_s	*texturechain;				// for sort-by-texture world drawing
+	unsigned int		handle;						// gl texture binding
+
+	qboolean			has_alpha;
 } image_t;
 
 #define	TEXNUM_LIGHTMAPS	1024
@@ -59,6 +55,32 @@ typedef struct image_s
 
 #define	MAX_GLTEXTURES		1024
 
-void 	LoadPCX(char *filename, byte **pic, byte **palette, int *width, int *height);
+//============================================================================
+
+//
+// PCX loading functions
+//
+typedef struct
+{
+	byte*	pixels;
+	byte*	palette;
+
+	int 	width, height;
+} pcx_info_t;
+
+void 	LoadPCX(const char *filename, pcx_info_t* info);
+void	ReleasePCX(pcx_info_t* info);
+
+//============================================================================
+
+//
+// OpenGL functions
+//
+
+void 		OGL_BindImage(image_t* image);
+
+image_t*	OGL_LoadPCX(pcx_info_t* info);
+
+//============================================================================
 
 #endif //ZEALOT_GL4_IMAGE_H
