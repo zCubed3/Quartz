@@ -8,7 +8,26 @@ project(ZealotQuake2)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${CMAKE_CXX_COMPILER_ID}-${CMAKE_SYSTEM_PROCESSOR}-${CMAKE_BUILD_TYPE}/")
+#
+# Platform
+#
+set(ZEALOT_PLAT_NAME ${CMAKE_SYSTEM_NAME})
+
+if (DEFINED PLATFORM_NAME)
+    set(ZEALOT_PLAT_NAME ${PLATFORM_NAME})
+endif()
+
+set(ZEALOT_PLAT_IDENT "${CMAKE_CXX_COMPILER_ID}-${ZEALOT_PLAT_NAME}-${CMAKE_SYSTEM_PROCESSOR}")
+
+message("Zealot Platform String = ${ZEALOT_PLAT_IDENT}")
+
+string(APPEND ZEALOT_PLAT_IDENT $<$<CONFIG:Debug>:-Debug>)
+string(APPEND ZEALOT_PLAT_IDENT $<$<CONFIG:Release>:-Release>)
+
+#
+# Output dirs
+#
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/out/${ZEALOT_PLAT_IDENT}/")
 set(CMAKE_PDB_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lib")
@@ -33,7 +52,7 @@ option(ZEALOT_BUILD_REF_GL4 "Builds ref_gl4 (OpenGL 4.6 Renderer)" ON)
 
 option(ZEALOT_USE_IMGUI "Includes Dear ImGui support into the engine and modules" ON)
 
-include(BuildConfig.txt)
+include(BuildConfig.cmake)
 # TODO: Generate a BuildConfig.gen.h file
 
 #
@@ -61,8 +80,12 @@ if (ZEALOT_BUILD_REF_GL2)
 endif()
 
 if (ZEALOT_BUILD_REF_GL4)
-    add_subdirectory(third_party/glad_gl4)
-    add_subdirectory(renderers/ref_gl4)
+    if (NOT APPLE)
+        add_subdirectory(third_party/glad_gl4)
+        add_subdirectory(renderers/ref_gl4)
+    else()
+        message(WARNING "RefGL4 is not supported on macOS, please use RefMetal instead!")
+    endif()
 endif()
 
 # TODO: Make this prototype library an actual part of the engine

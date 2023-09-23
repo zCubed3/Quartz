@@ -71,9 +71,26 @@ list(APPEND REF_GL_LIBS
 )
 
 #
+# Library usage intent
+#
+#
+# Library types
+#
+if (ZEALOT_STATIC_LINK)
+
+    set(REF_GL_LIB_TYPE STATIC)
+    list(APPEND REF_GL_DEFS "REF_HARD_LINKED")
+
+else()
+
+    set(REF_GL_LIB_TYPE SHARED)
+
+endif()
+
+#
 # Library definition
 #
-add_library(Zealot_RefGL2 SHARED ${REF_GL_SRCS})
+add_library(Zealot_RefGL2 ${REF_GL_LIB_TYPE} ${REF_GL_SRCS})
 
 target_link_libraries(Zealot_RefGL2 PRIVATE ${REF_GL_LIBS})
 target_compile_definitions(Zealot_RefGL2 PRIVATE ${REF_GL_DEFS})

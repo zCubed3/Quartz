@@ -226,12 +226,16 @@ void VID_NewWindow ( SDL_Window *window, void* extra, int width, int height)
 
 void VID_FreeReflib (void)
 {
+#ifndef ZEALOT_STATIC_LINK
+
 	if (!QLib_UnloadLibrary(qlib_ref))
 		Com_Error( ERR_FATAL, "Reflib QLib_UnloadLibrary failed" );
 
 	memset (&re, 0, sizeof(re));
 	qlib_ref = NULL;
 	reflib_active  = false;
+
+#endif
 }
 
 /*
@@ -239,11 +243,18 @@ void VID_FreeReflib (void)
 VID_LoadRefresh
 ==============
 */
+
+#ifdef ZEALOT_STATIC_LINK
+
+extern "C" {
+	extern refexport_t GetRefAPI(refimport_t);
+};
+
+#endif
+
 qboolean VID_LoadRefresh( char *name )
 {
 	refimport_t ri;
-	GetRefAPI_t GetRefAPI;
-	void		*plat_data;
 
 	if (reflib_active)
 	{
@@ -253,6 +264,8 @@ qboolean VID_LoadRefresh( char *name )
 
 	Com_Printf("------- Loading %s -------\n", name);
 
+#ifndef ZEALOT_STATIC_LINK
+
 	qlib_ref = QLib_LoadLibrary(name);
 	if (qlib_ref == NULL)
 	{
@@ -260,6 +273,8 @@ qboolean VID_LoadRefresh( char *name )
 
 		return false;
 	}
+
+#endif
 
 	ri.Cmd_AddCommand 		= Cmd_AddCommand;
 	ri.Cmd_RemoveCommand 	= Cmd_RemoveCommand;
@@ -278,10 +293,16 @@ qboolean VID_LoadRefresh( char *name )
 	ri.Vid_MenuInit 		= VID_MenuInit;
 	ri.Vid_NewWindow 		= VID_NewWindow;
 
+#ifndef ZEALOT_STATIC_LINK
+
+	GetRefAPI_t GetRefAPI;
+
 	GetRefAPI = (GetRefAPI_t)QLib_GetFuncPtr(qlib_ref, "GetRefAPI");
 
 	if (GetRefAPI == NULL)
 		Com_Error(ERR_FATAL, "GetProcAddress failed on %s", name);
+
+#endif
 
 	re = GetRefAPI(ri);
 
@@ -291,11 +312,7 @@ qboolean VID_LoadRefresh( char *name )
 		Com_Error(ERR_FATAL, "%s has incompatible api_version", name);
 	}
 
-#ifdef WIN32
-	plat_data = global_hInstance;
-#endif
-
-	if (re.Init(plat_data, NULL) == -1)
+	if (re.Init(nullptr, nullptr) == -1)
 	{
 		re.Shutdown();
 		VID_FreeReflib();

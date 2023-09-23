@@ -374,13 +374,17 @@ void Cmd_Exec_f (void)
 {
 	char	*f, *f2;
 	int		len;
-
-	if (Cmd_Argc () != 2)
+    char    cwd[MAX_OSPATH];
+    
+    if (Cmd_Argc () != 2)
 	{
 		Com_Printf ("exec <filename> : execute a script file\n");
 		return;
 	}
 
+    Sys_GetCurrentDir(cwd, sizeof(cwd));
+    Com_Printf("CWD = %s\n", cwd);
+    
 	len = FS_LoadFile (Cmd_Argv(1), (void **)&f);
 	if (!f)
 	{

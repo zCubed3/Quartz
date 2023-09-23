@@ -83,6 +83,45 @@ if (APPLE)
 endif()
 
 #
+# Static linking
+#
+if (ZEALOT_STATIC_LINK)
+    list(APPEND CLIENT_DEFS
+        ZEALOT_STATIC_LINK
+    )
+
+    list(APPEND CLIENT_LIBS
+        ${ZEALOT_STATIC_REF}
+        ${ZEALOT_STATIC_GAME}
+    )
+endif()
+
+#
+# Bundled resources
+#
+if (APPLE)
+    # TODO REMOVE THIS JANK PROTOTYPE CODE!
+    file(GLOB_RECURSE CLIENT_RES_FILES
+        "${CMAKE_SOURCE_DIR}/out/baseq2/*"
+    )
+
+    message("FILES = ${CLIENT_RES_FILES}")
+
+    foreach(RES_FILE ${CLIENT_RES_FILES})
+        file(RELATIVE_PATH RES_PATH "${CMAKE_SOURCE_DIR}/out/baseq2" ${RES_FILE})
+
+        get_filename_component(RES_FILE_PATH ${RES_PATH} DIRECTORY)
+
+        #Set it's location inside the app package (under Resources)
+        set_property(SOURCE ${RES_FILE} PROPERTY MACOSX_PACKAGE_LOCATION "Resources/baseq2/${RES_FILE_PATH}")
+
+        message("RES_FILE = ${RES_FILE_PATH}")
+
+        list(APPEND CLIENT_SRCS ${RES_FILE})
+    endforeach ()
+endif()
+
+#
 # Executable definition
 #
 add_executable(Zealot_Client ${CLIENT_SRCS})
@@ -93,4 +132,13 @@ target_compile_definitions(Zealot_Client PRIVATE ${CLIENT_DEFS})
 
 set_target_properties(Zealot_Client PROPERTIES OUTPUT_NAME "${ZEALOT_CLIENT_NAME}")
 
-#add_dependencies(Zealot_Client Zealot_RefGL2 Zealot_Game)
+#
+# Apple platform info
+#
+if (APPLE)
+    set_target_properties(Zealot_Client PROPERTIES
+        MACOSX_BUNDLE_GUI_IDENTIFIER "Zealot.Client" # TODO Get this from the private build info
+        MACOSX_BUNDLE_SHORT_VERSION_STRING 0.1.0
+        MACOSX_BUNDLE_BUNDLE_VERSION 0.1.0
+    )
+endif()

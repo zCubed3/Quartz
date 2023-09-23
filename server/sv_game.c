@@ -23,6 +23,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 game_export_t	*ge;
 
+#ifdef ZEALOT_STATIC_LINK
+
+extern game_export_t* GetGameAPI(game_import_t* import);
+
+#endif
+
 
 /*
 ===============
@@ -384,10 +390,19 @@ void SV_InitGameProgs (void)
 	import.SetAreaPortalState = CM_SetAreaPortalState;
 	import.AreasConnected = CM_AreasConnected;
 
+#ifndef ZEALOT_STATIC_LINK
+
 	ge = (game_export_t *)Sys_GetGameAPI (&import);
 
+#else
+
+	ge = GetGameAPI(&import);
+
+#endif
+
 	if (!ge)
-		Com_Error (ERR_DROP, "failed to load game DLL");
+		Com_Error (ERR_QUIT, "failed to load game DLL");
+    
 	if (ge->apiversion != GAME_API_VERSION)
 		Com_Error (ERR_DROP, "game is version %i, not %i", ge->apiversion,
 		GAME_API_VERSION);
