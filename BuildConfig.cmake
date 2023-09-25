@@ -20,9 +20,5 @@ set(ZEALOT_GAME_VERSION "1.0")
 #
 set(ZEALOT_STATIC_LINK OFF)
 
-if (APPLE)
-    set(ZEALOT_STATIC_LINK ON)
-
-    set(ZEALOT_STATIC_REF Zealot_RefGL2)
-    set(ZEALOT_STATIC_GAME Zealot_Game)
-endif()
+set(ZEALOT_STATIC_REF Zealot_RefGL2)
+set(ZEALOT_STATIC_GAME Zealot_Game)

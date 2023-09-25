@@ -47,13 +47,26 @@ list(APPEND ZEALOT_GDEFS
 #
 # Project options
 #
+#option(ZEALOT_BUILD_REF_SOFT "Builds ref_soft (Software Renderer)" ON)
 option(ZEALOT_BUILD_REF_GL2 "Builds ref_gl2 (OpenGL 2.0 Renderer)" ON)
-option(ZEALOT_BUILD_REF_GL4 "Builds ref_gl4 (OpenGL 4.6 Renderer)" ON)
 
 option(ZEALOT_USE_IMGUI "Includes Dear ImGui support into the engine and modules" ON)
 
+if (NOT APPLE) # Normal Platforms
+    set(ZEALOT_BUILD_REF_MTL OFF) # Can't use Metal; Darwin only!
+
+    option(ZEALOT_BUILD_REF_GL4 "Builds ref_gl4 (OpenGL 4.6 Renderer)" ON)
+else() # Exotic Platforms
+    set(ZEALOT_BUILD_REF_GL4 OFF) # Can't use anything newer than GL 2.0
+
+    option(ZEALOT_BUILD_REF_MTL "Builds ref_mtl (Apple Metal Renderer)" ON)
+endif()
+
 include(BuildConfig.cmake)
+
 # TODO: Generate a BuildConfig.gen.h file
+# TODO: Fix the software renderer
+set(ZEALOT_BUILD_REF_SOFT OFF)
 
 #
 # Optional modules
@@ -74,18 +87,18 @@ include(qcommon/CMakeLists.txt)
 
 add_subdirectory(qcore)
 
+if (ZEALOT_BUILD_REF_SOFT)
+    add_subdirectory(renderers/ref_soft)
+endif()
+
 if (ZEALOT_BUILD_REF_GL2)
     add_subdirectory(third_party/glad_gl2)
     add_subdirectory(renderers/ref_gl2)
 endif()
 
 if (ZEALOT_BUILD_REF_GL4)
-    if (NOT APPLE)
-        add_subdirectory(third_party/glad_gl4)
-        add_subdirectory(renderers/ref_gl4)
-    else()
-        message(WARNING "RefGL4 is not supported on macOS, please use RefMetal instead!")
-    endif()
+    add_subdirectory(third_party/glad_gl4)
+    add_subdirectory(renderers/ref_gl4)
 endif()
 
 # TODO: Make this prototype library an actual part of the engine
