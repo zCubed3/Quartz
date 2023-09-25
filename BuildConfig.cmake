@@ -22,3 +22,9 @@ set(ZEALOT_STATIC_LINK OFF)
 
 set(ZEALOT_STATIC_REF Zealot_RefGL2)
 set(ZEALOT_STATIC_GAME Zealot_Game)
+
+#
+# Private configuration
+#
+
+include(BuildConfig.private.cmake)
