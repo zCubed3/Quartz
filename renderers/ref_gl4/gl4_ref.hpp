@@ -166,9 +166,9 @@ void 		OGL_PixelToClip(int x, int y, float& out_x, float& out_y);
 // ================
 //  OpenGL Drawing
 // ================
-void		OGL_BindShader(gl4_shader_t *shader);
+extern void		OGL_BindShader(gl4_shader_t *shader);
 
-void		OGL_DrawModel(struct model_s* model);
+extern void		OGL_DrawModel(struct model_s* model, int frame, int oldframe, float backlerp);
 
 //============================================================================
 
@@ -184,6 +184,7 @@ DEFAULT ASSETS
 extern gl4_shader_t		*shader_hello_tri;
 extern gl4_shader_t		*shader_draw_char;
 extern gl4_shader_t		*shader_draw_pic;
+extern gl4_shader_t	    *shader_unlit_model;
 
 extern struct image_s	*image_conchars;
 

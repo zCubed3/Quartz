@@ -26,6 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 out vec4 out_FragColor;
 
+in vec4 v_Color;
+
 void main() {
-    out_FragColor = vec4(1, 0, 0, 1);
+    out_FragColor = v_Color;
 }

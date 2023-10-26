@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 gl4_shader_t	*shader_hello_tri;
 gl4_shader_t	*shader_draw_char;
 gl4_shader_t	*shader_draw_pic;
+gl4_shader_t	*shader_unlit_model;
 
 image_t 		*image_conchars;
 
@@ -204,6 +205,21 @@ qboolean R_LoadDefaultAssets(void)
 		if (shader_hello_tri == nullptr)
 			ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to build 'hello tri' shader!");
 	}
+
+    //
+    // Unlit Model Texture
+    //
+    {
+        gl4_shader_proto_t proto;
+
+        proto.src_vert = LoadAllText("ref_gl4/shaders/unlit_model.vert.glsl");
+        proto.src_frag = LoadAllText("ref_gl4/shaders/unlit_model.frag.glsl");
+
+        shader_unlit_model = BuildShader(&proto);
+
+        if (shader_unlit_model == nullptr)
+            ri.Sys_Error(ERR_FATAL, "[RefGL4]: Failed to build 'unlit model' shader!");
+    }
 
 	//
 	// Draw Char shader

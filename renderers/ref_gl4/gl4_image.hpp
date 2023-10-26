@@ -66,6 +66,7 @@ typedef struct
 	byte*	palette;
 
 	int 	width, height;
+    char    name[64];
 } pcx_info_t;
 
 void 	LoadPCX(const char *filename, pcx_info_t* info);

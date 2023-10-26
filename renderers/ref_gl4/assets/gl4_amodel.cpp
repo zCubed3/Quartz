@@ -33,19 +33,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <vector>
 
+#include <glm/glm.hpp>
+
 //============================================================================
 
 // Our default vertex array
-GLuint  gl_SharedVertexArray;
+GLuint  gl_SharedVertexArray = GL_INVALID_INDEX;
 
 //============================================================================
 
 // TODO: Move this out of here
-typedef struct
+typedef struct glvertex_s
 {
-	float 	position[3];
-	float 	uv[2];
-	float	normal[3];
+	glm::vec3 	position;
+	glm::vec3	normal;
+    glm::vec2 	uv;
 } glvertex_t;
 
 void Mod_LoadAliasModel (model_t *mod, char *buffer)
@@ -87,29 +89,80 @@ void Mod_LoadAliasModel (model_t *mod, char *buffer)
 		ri.Sys_Error (ERR_DROP, "model %s has no frames", mod->name);
 
 	//
-	// Load our disk data
-	//
-	dtriangle_t* 	triangles;
-    daliasframe_t*	frames;
-	glvertex_t*		gl_vertices;
-
-
-	triangles = (dtriangle_t*)(buffer + header.ofs_tris);
-	frames = (daliasframe_t*)(buffer + header.ofs_frames);
-
-    gl_vertices = new glvertex_t[header.num_xyz];
-
-    size_t seek = 0;
-    for (int f = 0; f < header.num_frames; f++) {
-
-    }
-
-	//
 	// Load the vertices
 	// Also convert our disk triangles to real triangles
 	//
 
-    // FIXME
+    // FIXME: Is this anything like id's actual model loading code?
+    // FIXME: Move this to a idModel class!
+
+    unsigned short* indices;
+    glvertex_t*     vertices;
+
+    indices = new unsigned short[header.num_tris * 3];
+    vertices = new glvertex_t[(header.num_frames + 1) * header.num_xyz];
+
+    // FIXME: Actually load frames
+    for (int f = 0; f < header.num_frames; f++) {
+        daliasframe_t* frame = (daliasframe_t*)(buffer + header.ofs_frames + (header.framesize * f));
+
+        size_t offset = f * (header.num_xyz);
+        //ri.Con_Printf(PRINT_ALL, "FRAME %i = %.16s\n", f, frame->name);
+
+        for (int v = 0; v < header.num_xyz; v++) {
+            // We need to decompress the vertices
+
+            vertices[v + offset].position[0] = frame->verts[v].v[0];
+            vertices[v + offset].position[1] = frame->verts[v].v[1];
+            vertices[v + offset].position[2] = frame->verts[v].v[2];
+
+            vertices[v + offset].position[0] *= frame->scale[0];
+            vertices[v + offset].position[1] *= frame->scale[1];
+            vertices[v + offset].position[2] *= frame->scale[2];
+
+            vertices[v + offset].position[0] += frame->translate[0];
+            vertices[v + offset].position[1] += frame->translate[1];
+            vertices[v + offset].position[2] += frame->translate[2];
+        }
+    }
+
+    for (int t = 0; t < header.num_tris; t++) {
+        dtriangle_t* tri = (dtriangle_t*)(buffer + header.ofs_tris + (t * sizeof(dtriangle_t)));
+
+        size_t actual = t * 3;
+
+        indices[actual] = tri->index_xyz[0];
+        indices[actual + 1] = tri->index_xyz[1];
+        indices[actual + 2] = tri->index_xyz[2];
+    }
+
+    mod->index_count = header.num_tris * 3;
+    mod->vert_count = header.num_xyz;
+    mod->vertex_data = vertices;
+    mod->vertex_scratch = vertices + (header.num_frames * header.num_xyz);
+
+    size_t data_size = sizeof(glvertex_t) * header.num_xyz;
+    size_t index_size = sizeof(unsigned short) * mod->index_count;
+
+    glGenBuffers(1, &mod->gl_vbo);
+    glGenBuffers(1, &mod->gl_ibo);
+
+    glGenVertexArrays(1, &mod->gl_vao);
+    glBindVertexArray(mod->gl_vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, mod->gl_vbo);
+    glBufferData(GL_ARRAY_BUFFER, data_size, vertices, GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glvertex_t), nullptr);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glvertex_t), (void*)(sizeof(float) * 3));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glvertex_t), (void*)(sizeof(float) * 6));
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mod->gl_ibo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_size, indices, GL_STATIC_DRAW);
 
 	mod->type = MODEL_TYPE_ALIAS;
 
@@ -123,10 +176,35 @@ void Mod_LoadAliasModel (model_t *mod, char *buffer)
 
 //============================================================================
 
-void OGL_DrawModel(struct model_s* model)
+void OGL_DrawModel(struct model_s* model, int frame, int oldframe, float backlerp)
 {
-    //glBindVertexArray(gl_SharedVertexArray);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER)
+    if (model == nullptr) {
+        ri.Sys_Error(ERR_FATAL, "Attempted to draw a model which is a nullptr!");
+        return;
+    }
+
+    //
+    // Vertex animation
+    //
+    float frontlerp = 1.0F - backlerp;
+
+    size_t start = frame * model->vert_count;
+    size_t end = oldframe * model->vert_count;
+
+    size_t data_size = sizeof(glvertex_t) * model->vert_count;
+
+    for (int v = 0; v < model->vert_count; v++) {
+        model->vertex_scratch[v].position
+            = glm::mix(model->vertex_data[start + v].position, model->vertex_data[end + v].position, backlerp);
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, model->gl_vbo);
+    glBufferData(GL_ARRAY_BUFFER, data_size, model->vertex_scratch, GL_DYNAMIC_DRAW);
+
+    glBindVertexArray(model->gl_vao);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->gl_ibo);
+    glDrawElements(GL_TRIANGLES, model->index_count, GL_UNSIGNED_SHORT, nullptr);
 }
 
 //============================================================================

@@ -47,6 +47,9 @@ void LoadPCX(const char *filename, pcx_info_t* info)
 	info->pixels = nullptr;
 	info->palette = nullptr;
 
+    // FIXME: Make this actually copy the path better
+    memcpy(info->name, filename, sizeof(info->name));
+
 	//
 	// load the file
 	//
@@ -201,6 +204,9 @@ image_t* OGL_LoadPCX(pcx_info_t* info)
 	byte*		recon_pic; // Reconstructed data
 
 	image = new image_t;
+
+    // FIXME: Make this actually copy the path better
+    memcpy(image->name, info->name, sizeof(image->name));
 
 	image->width = info->width;
 	image->height = info->height;

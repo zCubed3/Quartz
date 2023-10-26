@@ -267,6 +267,12 @@ typedef struct model_s
 
 	int			extradatasize;
 	void		*extradata;
+
+    unsigned int    gl_vbo, gl_ibo;
+    unsigned int    gl_vao;
+    size_t          index_count, vert_count;
+    struct glvertex_s*           vertex_data;
+    struct glvertex_s*           vertex_scratch;
 } model_t;
 
 //============================================================================

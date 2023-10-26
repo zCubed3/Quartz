@@ -1,4 +1,5 @@
 /*
+Copyright (C) 1997-2001 Id Software, Inc.
 Copyright (C) 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
@@ -19,31 +20,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// hello_tri.vert.glsl - Test triangle vertex shader
+// id_model.hpp - Quake (Alias) Model Loader
 //
 
-#version 400
+#ifndef ZEALOT_ID_MODEL_HPP
+#define ZEALOT_ID_MODEL_HPP
 
-uniform mat4 u_ViewProjection;
-uniform mat4 u_Model;
 
-const vec3 VERTEX_POSITIONS[3] = {
-    vec3(-0.5, 0.1, -0.5),
-    vec3(0.0, 0.1, 0.5),
-    vec3(0.5, 0.1, -0.5)
+class idModel {
+public:
+    void LoadMD2();
 };
 
-const vec3 VERTEX_COLORS[3] = {
-    vec3(1.0, 0.0, 0.0),
-    vec3(0.0, 1.0, 0.0),
-    vec3(0.0, 0.0, 1.0)
-};
 
-out vec3 _ZEALOT_VERT_COLOR;
-
-void main() {
-    vec3 Vertex = VERTEX_POSITIONS[gl_VertexID] * 50;
-
-    gl_Position = u_ViewProjection * u_Model * vec4(Vertex, 1.0);
-    _ZEALOT_VERT_COLOR = VERTEX_COLORS[gl_VertexID];
-}
+#endif //ZEALOTQUAKE2_ID_MODEL_HPP

@@ -139,20 +139,6 @@ struct model_s *R_RegisterModel(char *name)
 			return nullptr;
 	}
 
-	// TODO: Do this somewhere else ffs
-	GLuint	vao, vbo, ibo;
-
-	glGenVertexArrays(1, &vao);
-
-	glGenBuffers(1, &vbo);
-	glGenBuffers(1, &ibo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-	glBindVertexArray(vao);
-
-
-
 	ri.FS_FreeFile(buf);
 
 	return mod;

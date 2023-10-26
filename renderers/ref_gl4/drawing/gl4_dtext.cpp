@@ -138,6 +138,10 @@ void WarmCharAssets()
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, char_ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(TRIANGLES), TRIANGLES, GL_STATIC_DRAW);
 
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
+
 		char_assets_dirty = false;
 	}
 }
@@ -191,10 +195,15 @@ void Draw_FlushCharQueue()
 	OGL_BindImage(image_conchars);
 	OGL_BindShader(shader_draw_char);
 
-	glBindVertexArray(char_vao);
+    glBindVertexArray(char_vao);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, char_ibo);
-	//glBindBuffer(GL_ARRAY_BUFFER, char_vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, char_ibo);
+    glBindBuffer(GL_ARRAY_BUFFER, char_vbo);
+
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, nullptr);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//
 	// Get and update our uniform
@@ -228,7 +237,12 @@ void Draw_FlushCharQueue()
 		}
 
 		glBufferData(GL_ARRAY_BUFFER, sizeof(gpu_char_t) * draw_count, char_batch, GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 4, nullptr);
+        glVertexAttribDivisor(1, 1);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr, draw_count);
 	}

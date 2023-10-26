@@ -112,12 +112,6 @@ void R_EndFrame(void)
 //
 void R_RenderFrame(refdef_t *fd)
 {
-	glm::mat4x4	projection, view, view_projection;
-	glm::quat quaternion, correction;
-	glm::vec3 origin, forward;
-
-	glm::mat4x4 model;
-
 	//
 	// OpenGL frame commands
 	//
@@ -127,30 +121,43 @@ void R_RenderFrame(refdef_t *fd)
 	//
 	// Calculate our view projection matrices
 	//
+    glm::mat4x4	projection, view, view_projection;
 
-	// TODO: Calculate aspect
-	// TODO: Cvar near and far
-	projection = glm::perspective(glm::radians(fd->fov_y), 1.0F, 0.01F, 1000.0F);
+    glm::mat4x4 model;
+    glm::mat4x4 correction_matrix;
 
-	origin = glm::vec3(fd->vieworg[0], fd->vieworg[1], fd->vieworg[2]);
-	forward = glm::vec3(0, 0, 1);
+    correction_matrix = {
+        0, 0, -1, 0,
+        -1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 0, 1
+    };
 
-	correction = glm::quat(glm::vec3(
-		glm::radians(-90.0F),
-		glm::radians(0.0F),
-		glm::radians(90.0F)
-	));
+    // TODO: Make this a lot simpler!
+    view = correction_matrix;
+    view *= glm::rotate(glm::radians(-fd->viewangles[2]), glm::vec3(1, 0, 0));
+    view *= glm::rotate(glm::radians(-fd->viewangles[0]), glm::vec3(0, 1, 0));
+    view *= glm::rotate(glm::radians(-fd->viewangles[1]), glm::vec3(0, 0, 1));
+    view = glm::translate(view, glm::vec3(-fd->vieworg[0], -fd->vieworg[1], -fd->vieworg[2]));
 
-	quaternion = glm::quat(glm::vec3(
-		glm::radians(-fd->viewangles[2]),
-		glm::radians(-fd->viewangles[0]),
-		glm::radians(-fd->viewangles[1])
-	));
+    float aspect = (float)fd->width / (float)fd->height;
+    projection = glm::perspective(glm::radians(fd->fov_y), aspect, 4.0F, 4096.0F);
 
-	forward = correction * quaternion * glm::vec4(forward, 1);
-	forward = glm::normalize(forward);
+    ImGui::Begin("GL4 Debugging");
 
-	view = glm::lookAt(origin, origin + forward, glm::vec3(0, 1, 0));
+    //ImGui::Text("Cam Pos: %f, %f, %f", origin.x, origin.y, origin.z);
+    //ImGui::Text("Cam Rot: %f, %f, %f", fd->viewangles[0], fd->viewangles[1], fd->viewangles[2]);
+
+    ImGui::Text("%f, %f, %f", fd->vieworg[0], fd->vieworg[1], fd->vieworg[2]);
+
+    ImGui::Spacing();
+
+    ImGui::Text("%f, %f, %f, %f", view[0][0], view[0][1], view[0][2], view[0][3]);
+    ImGui::Text("%f, %f, %f, %f", view[1][0], view[1][1], view[1][2], view[1][3]);
+    ImGui::Text("%f, %f, %f, %f", view[2][0], view[2][1], view[2][2], view[2][3]);
+    ImGui::Text("%f, %f, %f, %f", view[3][0], view[3][1], view[3][2], view[3][3]);
+
+    ImGui::End();
 
 	view_projection = projection * view;
 
@@ -160,10 +167,10 @@ void R_RenderFrame(refdef_t *fd)
 	GLuint	u_viewprojection, u_model;
 
 	{
-		OGL_BindShader(shader_hello_tri);
+		OGL_BindShader(shader_unlit_model);
 
-		u_viewprojection = glGetUniformLocation(shader_hello_tri->handle, "u_ViewProjection");
-		u_model = glGetUniformLocation(shader_hello_tri->handle, "u_Model");
+		u_viewprojection = glGetUniformLocation(shader_unlit_model->handle, "u_ViewProjection");
+		u_model = glGetUniformLocation(shader_unlit_model->handle, "u_Model");
 
 		glUniformMatrix4fv(u_viewprojection, 1, GL_FALSE, glm::value_ptr(view_projection));
 	}
@@ -175,19 +182,23 @@ void R_RenderFrame(refdef_t *fd)
 	//
 	for (size_t m = 0; m < fd->num_entities; m++)
 	{
-		struct entity_s 	entity;
+		struct entity_s* 	e;
 		glm::vec3 			ent_origin;
 
-		entity = fd->entities[m];
+		e = &fd->entities[m];
 
-		ent_origin = glm::vec3(entity.origin[0], entity.origin[1], entity.origin[2]);
+        model = glm::translate(glm::identity<glm::mat4x4>(), glm::vec3(e->origin[0], e->origin[1], e->origin[2]));
 
-		model = glm::translate(glm::mat4x4(1.0F), ent_origin);
+        model *= glm::rotate(glm::radians(e->angles[1]), glm::vec3(0, 0, 1));
+        model *= glm::rotate(glm::radians(-e->angles[0]), glm::vec3(0, 1, 0));
+        model *= glm::rotate(glm::radians(-e->angles[2]), glm::vec3(1, 0, 0));
 
 		glUniformMatrix4fv(u_model, 1, GL_FALSE, glm::value_ptr(model));
 
-		if (!fd->entities[m].model)
-			OGL_DrawModel(fd->entities[m].model);
+		if (e->model != nullptr)
+			OGL_DrawModel(e->model, e->frame, e->oldframe, e->backlerp);
+
+        //ri.Con_Printf(PRINT_ALL, "Drawing Entity at %f, %f, %f\n", entity.origin[0], entity.origin[1], entity.origin[2]);
 	}
 }
 
