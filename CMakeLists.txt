@@ -47,6 +47,7 @@ endif()
 # Dependencies
 #
 add_subdirectory(third_party/SDL)
+add_subdirectory(third_party/glm)
 
 #
 # Quake modules

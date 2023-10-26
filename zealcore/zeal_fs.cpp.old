@@ -19,10 +19,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// id_zeal_fs.hpp - zealFS implementation
+// zeal_fs.hpp - zealFS implementation
 //
 
-#include "zeal_fs.hpp"
+#include "zeal_fs.hpp.old"
 
 //============================================================================
 
@@ -32,13 +32,40 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
-zeal_mount_state_t zealFS::MountNode(zealFSNode *node)
+zeal_mount_state_t zealFS::MountNode(const std::string& id, zealFSNode* node)
 {
 	if (node == nullptr)
 		return ZEAL_MOUNT_NULL_NODE;
 
-	node_list.Push(node);
+	// TODO: Check if the key already exists
+	this->nodes.emplace(id, node);
+
 	return ZEAL_MOUNT_SUCCESS;
+}
+
+zealFSStream* zealFS::Open(const zealFSQuery& query)
+{
+	auto	node;
+
+	node = this->nodes.find(query.node);
+
+	if (node == this->nodes.end())
+		return nullptr;
+
+	return this->nodes
+}
+
+zealStack<zeal_file_t> zealFS::GetFiles(const char* node)
+{
+	zealNode<zealFS::mounted_node_t>* elem;
+
+	for (elem = nodes.Top(); elem != nullptr; elem = elem->next)
+	{
+		if (elem->element.id == node)
+			return std::move(elem->element.node->GetFiles());
+	}
+
+	return {};
 }
 
 //============================================================================

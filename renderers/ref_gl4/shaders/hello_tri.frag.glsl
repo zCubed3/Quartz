@@ -1,5 +1,4 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
 Copyright (C) 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
@@ -20,45 +19,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rdraw.c - Drawing functions
+// hello_tri.vert.glsl - Test triangle fragment shader
 //
 
-#include "gl4_ref.hpp"
+#version 400
 
-#include "gl4_image.hpp"
+in vec3 _ZEALOT_VERT_COLOR;
 
-#include <glad/glad.h>
+out vec4 _ZEALOT_COLOR;
 
-#include "../../zealcore/zeal_stack.hpp"
-
-//
-// Draw_TileClear
-//
-void Draw_TileClear(int x, int y, int w, int h, char *name)
-{
-
-}
-
-//
-// Draw_Fill
-//
-void Draw_Fill(int x, int y, int w, int h, int c)
-{
-
-}
-
-//
-// Draw_FadeScreen
-//
-void Draw_FadeScreen(void)
-{
-
-}
-
-//
-// Draw_StretchRaw
-//
-void Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, byte *data)
-{
-
+void main() {
+    _ZEALOT_COLOR = vec4(_ZEALOT_VERT_COLOR, 1);
 }

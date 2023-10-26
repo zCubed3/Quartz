@@ -1,5 +1,4 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
 Copyright (C) 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
@@ -20,45 +19,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rdraw.c - Drawing functions
+// unlit_model.vert.glsl - Unlit model drawing vertex shader
 //
 
-#include "gl4_ref.hpp"
+#version 400
 
-#include "gl4_image.hpp"
+layout(location = 0) in vec3 in_Position;
 
-#include <glad/glad.h>
+uniform mat4 u_ViewProjection;
+uniform mat4 u_Model;
 
-#include "../../zealcore/zeal_stack.hpp"
-
-//
-// Draw_TileClear
-//
-void Draw_TileClear(int x, int y, int w, int h, char *name)
-{
-
-}
-
-//
-// Draw_Fill
-//
-void Draw_Fill(int x, int y, int w, int h, int c)
-{
-
-}
-
-//
-// Draw_FadeScreen
-//
-void Draw_FadeScreen(void)
-{
-
-}
-
-//
-// Draw_StretchRaw
-//
-void Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, byte *data)
-{
-
+void main() {
+    gl_Position = u_ViewProjection * u_Model * vec4(in_Position, 1.0);
 }

@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //============================================================================
 
 #include "../zealcore/zeal_string.hpp"
-#include "../zealcore/zeal_linked_list.hpp"
+#include "../zealcore/zeal_stack.hpp"
 
 //============================================================================
 
@@ -47,7 +47,7 @@ class idEngine
 	//  Cvar Management
 	// =================
 public:
-	zealLinkedList<idCvar> 	cvar_list;
+	zealStack<idCvar> 	cvar_list;
 
 	// Sets the string of a cvar by name
 	idCvar* 	SetCvarString(const zealString& name, const zealString& string);

@@ -1,0 +1,203 @@
+/*
+Copyright (C) 2023 zCubed3 (Liam R.)
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+*/
+
+//
+// zeal_folder_node.cpp - zealFSFolderNode implementation
+//
+
+//============================================================================
+
+#include "zeal_folder_node.hpp.old"
+
+//============================================================================
+
+#ifdef WIN32
+
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+
+#endif
+
+#include <stdio.h>
+
+//============================================================================
+
+zealFSFolderStream::zealFSFolderStream(void* file, size_t size)
+{
+	this->file = file;
+	this->size = size;
+}
+
+size_t zealFSFolderStream::Read(char* buffer, size_t length)
+{
+	if (buffer == nullptr)
+		return 0;
+
+	return fread(buffer, length, 1, (FILE*)file);
+}
+
+bool zealFSFolderStream::Seek(zeal_seek_origin_t origin, size_t offset)
+{
+	int c_origin;
+
+	switch (origin)
+	{
+		case ZEAL_SEEK_SET:
+			c_origin = SEEK_SET;
+			break;
+
+		case ZEAL_SEEK_END:
+			c_origin = SEEK_END;
+			break;
+
+		case ZEAL_SEEK_CUR:
+			c_origin = SEEK_CUR;
+			break;
+
+		default:
+			return false; // Unknown seek origin!
+	}
+
+	return fseek((FILE*)file, offset, c_origin) == 0;
+}
+
+//============================================================================
+
+zealFSFolderNode* zealFSFolderNode::OpenFolder(const char* path)
+{
+	zealFSFolderNode*	node;
+
+	// Does the folder exist at our path?
+#ifdef WIN32
+	DWORD				dw_attribs;
+
+	dw_attribs = GetFileAttributes(path);
+
+	// Folder doesn't exist!
+	if (dw_attribs == INVALID_FILE_ATTRIBUTES)
+		return nullptr;
+
+	if (!(dw_attribs & FILE_ATTRIBUTE_DIRECTORY))
+		return nullptr;
+#endif
+
+	node = new zealFSFolderNode();
+	node->folder_base = zealString(path);
+
+	return node;
+}
+
+zealFSStream* zealFSFolderNode::Open(const char* path, zeal_open_mode_t mode)
+{
+	const char*			mode_str;
+	FILE*				file;
+	zealFSFolderStream* stream;
+	zealString 			concat;
+	size_t				path_len;
+	size_t				file_len;
+
+	// First check if the path is valid
+	if (path == nullptr)
+		return nullptr;
+
+	path_len = strlen(path);
+
+	if (path_len == 0) // Too small
+		return nullptr;
+
+	// Then combine the paths
+	if (path[0] == '/')
+		concat = folder_base + (path + 1);
+	else if (folder_base[folder_base.Length() - 1] == '/')
+		concat = folder_base + path;
+	else
+		concat = folder_base + '/' + path;
+
+	// Get our mode
+	mode_str = "r";
+
+	if (mode == ZEAL_OPEN_BINARY)
+		mode_str = "rb";
+
+	// Finally open the file
+	file = fopen(path, mode_str);
+
+	if (file == nullptr)
+		return nullptr;
+
+	// Get the length of the file
+	fseek(file, SEEK_END, 0);
+	file_len = ftell(file);
+	fseek(file, SEEK_SET, 0);
+
+	// Create the stream wrapper
+	stream = new zealFSFolderStream(file, file_len);
+
+	return stream;
+}
+
+void zealFSFolderNode::Close(zealFSStream* stream)
+{
+	zealFSFolderStream* folder;
+
+	if (stream == nullptr)
+		return;
+
+	if (stream->Type() != ZEAL_FILE_MAGIC)
+		return;
+
+	folder = (zealFSFolderStream*)stream;
+
+	if (folder->file != nullptr)
+	{
+		fclose((FILE*) folder->file);
+		folder->file = nullptr;
+	}
+}
+
+std::vector<zeal_file_t> zealFSFolderNode::GetFiles()
+{
+	std::vector<zeal_file_t> 	files;
+
+#ifdef WIN32
+	WIN32_FIND_DATA 	data;
+	HANDLE 				h_findfile;
+
+	h_findfile = FindFirstFileA(folder_base.CStr(), &data);
+
+	do
+	{
+		zeal_file_t 	file;
+
+		file.path 	= data.cFileName;
+		file.flags 	= 0;
+
+		if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			file.flags |= ZEAL_FILE_DIRECTORY;
+
+		files.emplace_back(file);
+	}
+	while(FindNextFile(h_findfile, &data));
+#endif
+
+	return files;
+}
+
+//============================================================================

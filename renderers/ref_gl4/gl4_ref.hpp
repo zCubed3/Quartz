@@ -161,9 +161,14 @@ void		OGL_CleanupSDL();
 
 void 		OGL_DefaultState();
 
+void 		OGL_PixelToClip(int x, int y, float& out_x, float& out_y);
+
+// ================
+//  OpenGL Drawing
+// ================
 void		OGL_BindShader(gl4_shader_t *shader);
 
-void 		OGL_PixelToClip(int x, int y, float& out_x, float& out_y);
+void		OGL_DrawModel(struct model_s* model);
 
 //============================================================================
 

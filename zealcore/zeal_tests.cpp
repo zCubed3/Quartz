@@ -24,19 +24,22 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef USE_ZEALCORE_MAIN
 
-#include "zeal_linked_list.hpp"
-#include "zeal_fs.hpp"
+#include "zeal_stack.hpp"
 #include "zeal_string.hpp"
+#include "zeal_vector.hpp"
+//#include "fs/zeal_folder_node.hpp"
 
 #include <cstdio>
 
 int main(int argc, char** argv)
 {
+    printf("[zealLinkedList<T> Tests]\n\n");
+
 	// Test our linked list
 	{
-		zealLinkedList<float> 	float_list;
-		zealLinkedList<float*>	float_ptr_list;
-		float 					float_out;
+		zealStack<float> 	float_list;
+		zealStack<float*>	float_ptr_list;
+		float 				float_out;
 
 		for (float f = 0; f < 1000; f += 1.0F)
 		{
@@ -55,6 +58,8 @@ int main(int argc, char** argv)
 			printf("%f\n", float_out);
 		}
 	}
+
+    printf("\n[zealString Tests]\n\n");
 
 	// Test our string type
 	{
@@ -78,6 +83,64 @@ int main(int argc, char** argv)
 		printf("str_copy = %s\n", str_copy.CStr());
 		printf("str_added = %s\n", str_added.CStr());
 	}
+
+    printf("\n[zealVector Tests]\n\n");
+
+    // Test our vector type
+    {
+        zealVector<float>   vec;
+        float               pop_out;
+
+        for (float i = 0.0F; i < 12.0F; i += 1.0F)
+        {
+            vec.Append(i);
+        }
+
+        // Then print the results
+        for (int i = 0; i < vec.Count(); i++)
+        {
+            float   f = -1.0F;
+
+            vec.Get(i, f);
+            printf("%f\n", f);
+        }
+
+        printf("\n\n---------\n\n");
+
+        while (vec.Remove(0, &pop_out))
+        {
+            printf("%f\n", pop_out);
+        }
+    }
+
+    /*
+	printf("\n[zealFS Tests]\n\n");
+
+	// Test our file system
+	{
+		zealFS* fs;
+
+		fs = new zealFS;
+
+		// Mount a folder
+		{
+			zealFSFolderNode* 			folder;
+			std::vector<zeal_file_t> 	files;
+
+			folder = zealFSFolderNode::OpenFolder("baseq2");
+
+			fs->MountNode("game", folder);
+
+			// Then ask what files are under the folder
+			files = fs->GetFiles("game");
+
+			for (zeal_file_t& file : files)
+			{
+				printf("File = %s\n", file.path.c_str());
+			}
+		}
+	}
+     */
 }
 
 #endif

@@ -23,11 +23,13 @@ list(APPEND REF_GL4_LIBS
     Zealot_Core
     SDL2
     GLAD_GL4
+    glm
 )
 
 list(APPEND REF_GL4_INC_DIRS
     SDL2
     GLAD_GL4
+    glm
 )
 
 #

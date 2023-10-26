@@ -19,11 +19,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// zeal_linked_list.hpp - zealLinkedList definition
+// zeal_stack.hpp - zealStack definition
+//
+// This is a linked list
 //
 
-#ifndef ZEALOT_ZEAL_LINKED_LIST_HPP
-#define ZEALOT_ZEAL_LINKED_LIST_HPP
+#ifndef ZEALOT_ZEAL_STACK_HPP
+#define ZEALOT_ZEAL_STACK_HPP
 
 //============================================================================
 
@@ -31,27 +33,64 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
+// A node within a zealStack
+// Is placed outside zealStack class for cleaner access
+template<typename T>
+struct zealNode
+{
+	T 			element;
+	zealNode* 	next;
+};
+
+//============================================================================
+
 // TODO: Is this even reasonable to have?
 template<typename T>
-class zealLinkedList
+class zealStack
 {
 public:
-	typedef struct node_s
+	// Wrapper class for range iteration
+	struct Iter
 	{
-		T 				element;
-		struct node_s* 	next;
-	} node_t;
+		zealNode<T>* 	node = nullptr;
+		bool			last = false;
+
+		// Comparison operator for stopping
+		bool operator!=(Iter& rhs) const
+		{
+			return this->last != rhs.last;
+		}
+
+		// Increment opertator
+		Iter& operator++()
+		{
+			Iter iter;
+
+			iter.node = node->next;
+
+			// Only last if there's no next
+			iter.last = node->next == nullptr;
+
+			return iter;
+		}
+
+		// Deref
+		T operator*()
+		{
+			return node->element;
+		}
+	};
 
 protected:
-	size_t count 			= 0;
-	node_t* node_stack 		= nullptr;
+	size_t 			count 		= 0;
+	zealNode<T>* 	node_stack 	= nullptr;
 
 public:
-	~zealLinkedList()
+	~zealStack()
 	{
 		while(node_stack != nullptr)
 		{
-			node_t* 	current;
+			zealNode<T>* current;
 
 			current = node_stack;
 			node_stack = current->next;
@@ -59,14 +98,27 @@ public:
 			zealOptionalDelete(current->element);
 			delete current;
 		}
+
+		node_stack 	= nullptr;
+		count 		= 0;
+	}
+
+	zealStack() = default;
+
+	zealStack(zealStack<T>& stack)
+	{
+		zealNode<T>* 	node;
+
+		for (node = stack.Top(); node != nullptr; node = node->next)
+			Push(node->element);
 	}
 
 	// Pushes to the top of the stack, shifting the contents downward
-	void Push(T element)
+	void Push(const T& element)
 	{
-		node_t* 	new_top;
+		zealNode<T>* new_top;
 
-		new_top = new node_t;
+		new_top = new zealNode<T>();
 
 		new_top->element = element;
 		new_top->next = node_stack;
@@ -79,7 +131,7 @@ public:
 	// Returns a boolean value of whether the pop operation was a success
 	bool Pop(T& out)
 	{
-		node_t* 	ret;
+		zealNode<T>* ret;
 
 		ret = node_stack;
 
@@ -101,7 +153,7 @@ public:
 	}
 
 	// Returns the top of the node stack, this is dangerous, use caution when iterating!
-	node_t* Top() const
+	zealNode<T>* Top() const
 	{
 		return node_stack;
 	}
@@ -110,6 +162,39 @@ public:
 	size_t Count() const
 	{
 		return count;
+	}
+
+	//
+	// Range based iteration
+	//
+
+	Iter begin()
+	{
+		Iter iter;
+
+		iter.last = node_stack == nullptr;
+		iter.node = node_stack;
+
+		return iter;
+	}
+
+	Iter end()
+	{
+		zealNode<T>* 	node;
+		Iter			iter;
+
+		node = nullptr;
+
+		// Find the end
+		for (node = Top(); node != nullptr; node = node->next)
+		{
+
+		}
+
+		iter.node = node;
+		iter.last = true;
+
+		return iter;
 	}
 };
 

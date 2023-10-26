@@ -1,5 +1,4 @@
 /*
-Copyright (C) 1997-2001 Id Software, Inc.
 Copyright (C) 2023 zCubed3 (Liam R.)
 
 This program is free software; you can redistribute it and/or
@@ -20,45 +19,31 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 //
-// gl4_rdraw.c - Drawing functions
+// hello_tri.vert.glsl - Test triangle vertex shader
 //
 
-#include "gl4_ref.hpp"
+#version 400
 
-#include "gl4_image.hpp"
+uniform mat4 u_ViewProjection;
+uniform mat4 u_Model;
 
-#include <glad/glad.h>
+const vec3 VERTEX_POSITIONS[3] = {
+    vec3(-0.5, -0.5, -0.1),
+    vec3(0.0, 0.5, -0.1),
+    vec3(0.5, -0.5, -0.1)
+};
 
-#include "../../zealcore/zeal_stack.hpp"
+const vec3 VERTEX_COLORS[3] = {
+    vec3(1.0, 0.0, 0.0),
+    vec3(0.0, 1.0, 0.0),
+    vec3(0.0, 0.0, 1.0)
+};
 
-//
-// Draw_TileClear
-//
-void Draw_TileClear(int x, int y, int w, int h, char *name)
-{
+out vec3 _ZEALOT_VERT_COLOR;
 
-}
+void main() {
+    vec3 Vertex = VERTEX_POSITIONS[gl_VertexID] * 50;
 
-//
-// Draw_Fill
-//
-void Draw_Fill(int x, int y, int w, int h, int c)
-{
-
-}
-
-//
-// Draw_FadeScreen
-//
-void Draw_FadeScreen(void)
-{
-
-}
-
-//
-// Draw_StretchRaw
-//
-void Draw_StretchRaw(int x, int y, int w, int h, int cols, int rows, byte *data)
-{
-
+    gl_Position = u_ViewProjection * u_Model * vec4(Vertex, 1.0);
+    _ZEALOT_VERT_COLOR = VERTEX_COLORS[gl_VertexID];
 }

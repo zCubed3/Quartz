@@ -449,6 +449,11 @@ void idInputSDL::PollSDL()
 
 	while (SDL_PollEvent(&event))
 	{
+        if (event.type == SDL_QUIT)
+        {
+            CL_Quit_f();
+        }
+
 		if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
 		{
 			qboolean pressed = event.key.state == SDL_PRESSED;

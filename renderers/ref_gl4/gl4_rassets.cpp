@@ -196,8 +196,8 @@ qboolean R_LoadDefaultAssets(void)
 	{
 		gl4_shader_proto_t proto;
 
-		proto.src_vert = LoadAllText("gl4_src/hello_tri.vert.glsl");
-		proto.src_frag = LoadAllText("gl4_src/hello_tri.frag.glsl");
+		proto.src_vert = LoadAllText("ref_gl4/shaders/hello_tri.vert.glsl");
+		proto.src_frag = LoadAllText("ref_gl4/shaders/hello_tri.frag.glsl");
 
 		shader_hello_tri = BuildShader(&proto);
 

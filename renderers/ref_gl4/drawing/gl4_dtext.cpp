@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <glad/glad.h>
 
-#include "../../zealcore/zeal_linked_list.hpp"
+#include "../../zealcore/zeal_stack.hpp"
 
 //============================================================================
 
@@ -46,7 +46,7 @@ typedef float	gpu_char_t[4];
 //============================================================================
 
 // Our queue of characters to draw
-zealLinkedList<queued_char_t>	queued_chars = {};
+zealStack<queued_char_t>	queued_chars = {};
 
 // Our batch size
 const int 		CHAR_BATCH_SIZE = 512;

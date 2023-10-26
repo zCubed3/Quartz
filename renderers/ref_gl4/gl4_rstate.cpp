@@ -53,7 +53,7 @@ qboolean R_Init(void *param1, void *param2)
 //
 void R_Shutdown(void)
 {
-
+	OGL_Shutdown();
 }
 
 //

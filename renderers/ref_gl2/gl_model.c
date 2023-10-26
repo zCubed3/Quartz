@@ -944,7 +944,7 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 				 mod->name, version, ALIAS_VERSION);
 
 	pheader = Hunk_Alloc (LittleLong(pinmodel->ofs_end));
-	
+
 	// byte swap the header fields and sanity check
 	for (i=0 ; i<sizeof(dmdl_t)/4 ; i++)
 		((int *)pheader)[i] = LittleLong (((int *)buffer)[i]);

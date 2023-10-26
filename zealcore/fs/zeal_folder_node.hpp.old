@@ -1,0 +1,111 @@
+/*
+Copyright (C) 2023 zCubed3 (Liam R.)
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+
+*/
+
+//
+// zeal_folder_node.hpp - zealFSFolderNode definition
+//
+
+#ifndef ZEALOT_ZEAL_FS_FOLDER_NODE_HPP
+#define ZEALOT_ZEAL_FS_FOLDER_NODE_HPP
+
+//============================================================================
+
+#include "../zeal_fs.hpp.old"
+
+#include "../zeal_string.hpp"
+
+#include "../zeal_stack.hpp"
+
+//============================================================================
+
+#define ZEAL_FILE_MAGIC 0xDEADF17E
+
+//============================================================================
+
+class zealFSFolderStream : public zealFSStream
+{
+protected:
+	friend class zealFSFolderNode;
+
+	// We can't forward declare files
+	void*	file 	= nullptr;
+	size_t	size	= 0;
+
+public:
+	// ==============
+	//  Construction
+	// ==============
+	zealFSFolderStream(void* file, size_t size);
+
+	// ==============
+	//  zealFSStream
+	// ==============
+	virtual size_t	Read(char* buffer, size_t length) override;
+
+	virtual bool 	Seek(zeal_seek_origin_t origin, size_t offset) override;
+
+	[[nodiscard]]
+	virtual unsigned	Type() const override
+	{
+		return ZEAL_FILE_MAGIC; // DeadFile
+	}
+
+	[[nodiscard]]
+	virtual size_t 		Size() const override
+	{
+		return this->size;
+	}
+};
+
+//============================================================================
+
+//
+// Mounts an on-disk folder as a node within a zealFS instance
+//
+class zealFSFolderNode : public zealFSNode
+{
+protected:
+	zealString		folder_base;
+
+	// ==============
+	//  Construction
+	// ==============
+	zealFSFolderNode() = default;
+
+public:
+	// ==============
+	//  Static Ctors
+	// ==============
+	static zealFSFolderNode* 	OpenFolder(const char *path);
+
+	// ============
+	//  zealFSNode
+	// ============
+	zealFSStream* 			Open(const char *path, zeal_open_mode_t mode) override;
+
+	void 					Close(zealFSStream *stream) override;
+
+	std::vector<zeal_file_t> 	GetFiles() override;
+};
+
+//============================================================================
+
+
+#endif //ZEALOT_ZEAL_FS_FOLDER_NODE_HPP

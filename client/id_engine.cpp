@@ -66,8 +66,8 @@ idCvar* idEngine::SetCvarValue(const zealString &name, float value)
 // TODO: Handle Cvar flags
 idCvar* idEngine::GetCvar(const zealString& name)
 {
-	idCvar* 							cvar;
-	zealLinkedList<idCvar>::node_t*		node;
+	idCvar* 			cvar;
+    zealNode<idCvar>*	node;
 
 	cvar = nullptr;
 

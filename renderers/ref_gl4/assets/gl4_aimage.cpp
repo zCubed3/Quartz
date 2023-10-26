@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <glad/glad.h>
 
-#include "../../zealcore/zeal_linked_list.hpp"
+#include "../../zealcore/zeal_stack.hpp"
 
 //============================================================================
 
@@ -138,11 +138,11 @@ void ReleasePCX(pcx_info_t* info)
 
 //============================================================================
 
-zealLinkedList<image_t*> image_cache;
+zealStack<image_t*> image_cache;
 
 image_t* OGL_FindImage(const char* name)
 {
-	zealLinkedList<image_t*>::node_t* 	iter;
+	zealNode<image_t*>* 	iter;
 
 	size_t 	len;
 

@@ -399,7 +399,7 @@ int FS_LoadFile(const char *path, void **buffer)
 
 	buf = NULL;	// quiet compiler warning
 
-// look for it in the filesystem or pack files
+	// look for it in the filesystem or pack files
 	len = FS_FOpenFile (path, &h);
 	if (!h)
 	{
@@ -414,7 +414,7 @@ int FS_LoadFile(const char *path, void **buffer)
 		return len;
 	}
 
-	buf = Z_Malloc(len);
+	buf = calloc(1, len);
 	*buffer = buf;
 
 	FS_Read (buf, len, h);
@@ -432,7 +432,7 @@ FS_FreeFile
 */
 void FS_FreeFile (void *buffer)
 {
-	Z_Free (buffer);
+	free(buffer);
 }
 
 /*

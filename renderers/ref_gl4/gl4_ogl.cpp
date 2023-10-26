@@ -155,14 +155,14 @@ void OGL_Shutdown()
 void OGL_CleanupSDL()
 {
 	// Ensure our window is destroyed
-	if (gl4_state.sdl_window != NULL)
+	if (gl4_state.sdl_window != nullptr)
 	{
 		SDL_DestroyWindow(gl4_state.sdl_window);
 		gl4_state.sdl_window = NULL;
 	}
 
 	// Same with our GL context
-	if (gl4_state.sdl_gl_ctx != NULL)
+	if (gl4_state.sdl_gl_ctx != nullptr)
 	{
 		SDL_GL_DeleteContext(gl4_state.sdl_gl_ctx);
 	}
@@ -175,8 +175,8 @@ void OGL_CleanupSDL()
 //
 void OGL_DefaultState()
 {
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
+	//glEnable(GL_CULL_FACE);
+	//glCullFace(GL_BACK);
 }
 
 //
