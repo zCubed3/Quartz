@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 **
 */
 
-#include "../../../renderers/ref_gl2/gl_local.h"
+#include "../../../renderers/ref_gl2/gl_local.hpp"
 #include "../sdlquake.h"
 
 #include <cassert>
@@ -123,7 +123,7 @@ qboolean VID_CreateWindow( int width, int height, int fullscreen )
 /*
 ** GLimp_SetMode
 */
-int GLimp_SetMode( int *pwidth, int *pheight, int mode, qboolean fullscreen )
+int GLimp_SetMode( unsigned int *pwidth, unsigned int *pheight, int mode, qboolean fullscreen )
 {
 	int width, height;
 	const char *win_fs[] = { "W", "FS" };

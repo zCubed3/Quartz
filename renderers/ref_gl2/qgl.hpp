@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 ** QGL.H
 */
 
-#ifndef __QGL_H__
-#define __QGL_H__
+#ifndef ZEALOT_QGL_HPP
+#define ZEALOT_QGL_HPP
 
 #include <glad/glad.h>
 

@@ -2,8 +2,8 @@
 # Library variables
 #
 file(GLOB REF_GL_SRCS
-    ${CMAKE_CURRENT_LIST_DIR}/*.c
-    ${CMAKE_CURRENT_LIST_DIR}/*.h
+    ${CMAKE_CURRENT_LIST_DIR}/*.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/*.hpp
 )
 
 list(APPEND REF_GL_SRCS

@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // gl_warp.c -- sky and water polygons
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 
 extern	model_t	*loadmodel;
 
@@ -123,7 +123,7 @@ void SubdividePolygon (int numverts, float *verts)
 	}
 
 	// add a point in the center to help keep warp valid
-	poly = Hunk_Alloc (sizeof(glpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
+	poly = (glpoly_t*)Hunk_Alloc (sizeof(glpoly_t) + ((numverts-4)+2) * VERTEXSIZE*sizeof(float));
 	poly->next = warpface->polys;
 	warpface->polys = poly;
 	poly->numverts = numverts+2;
@@ -197,7 +197,7 @@ void GL_SubdivideSurface (msurface_t *fa)
 // speed up sin calculations - Ed
 float	r_turbsin[] =
 {
-	#include "warpsin.h"
+	#include "warpsin.hpp"
 };
 #define TURBSCALE (256.0 / (2 * M_PI))
 

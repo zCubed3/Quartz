@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // r_main.c
 
-#include "gl_local.h"
+#include "gl_local.hpp"
 
 void R_Clear (void);
 
@@ -1083,7 +1083,7 @@ qboolean R_SetMode (void)
 	vid_fullscreen->modified = false;
 	gl_mode->modified = false;
 
-	if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, fullscreen ) ) == rserr_ok )
+	if ( ( err = (rserr_t)GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, fullscreen ) ) == rserr_ok )
 	{
 		gl_state.prev_mode = gl_mode->value;
 	}
@@ -1094,7 +1094,7 @@ qboolean R_SetMode (void)
 			ri.Cvar_SetValue( "vid_fullscreen", 0);
 			vid_fullscreen->modified = false;
 			ri.Con_Printf( PRINT_ALL, "ref_gl2::R_SetMode() - fullscreen unavailable in this mode\n" );
-			if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, false ) ) == rserr_ok )
+			if ( ( err = (rserr_t)GLimp_SetMode( &vid.width, &vid.height, gl_mode->value, false ) ) == rserr_ok )
 				return true;
 		}
 		else if ( err == rserr_invalid_mode )
@@ -1105,7 +1105,7 @@ qboolean R_SetMode (void)
 		}
 
 		// try setting it back to something safe
-		if ( ( err = GLimp_SetMode( &vid.width, &vid.height, gl_state.prev_mode, false ) ) != rserr_ok )
+		if ( ( err = (rserr_t)GLimp_SetMode( &vid.width, &vid.height, gl_state.prev_mode, false ) ) != rserr_ok )
 		{
 			ri.Con_Printf( PRINT_ALL, "ref_gl2::R_SetMode() - could not revert to safe mode\n" );
 			return false;
@@ -1132,7 +1132,7 @@ int R_Init( void *hinstance, void *hWnd )
 		r_turbsin[j] *= 0.5;
 	}
 
-	ri.Con_Printf (PRINT_ALL, "ref_gl2 version: "REF_VERSION"\n");
+	ri.Con_Printf (PRINT_ALL, "ref_gl2 version: %s\n", REF_VERSION);
 
 	Draw_GetPalette ();
 
@@ -1169,15 +1169,15 @@ int R_Init( void *hinstance, void *hWnd )
 	/*
 	** get our various GL strings
 	*/
-	gl_config.vendor_string = glGetString (GL_VENDOR);
+	gl_config.vendor_string = (char*)glGetString (GL_VENDOR);
 	ri.Con_Printf (PRINT_ALL, "GL_VENDOR: %s\n", gl_config.vendor_string );
-	gl_config.renderer_string = glGetString (GL_RENDERER);
+	gl_config.renderer_string = (char*)glGetString (GL_RENDERER);
 	ri.Con_Printf (PRINT_ALL, "GL_RENDERER: %s\n", gl_config.renderer_string );
-	gl_config.version_string = glGetString (GL_VERSION);
+	gl_config.version_string = (char*)glGetString (GL_VERSION);
 	ri.Con_Printf (PRINT_ALL, "GL_VERSION: %s\n", gl_config.version_string );
 
-	// TODO: zCubed: Same issue as before, Quake doesn't like HUGE logs, and OpenGL 4 has SO MANY extensions!
-	gl_config.extensions_string = glGetString (GL_EXTENSIONS);
+	// TODO: zCubed: Same issue as before, Quake doesn't like HUGE logs, and modern OpenGL drivers have SO MANY extensions!
+	gl_config.extensions_string = (char*)glGetString (GL_EXTENSIONS);
 	//ri.Con_Printf (PRINT_ALL, "GL_EXTENSIONS: %s\n", gl_config.extensions_string );
 
 	strcpy( renderer_buffer, gl_config.renderer_string );
