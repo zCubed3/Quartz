@@ -723,14 +723,14 @@ void R_SetupGL (void)
     glLoadIdentity ();
     MYgluPerspective (r_newrefdef.fov_y,  screenaspect,  4,  4096);
 
-    ri.Con_Printf(PRINT_ALL, "-------------------------------\n");
-    ri.Con_Printf(PRINT_ALL, "%f, %f, %f\n", r_newrefdef.vieworg[0], r_newrefdef.vieworg[1], r_newrefdef.vieworg[2]);
-    ri.Con_Printf(PRINT_ALL, "-------------------------------\n");
-    ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n", r_world_matrix[0], r_world_matrix[1], r_world_matrix[2], r_world_matrix[3]);
-    ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n",  r_world_matrix[4], r_world_matrix[5], r_world_matrix[6], r_world_matrix[7]);
-    ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n",  r_world_matrix[8], r_world_matrix[9], r_world_matrix[10], r_world_matrix[11]);
-    ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n",  r_world_matrix[12], r_world_matrix[13], r_world_matrix[14], r_world_matrix[15]);
-    ri.Con_Printf(PRINT_ALL, "-------------------------------\n");
+    //ri.Con_Printf(PRINT_ALL, "-------------------------------\n");
+    //ri.Con_Printf(PRINT_ALL, "%f, %f, %f\n", r_newrefdef.vieworg[0], r_newrefdef.vieworg[1], r_newrefdef.vieworg[2]);
+    //ri.Con_Printf(PRINT_ALL, "-------------------------------\n");
+    //ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n", r_world_matrix[0], r_world_matrix[1], r_world_matrix[2], r_world_matrix[3]);
+    //ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n",  r_world_matrix[4], r_world_matrix[5], r_world_matrix[6], r_world_matrix[7]);
+    //ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n",  r_world_matrix[8], r_world_matrix[9], r_world_matrix[10], r_world_matrix[11]);
+    //ri.Con_Printf(PRINT_ALL, "%f, %f, %f, %f\n",  r_world_matrix[12], r_world_matrix[13], r_world_matrix[14], r_world_matrix[15]);
+    //ri.Con_Printf(PRINT_ALL, "-------------------------------\n");
 
 	glCullFace(GL_FRONT);
 
