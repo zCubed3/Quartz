@@ -44,8 +44,6 @@ typedef struct
 #endif
 } glwstate_t;
 
-extern "C" {
-	extern glwstate_t glw_state;
-}
+extern glwstate_t glw_state;
 
 #endif

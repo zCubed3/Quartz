@@ -13,25 +13,25 @@ include(${CMAKE_SOURCE_DIR}/server/CMakeLists.txt)
 list(APPEND CLIENT_SRCS
     ${SERVER_SRCS}
 
-    "${QCOMMON_DIR}/crc.c"
-    "${QCOMMON_DIR}/cmodel.c"
+    "${QCOMMON_DIR}/crc.cpp"
+    "${QCOMMON_DIR}/cmodel.cpp"
     "${QCOMMON_DIR}/common.cpp"
-    "${QCOMMON_DIR}/files.c"
-    "${QCOMMON_DIR}/net_chan.c"
-    "${QCOMMON_DIR}/pmove.c"
-    "${QCOMMON_DIR}/md4.c"
+    "${QCOMMON_DIR}/files.cpp"
+    "${QCOMMON_DIR}/net_chan.cpp"
+    "${QCOMMON_DIR}/pmove.cpp"
+    "${QCOMMON_DIR}/md4.cpp"
 
-    "${CMAKE_SOURCE_DIR}/games/quake2/q_shared.c"
-    "${CMAKE_SOURCE_DIR}/games/quake2/m_flash.c"
+    "${CMAKE_SOURCE_DIR}/games/quake2/q_shared.cpp"
+    "${CMAKE_SOURCE_DIR}/games/quake2/m_flash.cpp"
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_sdl.cpp"
-    "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_menu.c"
+    "${CMAKE_SOURCE_DIR}/platforms/sdl/vid_menu.cpp"
 
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_input_sdl.cpp"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_system_sdl.cpp"
     "${CMAKE_SOURCE_DIR}/platforms/sdl/id_shared_sdl.cpp"
 
-    "${CMAKE_SOURCE_DIR}/platforms/null/cd_null.c" # TODO: Replace CD Audio!
+    "${CMAKE_SOURCE_DIR}/platforms/null/cd_null.cpp" # TODO: Replace CD Audio!
 
     "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui.cpp"
     "${CMAKE_SOURCE_DIR}/third_party/imgui/imgui_tables.cpp"
@@ -63,8 +63,8 @@ list(APPEND CLIENT_DEFS
 #
 if (WIN32)
     list(APPEND CLIENT_SRCS
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/win32/net_wins.c"
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/win32/snd_win.c"
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/win32/net_wins.cpp"
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/win32/snd_win.cpp"
 
         "${CMAKE_SOURCE_DIR}/platforms/sdl/q2.rc"
     )
@@ -77,8 +77,8 @@ endif()
 
 if (APPLE)
     list(APPEND CLIENT_SRCS
-        "${CMAKE_SOURCE_DIR}/platforms/sdl/posix/net_posix.c"
-        "${CMAKE_SOURCE_DIR}/platforms/null/snddma_null.c"
+        "${CMAKE_SOURCE_DIR}/platforms/sdl/posix/net_posix.cpp"
+        "${CMAKE_SOURCE_DIR}/platforms/null/snddma_null.cpp"
     )
 endif()
 

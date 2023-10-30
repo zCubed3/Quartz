@@ -32,9 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../../client/id_system.hpp"
 
-extern "C" {
-	#include "../../qcore/qlib.h"
-};
+#include "../../qcore/qlib.h"
 
 class idSystemSDL : public idSystem
 {

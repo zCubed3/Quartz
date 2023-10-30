@@ -29,10 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
-extern "C" {
-	#include "../../client/client.h"
-	#include "sdlquake.h"
-}
+#include "../../client/client.h"
+#include "sdlquake.h"
 
 //============================================================================
 
@@ -43,49 +41,46 @@ extern "C" {
 
 //============================================================================
 
-extern "C" {
-	extern unsigned 	sys_msg_time;
+extern unsigned 	sys_msg_time;
 
-	cvar_t	*in_mouse;
-	cvar_t	*in_joystick;
+cvar_t	*in_mouse;
+cvar_t	*in_joystick;
 
-	// none of these cvars are saved over a session
-	// this means that advanced controller configuration needs to be executed
-	// each time.  this avoids any problems with getting back to a default usage
-	// or when changing from one controller to another.  this way at least something
-	// works.
-	cvar_t	*joy_name;
-	cvar_t	*joy_advanced;
-	cvar_t	*joy_advaxisx;
-	cvar_t	*joy_advaxisy;
-	cvar_t	*joy_advaxisz;
-	cvar_t	*joy_advaxisr;
-	cvar_t	*joy_advaxisu;
-	cvar_t	*joy_advaxisv;
-	cvar_t	*joy_forwardthreshold;
-	cvar_t	*joy_sidethreshold;
-	cvar_t	*joy_pitchthreshold;
-	cvar_t	*joy_yawthreshold;
-	cvar_t	*joy_forwardsensitivity;
-	cvar_t	*joy_sidesensitivity;
-	cvar_t	*joy_pitchsensitivity;
-	cvar_t	*joy_yawsensitivity;
-	cvar_t	*joy_upthreshold;
-	cvar_t	*joy_upsensitivity;
+// none of these cvars are saved over a session
+// this means that advanced controller configuration needs to be executed
+// each time.  this avoids any problems with getting back to a default usage
+// or when changing from one controller to another.  this way at least something
+// works.
+cvar_t	*joy_name;
+cvar_t	*joy_advanced;
+cvar_t	*joy_advaxisx;
+cvar_t	*joy_advaxisy;
+cvar_t	*joy_advaxisz;
+cvar_t	*joy_advaxisr;
+cvar_t	*joy_advaxisu;
+cvar_t	*joy_advaxisv;
+cvar_t	*joy_forwardthreshold;
+cvar_t	*joy_sidethreshold;
+cvar_t	*joy_pitchthreshold;
+cvar_t	*joy_yawthreshold;
+cvar_t	*joy_forwardsensitivity;
+cvar_t	*joy_sidesensitivity;
+cvar_t	*joy_pitchsensitivity;
+cvar_t	*joy_yawsensitivity;
+cvar_t	*joy_upthreshold;
+cvar_t	*joy_upsensitivity;
 
-	cvar_t	*v_centermove;
-	cvar_t	*v_centerspeed;
+cvar_t	*v_centermove;
+cvar_t	*v_centerspeed;
 
-	qboolean	joy_avail, joy_advancedinit, joy_haspov;
+qboolean	joy_avail, joy_advancedinit, joy_haspov;
 
-	qboolean	in_appactive;
+qboolean	in_appactive;
 
-	// forward-referenced functions
-	void IN_StartupJoystick (void);
-	void Joy_AdvancedUpdate_f (void);
-	void IN_JoyMove (usercmd_t *cmd);
-
-};
+// forward-referenced functions
+void IN_StartupJoystick (void);
+void Joy_AdvancedUpdate_f (void);
+void IN_JoyMove (usercmd_t *cmd);
 
 //============================================================================
 

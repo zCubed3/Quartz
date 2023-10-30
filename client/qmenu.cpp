@@ -293,7 +293,7 @@ void Menu_AdjustCursor( menuframework_s *m, int dir )
 	*/
 	if ( m->cursor >= 0 && m->cursor < m->nitems )
 	{
-		if ( ( citem = Menu_ItemAtCursor( m ) ) != 0 )
+		if (( citem = (menucommon_s*)Menu_ItemAtCursor(m)) != 0 )
 		{
 			if ( citem->type != MTYPE_SEPARATOR )
 				return;
@@ -308,7 +308,7 @@ void Menu_AdjustCursor( menuframework_s *m, int dir )
 	{
 		while ( 1 )
 		{
-			citem = Menu_ItemAtCursor( m );
+			citem = (menucommon_s*)Menu_ItemAtCursor( m );
 			if ( citem )
 				if ( citem->type != MTYPE_SEPARATOR )
 					break;
@@ -321,7 +321,7 @@ void Menu_AdjustCursor( menuframework_s *m, int dir )
 	{
 		while ( 1 )
 		{
-			citem = Menu_ItemAtCursor( m );
+			citem = (menucommon_s*)Menu_ItemAtCursor( m );
 			if ( citem )
 				if ( citem->type != MTYPE_SEPARATOR )
 					break;
@@ -375,7 +375,7 @@ void Menu_Draw( menuframework_s *menu )
 		}
 	}
 
-	item = Menu_ItemAtCursor( menu );
+	item = (menucommon_s*)Menu_ItemAtCursor( menu );
 
 	if ( item && item->cursordraw )
 	{
@@ -481,7 +481,7 @@ void *Menu_ItemAtCursor( menuframework_s *m )
 
 qboolean Menu_SelectItem( menuframework_s *s )
 {
-	menucommon_s *item = ( menucommon_s * ) Menu_ItemAtCursor( s );
+	menucommon_s *item = (menucommon_s *)Menu_ItemAtCursor( s );
 
 	if ( item )
 	{

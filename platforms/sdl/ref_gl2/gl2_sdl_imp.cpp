@@ -31,10 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 **
 */
 
-extern "C" {
-	#include "../../../renderers/ref_gl2/gl_local.h"
-	#include "../sdlquake.h"
-};
+#include "../../../renderers/ref_gl2/gl_local.h"
+#include "../sdlquake.h"
 
 #include <cassert>
 

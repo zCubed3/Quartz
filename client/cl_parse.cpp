@@ -356,18 +356,17 @@ void CL_ParseServerData (void)
 CL_ParseBaseline
 ==================
 */
-void CL_ParseBaseline (void)
-{
-	entity_state_t	*es;
-	int				bits;
-	int				newnum;
-	entity_state_t	nullstate;
+void CL_ParseBaseline (void) {
+    entity_state_t*     es;
+    int                 bits;
+    int                 newnum;
+    entity_state_t      nullstate;
 
-	memset (&nullstate, 0, sizeof(nullstate));
+    memset(&nullstate, 0, sizeof(nullstate));
 
-	newnum = CL_ParseEntityBits (&bits);
-	es = &cl_entities[newnum].baseline;
-	CL_ParseDelta (&nullstate, es, newnum, bits);
+    newnum = CL_ParseEntityBits((unsigned int*) &bits);
+    es = &cl_entities[newnum].baseline;
+    CL_ParseDelta(&nullstate, es, newnum, bits);
 }
 
 

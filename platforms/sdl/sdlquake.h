@@ -24,14 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
-#ifdef __cplusplus
-
-extern "C" {
-
-#endif
-
-//============================================================================
-
 #if defined(WIN32)
 
 #include <Windows.h>
@@ -67,14 +59,6 @@ extern unsigned sys_msg_time, sys_frame_time;
 
 void VID_InitImGui(void);
 void VID_ShutdownImGui(void);
-
-#endif
-
-//============================================================================
-
-#ifdef __cplusplus
-
-};
 
 #endif
 

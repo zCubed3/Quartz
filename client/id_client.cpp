@@ -29,9 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //============================================================================
 
-extern "C" {
-	#include "client.h"
-}
+#include "client.h"
 
 //============================================================================
 
@@ -42,120 +40,120 @@ extern "C" {
 
 //============================================================================
 
-extern "C" {
-	extern cvar_t*		cl_maxfps;
-	extern cvar_t*		freelook;
+extern cvar_t*		cl_maxfps;
+extern cvar_t*		freelook;
 
-	extern cvar_t*		adr0;
-	extern cvar_t*		adr1;
-	extern cvar_t*		adr2;
-	extern cvar_t*		adr3;
-	extern cvar_t*		adr4;
-	extern cvar_t*		adr5;
-	extern cvar_t*		adr6;
-	extern cvar_t*		adr7;
-	extern cvar_t*		adr8;
+extern cvar_t*		adr0;
+extern cvar_t*		adr1;
+extern cvar_t*		adr2;
+extern cvar_t*		adr3;
+extern cvar_t*		adr4;
+extern cvar_t*		adr5;
+extern cvar_t*		adr6;
+extern cvar_t*		adr7;
+extern cvar_t*		adr8;
 
-	extern cvar_t*		cl_stereo_separation;
-	extern cvar_t*		cl_stereo;
+extern cvar_t*		cl_stereo_separation;
+extern cvar_t*		cl_stereo;
 
-	extern cvar_t*		rcon_client_password;
-	extern cvar_t*		rcon_address;
+extern cvar_t*		rcon_client_password;
+extern cvar_t*		rcon_address;
 
-	extern cvar_t*		cl_noskins;
-	extern cvar_t*		cl_autoskins;
-	extern cvar_t*		cl_footsteps;
-	extern cvar_t*		cl_timeout;
-	extern cvar_t*		cl_predict;
-	//extern cvar_t		*cl_minfps;
-	extern cvar_t*		cl_maxfps;
-	extern cvar_t*		cl_gun;
+extern cvar_t*		cl_noskins;
+extern cvar_t*		cl_autoskins;
+extern cvar_t*		cl_footsteps;
+extern cvar_t*		cl_timeout;
+extern cvar_t*		cl_predict;
+//extern cvar_t		*cl_minfps;
+extern cvar_t*		cl_maxfps;
+extern cvar_t*		cl_gun;
 
-	extern cvar_t*		cl_add_particles;
-	extern cvar_t*		cl_add_lights;
-	extern cvar_t*		cl_add_entities;
-	extern cvar_t*		cl_add_blend;
+extern cvar_t*		cl_add_particles;
+extern cvar_t*		cl_add_lights;
+extern cvar_t*		cl_add_entities;
+extern cvar_t*		cl_add_blend;
 
-	extern cvar_t*		cl_shownet;
-	extern cvar_t*		cl_showmiss;
-	extern cvar_t*		cl_showclamp;
+extern cvar_t*		cl_shownet;
+extern cvar_t*		cl_showmiss;
+extern cvar_t*		cl_showclamp;
 
-	extern cvar_t*		cl_paused;
-	extern cvar_t*		cl_timedemo;
+extern cvar_t*		cl_paused;
+extern cvar_t*		cl_timedemo;
 
-	extern cvar_t*		lookspring;
-	extern cvar_t*		lookstrafe;
-	extern cvar_t*		sensitivity;
+extern cvar_t*		lookspring;
+extern cvar_t*		lookstrafe;
+extern cvar_t*		sensitivity;
 
-	extern cvar_t*		m_pitch;
-	extern cvar_t*		m_yaw;
-	extern cvar_t*		m_forward;
-	extern cvar_t*		m_side;
+extern cvar_t*		m_pitch;
+extern cvar_t*		m_yaw;
+extern cvar_t*		m_forward;
+extern cvar_t*		m_side;
 
-	extern cvar_t*		cl_lightlevel;
+extern cvar_t*		cl_lightlevel;
 
-	extern cvar_t*		cl_nodelta;
+extern cvar_t*		cl_nodelta;
 
-	//
-	// userinfo
-	//
-	extern cvar_t*		info_password;
-	extern cvar_t*		info_spectator;
-	extern cvar_t*		name;
-	extern cvar_t*		skin;
-	extern cvar_t*		rate;
-	extern cvar_t*		fov;
-	cvar_t*				v_fov;
-	extern cvar_t*		msg;
-	extern cvar_t*		hand;
-	extern cvar_t*		gender;
-	extern cvar_t*		gender_auto;
+//
+// userinfo
+//
+extern cvar_t*		info_password;
+extern cvar_t*		info_spectator;
+extern cvar_t*		name;
+extern cvar_t*		skin;
+extern cvar_t*		rate;
+extern cvar_t*		fov;
+cvar_t*				v_fov;
+extern cvar_t*		msg;
+extern cvar_t*		hand;
+extern cvar_t*		gender;
+extern cvar_t*		gender_auto;
 
-	extern cvar_t*		cl_vwep;
+extern cvar_t*		cl_vwep;
 
-	//
-	// imgui
-	//
+//
+// imgui
+//
 #ifdef USE_IMGUI
-	cvar_t*				imgui_visible;
-	cvar_t*				imgui_showdemo;
+
+cvar_t*				imgui_visible;
+cvar_t*				imgui_showdemo;
+
 #endif
 
-	extern client_static_t	cls;
-	extern client_state_t	cl;
+extern client_static_t	cls;
+extern client_state_t	cl;
 
-	extern centity_t		cl_entities[MAX_EDICTS];
+extern centity_t		cl_entities[MAX_EDICTS];
 
-	extern entity_state_t	cl_parse_entities[MAX_PARSE_ENTITIES];
+extern entity_state_t	cl_parse_entities[MAX_PARSE_ENTITIES];
 
-	extern cvar_t 	*allow_download;
-	extern cvar_t 	*allow_download_players;
-	extern cvar_t 	*allow_download_models;
-	extern cvar_t 	*allow_download_sounds;
-	extern cvar_t 	*allow_download_maps;
+extern cvar_t 	*allow_download;
+extern cvar_t 	*allow_download_players;
+extern cvar_t 	*allow_download_models;
+extern cvar_t 	*allow_download_sounds;
+extern cvar_t 	*allow_download_maps;
 
-	extern unsigned	sys_frame_time;
-	extern unsigned	frame_msec;
-	extern unsigned	old_sys_frame_time;
+extern unsigned	sys_frame_time;
+extern unsigned	frame_msec;
+extern unsigned	old_sys_frame_time;
 
 // TODO: Don't forward declare this
-	extern void 	CL_ConnectionlessPacket(void);
-	extern void		CL_FixCvarCheats(void);
-	extern void		CL_CheckForResend(void);
-	extern void		CL_WriteConfiguration(void);
+extern void 	CL_ConnectionlessPacket(void);
+extern void		CL_FixCvarCheats(void);
+extern void		CL_CheckForResend(void);
+extern void		CL_WriteConfiguration(void);
 
-	extern void 	CL_ForwardToServer_f(void);
-	extern void 	CL_Pause_f(void);
-	extern void 	CL_Skins_f(void);
-	extern void 	CL_Userinfo_f(void);
-	extern void 	CL_Changing_f(void);
-	extern void 	CL_Connect_f(void);
-	extern void 	CL_Reconnect_f(void);
-	extern void 	CL_Rcon_f(void);
-	extern void 	CL_Setenv_f(void);
-	extern void 	CL_Precache_f(void);
-	extern void		CL_FinishMove(usercmd_t* cmd);
-};
+extern void 	CL_ForwardToServer_f(void);
+extern void 	CL_Pause_f(void);
+extern void 	CL_Skins_f(void);
+extern void 	CL_Userinfo_f(void);
+extern void 	CL_Changing_f(void);
+extern void 	CL_Connect_f(void);
+extern void 	CL_Reconnect_f(void);
+extern void 	CL_Rcon_f(void);
+extern void 	CL_Setenv_f(void);
+extern void 	CL_Precache_f(void);
+extern void		CL_FinishMove(usercmd_t* cmd);
 
 //============================================================================
 

@@ -22,13 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // is used for both the software and OpenGL rendering versions of the
 // Quake refresh engine.
 
-extern "C" {
-	#include "../../client/client.h"
+#include "../../client/client.h"
+#include "../../qcore/qlib.h"
 
-	#include "../../qcore/qlib.h"
-
-	#include "sdlquake.h"
-};
+#include "sdlquake.h"
 
 #include "../../client/id_input.hpp"
 
@@ -38,32 +35,30 @@ extern "C" {
 #include <imgui.h>
 #endif
 
-extern "C" {
-	// Structure containing functions exported from refresh DLL
-	refexport_t	re;
+// Structure containing functions exported from refresh DLL
+refexport_t	re;
 
-	// Console variables that we need to access from this module
-	cvar_t		*vid_gamma;
-	cvar_t		*vid_ref;			// Name of Refresh DLL loaded
-	cvar_t		*vid_xpos;			// X coordinate of window position
-	cvar_t		*vid_ypos;			// Y coordinate of window position
-	cvar_t		*vid_fullscreen;
+// Console variables that we need to access from this module
+cvar_t		*vid_gamma;
+cvar_t		*vid_ref;			// Name of Refresh DLL loaded
+cvar_t		*vid_xpos;			// X coordinate of window position
+cvar_t		*vid_ypos;			// Y coordinate of window position
+cvar_t		*vid_fullscreen;
 
-	// Global variables used internally by this module
-	viddef_t	viddef;				// global video state; used by other modules
-	qlib		qlib_ref;			// Handle to refresh DLL
-	qboolean	reflib_active = 0;
+// Global variables used internally by this module
+viddef_t	viddef;				// global video state; used by other modules
+qlib		qlib_ref;			// Handle to refresh DLL
+qboolean	reflib_active = 0;
 
 #ifdef WIN32
-	HWND        cl_hwnd;
+HWND        cl_hwnd;
 #endif
 
-	SDL_Window	*cl_window;			// SDL window handle
+SDL_Window	*cl_window;			// SDL window handle
 
-	#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
+#define VID_NUM_MODES ( sizeof( vid_modes ) / sizeof( vid_modes[0] ) )
 
-	extern	unsigned	sys_msg_time;
-};
+extern	unsigned	sys_msg_time;
 
 /*
 ==========================================================================
@@ -271,7 +266,7 @@ qboolean VID_LoadRefresh( char *name )
 	ri.FS_LoadFile 			= FS_LoadFile;
 	ri.FS_FreeFile 			= FS_FreeFile;
 	ri.FS_Gamedir 			= FS_Gamedir;
-	ri.Cvar_Get 			= CAST_FUNC(Cvar_Get, cvar_t*, char*, char*, int);
+	ri.Cvar_Get 			= Cvar_Get;
 	ri.Cvar_Set 			= Cvar_Set;
 	ri.Cvar_SetValue 		= Cvar_SetValue;
 	ri.Vid_GetModeInfo 		= VID_GetModeInfo;

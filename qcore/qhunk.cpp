@@ -46,7 +46,7 @@ void *Hunk_Begin(int maxsize)
 	cursize = 0;
 	hunkmaxsize = maxsize;
 
-	membase = malloc(maxsize);
+	membase = (unsigned char*)malloc(maxsize);
 	memset(membase, 0, maxsize);
 
 	if (!membase)

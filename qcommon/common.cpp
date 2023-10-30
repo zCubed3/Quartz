@@ -1031,7 +1031,7 @@ int	memsearch (byte *start, int count, int search)
 }
 
 
-char *CopyString (char *in)
+char *CopyString (const char *in)
 {
 	char	*out;
 	
@@ -1383,10 +1383,8 @@ float	crand(void)
 }
 
 // TODO: Replace these ugly extern blocks
-extern "C" {
-	void Key_Init(void);
-	void SCR_EndLoadingPlaque(void);
-}
+void Key_Init(void);
+void SCR_EndLoadingPlaque(void);
 
 /*
 =============
@@ -1501,10 +1499,8 @@ void Qcommon_Init (int argc, char **argv)
 Qcommon_Frame
 =================
 */
-extern "C" {
-	extern int c_traces, c_brush_traces;
-	extern int c_pointcontents;
-}
+extern int c_traces, c_brush_traces;
+extern int c_pointcontents;
 
 void Qcommon_Frame (int msec)
 {

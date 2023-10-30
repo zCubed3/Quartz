@@ -19,6 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include "client.h"
 
+#include <cctype> // For toupper
+
 /*
 
 key up events are sent even if in console mode
@@ -505,7 +507,7 @@ Key_SetBinding
 */
 void Key_SetBinding (int keynum, char *binding)
 {
-	char	*new;
+	char	*new_bind;
 	int		l;
 			
 	if (keynum == -1)
@@ -519,11 +521,11 @@ void Key_SetBinding (int keynum, char *binding)
 	}
 			
 // allocate memory for new binding
-	l = strlen (binding);	
-	new = Z_Malloc (l+1);
-	strcpy (new, binding);
-	new[l] = 0;
-	keybindings[keynum] = new;	
+	l = strlen (binding);
+    new_bind = (char*)Z_Malloc (l+1);
+	strcpy (new_bind, binding);
+    new_bind[l] = 0;
+	keybindings[keynum] = new_bind;
 }
 
 /*

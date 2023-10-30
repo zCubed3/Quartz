@@ -42,12 +42,12 @@ qlib QLib_LoadLibrary(const char* path)
 
 int QLib_UnloadLibrary(qlib lib)
 {
-	return FreeLibrary(lib);
+	return FreeLibrary((HMODULE)lib);
 }
 
 qlib_fptr QLib_GetFuncPtr(qlib lib, const char* func)
 {
-	return (qlib_fptr)GetProcAddress(lib, func);
+	return (qlib_fptr)GetProcAddress((HMODULE)lib, func);
 }
 
 //============================================================================

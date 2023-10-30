@@ -190,7 +190,7 @@ void R_RenderFrame(refdef_t *fd)
         model = glm::translate(glm::identity<glm::mat4x4>(), glm::vec3(e->origin[0], e->origin[1], e->origin[2]));
 
         model *= glm::rotate(glm::radians(e->angles[1]), glm::vec3(0, 0, 1));
-        model *= glm::rotate(glm::radians(-e->angles[0]), glm::vec3(0, 1, 0));
+        model *= glm::rotate(glm::radians(e->angles[0]), glm::vec3(0, 1, 0));
         model *= glm::rotate(glm::radians(-e->angles[2]), glm::vec3(1, 0, 0));
 
 		glUniformMatrix4fv(u_model, 1, GL_FALSE, glm::value_ptr(model));

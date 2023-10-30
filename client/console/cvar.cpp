@@ -33,14 +33,17 @@ cvar_t	*cvar_vars;
 Cvar_InfoValidate
 ============
 */
-static qboolean Cvar_InfoValidate (char *s)
+static qboolean Cvar_InfoValidate(const char *s)
 {
 	if (strstr (s, "\\"))
 		return false;
-	if (strstr (s, "\""))
+
+    if (strstr (s, "\""))
 		return false;
-	if (strstr (s, ";"))
+
+    if (strstr (s, ";"))
 		return false;
+
 	return true;
 }
 
@@ -49,7 +52,7 @@ static qboolean Cvar_InfoValidate (char *s)
 Cvar_FindVar
 ============
 */
-static cvar_t *Cvar_FindVar (char *var_name)
+static cvar_t *Cvar_FindVar(const char *var_name)
 {
 	cvar_t	*var;
 	
@@ -65,11 +68,11 @@ static cvar_t *Cvar_FindVar (char *var_name)
 Cvar_VariableValue
 ============
 */
-float Cvar_VariableValue (char *var_name)
+float Cvar_VariableValue(const char *var_name)
 {
 	cvar_t	*var;
 	
-	var = Cvar_FindVar (var_name);
+	var = Cvar_FindVar(var_name);
 	if (!var)
 		return 0;
 	return atof (var->string);
@@ -81,7 +84,7 @@ float Cvar_VariableValue (char *var_name)
 Cvar_VariableString
 ============
 */
-char *Cvar_VariableString (char *var_name)
+char *Cvar_VariableString (const char *var_name)
 {
 	cvar_t *var;
 	
@@ -145,7 +148,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int flags)
 	var = Cvar_FindVar (var_name);
 	if (var)
 	{
-		var->flags |= flags;
+		var->flags = (cvar_flags_t)(var->flags | flags);
 		return var;
 	}
 
@@ -161,7 +164,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int flags)
 		}
 	}
 
-	var = Z_Malloc (sizeof(*var));
+	var = (cvar_t*)(Z_Malloc(sizeof(*var)));
 	var->name = CopyString (var_name);
 	var->string = CopyString (var_value);
 	var->modified = true;
@@ -171,7 +174,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int flags)
 	var->next = cvar_vars;
 	cvar_vars = var;
 
-	var->flags = flags;
+	var->flags = (cvar_flags_t)flags;
 
 	return var;
 }
@@ -181,7 +184,7 @@ cvar_t *Cvar_Get (const char *var_name, const char *var_value, int flags)
 Cvar_Set2
 ============
 */
-cvar_t *Cvar_Set2 (char *var_name, char *value, qboolean force)
+cvar_t *Cvar_Set2 (const char *var_name, const char *value, qboolean force)
 {
 	cvar_t	*var;
 
@@ -270,7 +273,7 @@ cvar_t *Cvar_Set2 (char *var_name, char *value, qboolean force)
 Cvar_ForceSet
 ============
 */
-cvar_t *Cvar_ForceSet (char *var_name, char *value)
+cvar_t *Cvar_ForceSet (const char *var_name, const char *value)
 {
 	return Cvar_Set2 (var_name, value, true);
 }
@@ -280,7 +283,7 @@ cvar_t *Cvar_ForceSet (char *var_name, char *value)
 Cvar_Set
 ============
 */
-cvar_t *Cvar_Set (char *var_name, char *value)
+cvar_t *Cvar_Set (const char *var_name, const char *value)
 {
 	return Cvar_Set2 (var_name, value, false);
 }
@@ -290,7 +293,7 @@ cvar_t *Cvar_Set (char *var_name, char *value)
 Cvar_FullSet
 ============
 */
-cvar_t *Cvar_FullSet (char *var_name, char *value, int flags)
+cvar_t *Cvar_FullSet (const char *var_name, const char *value, int flags)
 {
 	cvar_t	*var;
 	
@@ -309,7 +312,7 @@ cvar_t *Cvar_FullSet (char *var_name, char *value, int flags)
 	
 	var->string = CopyString(value);
 	var->value = atof (var->string);
-	var->flags = flags;
+	var->flags = (cvar_flags_t)flags;
 
 	return var;
 }
@@ -319,7 +322,7 @@ cvar_t *Cvar_FullSet (char *var_name, char *value, int flags)
 Cvar_SetValue
 ============
 */
-void Cvar_SetValue (char *var_name, float value)
+void Cvar_SetValue (const char *var_name, float value)
 {
 	char	val[32];
 

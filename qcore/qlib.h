@@ -39,16 +39,16 @@ typedef 	void*(*qlib_fptr)(void*);
 
 //============================================================================
 
-QEXTERN_VAR const char*		qlib_postfix;
-QEXTERN_VAR const char*		qlib_prefix;
+extern const char*		qlib_postfix;
+extern const char*		qlib_prefix;
 
 //============================================================================
 
-QEXTERN_FUNC void* QLib_LoadLibrary(const char* path);
+extern void* QLib_LoadLibrary(const char* path);
 
-QEXTERN_FUNC int QLib_UnloadLibrary(void* lib);
+extern int QLib_UnloadLibrary(void* lib);
 
-QEXTERN_FUNC qlib_fptr QLib_GetFuncPtr(void* lib, const char* func);
+extern qlib_fptr QLib_GetFuncPtr(void* lib, const char* func);
 
 //============================================================================
 

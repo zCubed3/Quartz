@@ -29,11 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../../client/id_client.hpp"
 
-extern "C" {
-	#include "../../qcommon/qcommon.h"
-
-	#include "sdlquake.h"
-};
+#include "../../qcommon/qcommon.h"
+#include "sdlquake.h"
 
 #include <cerrno>
 #include <cstdio>
