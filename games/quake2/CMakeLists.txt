@@ -2,7 +2,7 @@
 # Executable variables
 #
 file(GLOB_RECURSE GAME_SRCS
-    ${CMAKE_CURRENT_LIST_DIR}/*.c
+    ${CMAKE_CURRENT_LIST_DIR}/*.cpp
     ${CMAKE_CURRENT_LIST_DIR}/*.h
 )
 
