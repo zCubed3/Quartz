@@ -1,6 +1,6 @@
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 2023-2024 Liam Reese (zCubed3)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,6 +34,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <vector>
 
 #include <glm/glm.hpp>
+
+//============================================================================
+
+// Precalculated normals
+float	r_avertexnormals[NUMVERTEXNORMALS][3] = {
+#include "../anorms.hpp"
+};
 
 //============================================================================
 
@@ -123,6 +130,10 @@ void Mod_LoadAliasModel (model_t *mod, char *buffer)
             vertices[v + offset].position[0] += frame->translate[0];
             vertices[v + offset].position[1] += frame->translate[1];
             vertices[v + offset].position[2] += frame->translate[2];
+
+            vertices[v + offset].normal[0] = r_avertexnormals[frame->verts[v].lightnormalindex][0];
+            vertices[v + offset].normal[1] = r_avertexnormals[frame->verts[v].lightnormalindex][1];
+            vertices[v + offset].normal[2] = r_avertexnormals[frame->verts[v].lightnormalindex][2];
         }
     }
 
@@ -196,6 +207,9 @@ void OGL_DrawModel(struct model_s* model, int frame, int oldframe, float backler
     for (int v = 0; v < model->vert_count; v++) {
         model->vertex_scratch[v].position
             = glm::mix(model->vertex_data[start + v].position, model->vertex_data[end + v].position, backlerp);
+
+        model->vertex_scratch[v].normal
+            = glm::mix(model->vertex_data[start + v].normal, model->vertex_data[end + v].normal, backlerp);
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, model->gl_vbo);

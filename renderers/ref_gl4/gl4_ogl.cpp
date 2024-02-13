@@ -1,6 +1,6 @@
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 2023-2024 Liam Reese (zCubed3)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -63,12 +63,15 @@ qboolean OGL_Init()
 	//
 	// Create an SDL window
 	//
+    const int WIDTH = 1024;
+    const int HEIGHT = 768;
+
 	gl4_state.sdl_window = SDL_CreateWindow(
 		"Zealot [OpenGL 4.0]",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		640,
-		480,
+        WIDTH,
+        HEIGHT,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE
 	);
 
@@ -127,7 +130,7 @@ qboolean OGL_Init()
 	//
 	// Tell everyone about our new window
 	//
-	R_NewWindow(640, 480, 0);
+	R_NewWindow(WIDTH, HEIGHT, 0);
 
 	//
 	// Done!
@@ -175,8 +178,10 @@ void OGL_CleanupSDL()
 //
 void OGL_DefaultState()
 {
-	//glEnable(GL_CULL_FACE);
-	//glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+
+	glCullFace(GL_FRONT);
 }
 
 //

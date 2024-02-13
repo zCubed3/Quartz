@@ -1,6 +1,6 @@
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 2023-2024 Liam Reese (zCubed3)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -192,6 +192,10 @@ void Draw_FlushCharQueue()
 	//
 	// Set up the GL state
 	//
+    // TODO: Not do this
+    glDepthFunc(GL_ALWAYS);
+    glCullFace(GL_BACK);
+
 	OGL_BindImage(image_conchars);
 	OGL_BindShader(shader_draw_char);
 

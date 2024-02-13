@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 2023-2024 Liam Reese (zCubed3)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,8 +26,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 out vec4 out_FragColor;
 
-in vec4 v_Color;
+in vec3 v_Position;
+in vec3 v_Normal;
+in vec2 v_TexCoord;
 
 void main() {
-    out_FragColor = v_Color;
+    const vec3 LIGHT_DIR = vec3(0, 0, 1);
+    out_FragColor.xyz = vec3(dot(LIGHT_DIR, normalize(v_Normal)));
 }

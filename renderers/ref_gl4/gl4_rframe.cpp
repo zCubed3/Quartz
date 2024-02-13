@@ -1,6 +1,6 @@
 /*
 Copyright (C) 1997-2001 Id Software, Inc.
-Copyright (C) 2023 zCubed3 (Liam R.)
+Copyright (C) 2023-2024 Liam Reese (zCubed3)
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -118,12 +118,13 @@ void R_RenderFrame(refdef_t *fd)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, gl4_state.width, gl4_state.height);
 
+    glDepthFunc(GL_LESS);
+    glCullFace(GL_FRONT);
+
 	//
 	// Calculate our view projection matrices
 	//
     glm::mat4x4	projection, view, view_projection;
-
-    glm::mat4x4 model;
     glm::mat4x4 correction_matrix;
 
     correction_matrix = {
@@ -145,17 +146,13 @@ void R_RenderFrame(refdef_t *fd)
 
     ImGui::Begin("GL4 Debugging");
 
-    //ImGui::Text("Cam Pos: %f, %f, %f", origin.x, origin.y, origin.z);
-    //ImGui::Text("Cam Rot: %f, %f, %f", fd->viewangles[0], fd->viewangles[1], fd->viewangles[2]);
+    ImGui::Text("Cam Pos: %f, %f, %f", fd->vieworg[0], fd->vieworg[1], fd->vieworg[2]);
+    ImGui::Text("Cam Rot: %f, %f, %f", fd->viewangles[0], fd->viewangles[1], fd->viewangles[2]);
 
-    ImGui::Text("%f, %f, %f", fd->vieworg[0], fd->vieworg[1], fd->vieworg[2]);
-
-    ImGui::Spacing();
-
-    ImGui::Text("%f, %f, %f, %f", view[0][0], view[0][1], view[0][2], view[0][3]);
-    ImGui::Text("%f, %f, %f, %f", view[1][0], view[1][1], view[1][2], view[1][3]);
-    ImGui::Text("%f, %f, %f, %f", view[2][0], view[2][1], view[2][2], view[2][3]);
-    ImGui::Text("%f, %f, %f, %f", view[3][0], view[3][1], view[3][2], view[3][3]);
+    //ImGui::Text("%f, %f, %f, %f", view[0][0], view[0][1], view[0][2], view[0][3]);
+    //ImGui::Text("%f, %f, %f, %f", view[1][0], view[1][1], view[1][2], view[1][3]);
+    //ImGui::Text("%f, %f, %f, %f", view[2][0], view[2][1], view[2][2], view[2][3]);
+    //ImGui::Text("%f, %f, %f, %f", view[3][0], view[3][1], view[3][2], view[3][3]);
 
     ImGui::End();
 
@@ -164,13 +161,14 @@ void R_RenderFrame(refdef_t *fd)
 	//
 	// Draw the debug triangle
 	//
-	GLuint	u_viewprojection, u_model;
+	GLuint	u_viewprojection, u_model, u_model_it;
 
 	{
 		OGL_BindShader(shader_unlit_model);
 
 		u_viewprojection = glGetUniformLocation(shader_unlit_model->handle, "u_ViewProjection");
-		u_model = glGetUniformLocation(shader_unlit_model->handle, "u_Model");
+        u_model = glGetUniformLocation(shader_unlit_model->handle, "u_Model");
+        u_model_it = glGetUniformLocation(shader_unlit_model->handle, "u_Model_IT");
 
 		glUniformMatrix4fv(u_viewprojection, 1, GL_FALSE, glm::value_ptr(view_projection));
 	}
@@ -180,6 +178,8 @@ void R_RenderFrame(refdef_t *fd)
 	//
 	// Draw our queue
 	//
+    glm::mat4x4 model, model_it;
+
 	for (size_t m = 0; m < fd->num_entities; m++)
 	{
 		struct entity_s* 	e;
@@ -193,7 +193,10 @@ void R_RenderFrame(refdef_t *fd)
         model *= glm::rotate(glm::radians(e->angles[0]), glm::vec3(0, 1, 0));
         model *= glm::rotate(glm::radians(-e->angles[2]), glm::vec3(1, 0, 0));
 
-		glUniformMatrix4fv(u_model, 1, GL_FALSE, glm::value_ptr(model));
+        model_it = glm::transpose(glm::inverse(model));
+
+        glUniformMatrix4fv(u_model, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(u_model_it, 1, GL_FALSE, glm::value_ptr(model_it));
 
 		if (e->model != nullptr)
 			OGL_DrawModel(e->model, e->frame, e->oldframe, e->backlerp);
